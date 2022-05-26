@@ -6,14 +6,21 @@ import {
   GoogleAuthProvider,
 } from 'firebase/auth';
 
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from 'firebase/firestore';
+
 const firebaseConfig = {
-  apiKey: 'AIzaSyDDU4V-_QV3M8GyhC9SVieRTDM4dbiT0Yk',
-  authDomain: 'crwn-clothing-db-98d4d.firebaseapp.com',
-  projectId: 'crwn-clothing-db-98d4d',
-  storageBucket: 'crwn-clothing-db-98d4d.appspot.com',
-  messagingSenderId: '626766232035',
-  appId: '1:626766232035:web:506621582dab103a4d08d6',
-};
+    apiKey: "AIzaSyAJXMojLhgxbQfAG4XLJZC1hM1_uip7pq0",
+    authDomain: "shop-app-udemy-fe5b1.firebaseapp.com",
+    projectId: "shop-app-udemy-fe5b1",
+    storageBucket: "shop-app-udemy-fe5b1.appspot.com",
+    messagingSenderId: "762976926664",
+    appId: "1:762976926664:web:1515f7739577f57c6a5efd"
+  };
 
 const firebaseApp = initializeApp(firebaseConfig);
 
@@ -31,3 +38,32 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
 
 export const auth = getAuth();
 export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+
+export const db = getFirestore();
+
+export const createUserDocumentFromAuth = async (userAuth) => {
+  const userDocRef = doc(db, 'users', userAuth.uid);
+
+  console.log(userDocRef);
+
+  const userSnapshot = await getDoc(userDocRef);
+  console.log(userSnapshot);
+  console.log(userSnapshot.exists());
+
+  if(!userSnapshot.exists()) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try{
+      await setDoc(userDocRef, {
+        displayName,
+        email,
+        createdAt,
+      })
+    } catch (error) {
+      console.log('error creating user', error.message);
+    }
+  }
+
+  return userDocRef;
+} 
