@@ -1,20 +1,18 @@
 import { useState } from 'react';
-import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth } from '../../utils/firebase/firebase.utils';
+import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth, signInAuthWithEmailAndPassword } from '../../utils/firebase/firebase.utils';
 import Button from '../button/button.component';
 import FormInput from '../form-input/form-input.component';
 
-import './sign-up-form.styles.scss';
+import './sign-in-form.styles.scss';
 
 const defaultFormFields = {
-    displayName: '',
     email: '',
     password: '',
-    confirmPassword: '',
 }
 
-const SignUpForm = () => {
+const SignInForm = () => {
     const [formFields, setFormFields] = useState(defaultFormFields);
-    const { displayName, email, password, confirmPassword } = formFields;
+    const { email, password } = formFields;
 
     const handleChange = e => {
         console.log(e);
@@ -27,16 +25,13 @@ const SignUpForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("on submit");
-        if (password !== confirmPassword) {
-            alert("les mot de passe doivent etre egaux");
-            return;
-        }
         try {
-            const response = await createAuthUserWithEmailAndPassword(email, password);
+            const response = await signInAuthWithEmailAndPassword(email, password);
             console.log(response);
             if (response) {
-                const userDocRef = await createUserDocumentFromAuth({...response.user, displayName });
-                setFormFields(defaultFormFields);
+                // const userDocRef = await createUserDocumentFromAuth({...response.user, displayName });
+                // setFormFields(defaultFormFields);
+                alert("vous etes connecté");
             }
         } catch (error) {
             if (error.code === "auth/email-already-in-use") {
@@ -45,25 +40,22 @@ const SignUpForm = () => {
 
                 console.log(error.message);
             }
+            alert("vous etes PAS connecté");
         }
     }
   return (
     <div className='sign-up-container'>
-        <h2>Don't have an account?</h2>
-        <span>Sign up with your email and password</span>
+        <h2>I halready have an account</h2>
+        <span>Sign in with your email and password</span>
         <form onSubmit={handleSubmit}>
-            <FormInput label="Display Name" type="text" required onChange={handleChange} value={displayName} name="displayName" />
-            
             <FormInput label="Email" type="email" required onChange={handleChange} value={email} name="email" />
             
             <FormInput label="Password" type="password" required onChange={handleChange} value={password} name="password" />
             
-            <FormInput label="Confirm Password" type="password" required onChange={handleChange} value={confirmPassword} name="confirmPassword" />
-
-            <Button type="submit">Sign Up</Button>
+            <Button type="submit">Sign In</Button>
         </form>
     </div>
   )
 }
 
-export default SignUpForm;
+export default SignInForm;
