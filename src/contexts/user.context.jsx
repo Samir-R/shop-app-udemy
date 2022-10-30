@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useReducer, useEffect } from 'react';
 
 import {
   onAuthStateChangedListener,
@@ -10,8 +10,31 @@ export const UserContext = createContext({
   currentUser: null,
 });
 
+const USER_REDUCER_ACTION_TYPE = {
+  SET_CURRENT_USER: 'SET_CURRENT_USER'
+}
+
+const userReducer = (state, action) => {
+  switch (action.type) {
+    case USER_REDUCER_ACTION_TYPE.SET_CURRENT_USER:
+      return {
+        ...state,
+        currentUser: action.payload
+      };
+    default:
+      throw new Error('ACTION NON RECONUE');
+  }
+}
+
+const INITIAL_STATE = {
+  currentUser: null,
+}
+
 export const UserProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [{currentUser}, dispatch] = useReducer(userReducer, INITIAL_STATE)
+  
+  const setCurrentUser = (user) => dispatch({type: USER_REDUCER_ACTION_TYPE.SET_CURRENT_USER, payload: user})
+  
   const value = { currentUser, setCurrentUser };
 
   useEffect(() => {
