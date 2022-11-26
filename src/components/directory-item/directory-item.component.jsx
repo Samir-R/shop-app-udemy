@@ -1,24 +1,24 @@
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CategoriesContext } from '../../contexts/category.context';
 
 import {
   BackgroundImage,
-  Body,
   DirectoryItemContainer,
 } from './directory-item.styles';
 
 const DirectoryItem = ({ category }) => {
-  const { imageUrl, title, route } = category;
-  const navigate = useNavigate();
+  const { setCurrentCategory } = useContext(CategoriesContext);
+  const { imageUrl, name } = category;
+  // const navigate = useNavigate();
 
-  const onNavigateHandler = () => navigate(route);
+  // const onNavigateHandler = () => navigate(route);
+  const onNavigateHandler = () => (setCurrentCategory(category));
 
   return (
     <DirectoryItemContainer onClick={onNavigateHandler}>
-      <BackgroundImage imageUrl={imageUrl} />
-      <Body>
-        <h2>{title}</h2>
-        <p>Shop Now</p>
-      </Body>
+      {/* <BackgroundImage imageUrl={imageUrl} /> */}
+        <h2>{name}</h2>
     </DirectoryItemContainer>
   );
 };

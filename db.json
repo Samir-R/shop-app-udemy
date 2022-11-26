@@ -1,0 +1,342 @@
+{
+    "categories": [
+        {
+            "id":1,
+            "name":"Burger",
+            "imageUrl":"https://img.freepik.com/photos-gratuite/big-sandwich-hamburger-burger-boeuf-oignon-rouge-tomate-bacon-frit_2829-5398.jpg?w=900&t=st=1668273474~exp=1668274074~hmac=7760fc791e72a6ee6f8767857c4ffbdd988cee1f79a6d8370a6eb90291b07028",
+            "status": "INACTIVE"},
+        {"id":2,"name":"Matsoft","imageUrl":"http://dummyimage.com/138x100.png/ff4444/ffffff","status": "ACTIVE"},
+        {"id":3,"name":"Y-find","imageUrl":"http://dummyimage.com/242x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+        {"id":4,"name":"Subin","imageUrl":"http://dummyimage.com/119x100.png/ff4444/ffffff","status": "ACTIVE"},
+        {"id":5,"name":"Temp","imageUrl":"http://dummyimage.com/124x100.png/ff4444/ffffff","status": "INACTIVE"},
+        {"id":6,"name":"Stim","imageUrl":"http://dummyimage.com/217x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+        {"id":7,"name":"Treeflex","imageUrl":"http://dummyimage.com/131x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+        {"id":8,"name":"Tres-Zap","imageUrl":"http://dummyimage.com/224x100.png/ff4444/ffffff","status": "ACTIVE"},
+        {"id":9,"name":"Sonsing","imageUrl":"http://dummyimage.com/234x100.png/dddddd/000000","status": "ACTIVE"},
+        {"id":10,"name":"Sonsing","imageUrl":"http://dummyimage.com/248x100.png/cc0000/ffffff","status": "ACTIVE"}
+    ],
+    "products": [
+      {
+        "id": 1,
+        "name": "Cookie Choc",
+        "price": 11.51,
+        "categories": 5,
+        "imageUrl": "http://dummyimage.com/211x147.png/dddddd/000000",
+        "discountPercentage": 45.17,
+        "status": "ACTIVE"
+      }, {
+        "id": 2,
+        "name": "Olives - Morracan Dired",
+        "price": 18.8,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/128x196.png/ff4444/ffffff",
+        "discountPercentage": 29.5,
+        "status": "ACTIVE"
+      }, {
+        "id": 3,
+        "name": "Basil - Primerba, Paste",
+        "price": 20.72,
+        "categories": 9,
+        "imageUrl": "http://dummyimage.com/230x212.png/ff4444/ffffff",
+        "discountPercentage": 8.46,
+        "status": "ACTIVE"
+      }, {
+        "id": 4,
+        "name": "Pork - Butt, Boneless",
+        "price": 16.1,
+        "categories": 1,
+        "imageUrl": "http://dummyimage.com/165x117.png/5fa2dd/ffffff",
+        "discountPercentage": 45.24,
+        "status": "ACTIVE"
+      }, {
+        "id": 5,
+        "name": "Tea - Jasmin Green",
+        "price": 16.47,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/163x110.png/cc0000/ffffff",
+        "discountPercentage": 5.28,
+        "status": "ACTIVE"
+      }, {
+        "id": 6,
+        "name": "Chicken - Base, Ultimate",
+        "price": 2.3,
+        "categories": 3,
+        "imageUrl": "http://dummyimage.com/107x141.png/cc0000/ffffff",
+        "discountPercentage": 56.8,
+        "status": "ACTIVE"
+      }, {
+        "id": 7,
+        "name": "Wine - Barolo Fontanafredda",
+        "price": 12.76,
+        "categories": 1,
+        "imageUrl": "http://dummyimage.com/200x208.png/5fa2dd/ffffff",
+        "discountPercentage": 79.19,
+        "status": "ACTIVE"
+      }, {
+        "id": 8,
+        "name": "Pork Loin Cutlets",
+        "price": 22.74,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/242x133.png/cc0000/ffffff",
+        "discountPercentage": 63.18,
+        "status": "ACTIVE"
+      }, {
+        "id": 9,
+        "name": "Lettuce - Lambs Mash",
+        "price": 15.25,
+        "categories": 1,
+        "imageUrl": "http://dummyimage.com/166x104.png/cc0000/ffffff",
+        "discountPercentage": 37.62,
+        "status": "ACTIVE"
+      }, {
+        "id": 10,
+        "name": "Beer - Mill St Organic",
+        "price": 28.94,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/192x111.png/5fa2dd/ffffff",
+        "discountPercentage": 74.21,
+        "status": "ACTIVE"
+      }, {
+        "id": 11,
+        "name": "Wine - Niagara Peninsula Vqa",
+        "price": 2.93,
+        "categories": 6,
+        "imageUrl": "http://dummyimage.com/145x144.png/ff4444/ffffff",
+        "discountPercentage": 37.75,
+        "status": "ACTIVE"
+      }, {
+        "id": 12,
+        "name": "Pepper - Black, Ground",
+        "price": 28.36,
+        "categories": 9,
+        "imageUrl": "http://dummyimage.com/164x178.png/5fa2dd/ffffff",
+        "discountPercentage": 6.99,
+        "status": "ACTIVE"
+      }, {
+        "id": 13,
+        "name": "Shrimp - Black Tiger 26/30",
+        "price": 12.16,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/242x199.png/dddddd/000000",
+        "discountPercentage": 2.45,
+        "status": "ACTIVE"
+      }, {
+        "id": 14,
+        "name": "Beef - Tenderlion, Center Cut",
+        "price": 10.59,
+        "categories": 8,
+        "imageUrl": "http://dummyimage.com/145x216.png/cc0000/ffffff",
+        "discountPercentage": 72.91,
+        "status": "ACTIVE"
+      }, {
+        "id": 15,
+        "name": "Trueblue - Blueberry",
+        "price": 28.67,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/223x204.png/cc0000/ffffff",
+        "discountPercentage": 29.39,
+        "status": "ACTIVE"
+      }, {
+        "id": 16,
+        "name": "Tofu - Firm",
+        "price": 7.45,
+        "categories": 1,
+        "imageUrl": "http://dummyimage.com/119x145.png/dddddd/000000",
+        "discountPercentage": 38.51,
+        "status": "ACTIVE"
+      }, {
+        "id": 17,
+        "name": "Chick Peas - Canned",
+        "price": 22.78,
+        "categories": 3,
+        "imageUrl": "http://dummyimage.com/244x161.png/5fa2dd/ffffff",
+        "discountPercentage": 58.39,
+        "status": "ACTIVE"
+      }, {
+        "id": 18,
+        "name": "Lettuce - Mini Greens, Whole",
+        "price": 1.91,
+        "categories": 8,
+        "imageUrl": "http://dummyimage.com/130x169.png/5fa2dd/ffffff",
+        "discountPercentage": 16.58,
+        "status": "ACTIVE"
+      }, {
+        "id": 19,
+        "name": "Juice - Tomato, 10 Oz",
+        "price": 2.17,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/208x178.png/cc0000/ffffff",
+        "discountPercentage": 39.6,
+        "status": "ACTIVE"
+      }, {
+        "id": 20,
+        "name": "Fiddlehead - Frozen",
+        "price": 21.64,
+        "categories": 3,
+        "imageUrl": "http://dummyimage.com/227x210.png/5fa2dd/ffffff",
+        "discountPercentage": 49.2,
+        "status": "ACTIVE"
+      }, {
+        "id": 21,
+        "name": "Wine - White, Colubia Cresh",
+        "price": 16.03,
+        "categories": 6,
+        "imageUrl": "http://dummyimage.com/236x235.png/dddddd/000000",
+        "discountPercentage": 12.52,
+        "status": "ACTIVE"
+      }, {
+        "id": 22,
+        "name": "Wine - White, Ej Gallo",
+        "price": 21.08,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/104x132.png/ff4444/ffffff",
+        "discountPercentage": 32.77,
+        "status": "ACTIVE"
+      }, {
+        "id": 23,
+        "name": "Bread - Pumpernickel",
+        "price": 29.2,
+        "categories": 8,
+        "imageUrl": "http://dummyimage.com/245x107.png/ff4444/ffffff",
+        "discountPercentage": 67.89,
+        "status": "ACTIVE"
+      }, {
+        "id": 24,
+        "name": "Sauce - Soya, Dark",
+        "price": 5.03,
+        "categories": 1,
+        "imageUrl": "http://dummyimage.com/230x103.png/cc0000/ffffff",
+        "discountPercentage": 2.27,
+        "status": "ACTIVE"
+      }, {
+        "id": 25,
+        "name": "Juice - Grape, White",
+        "price": 18.65,
+        "categories": 4,
+        "imageUrl": "http://dummyimage.com/242x122.png/ff4444/ffffff",
+        "discountPercentage": 25.71,
+        "status": "ACTIVE"
+      }, {
+        "id": 26,
+        "name": "Basil - Pesto Sauce",
+        "price": 16.79,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/215x150.png/cc0000/ffffff",
+        "discountPercentage": 52.24,
+        "status": "ACTIVE"
+      }, {
+        "id": 27,
+        "name": "Shark - Loin",
+        "price": 9.64,
+        "categories": 8,
+        "imageUrl": "http://dummyimage.com/161x183.png/cc0000/ffffff",
+        "discountPercentage": 68.35,
+        "status": "ACTIVE"
+      }, {
+        "id": 28,
+        "name": "Coconut - Whole",
+        "price": 5.61,
+        "categories": 3,
+        "imageUrl": "http://dummyimage.com/109x113.png/ff4444/ffffff",
+        "discountPercentage": 59.76,
+        "status": "ACTIVE"
+      }, {
+        "id": 29,
+        "name": "Wine - Cabernet Sauvignon",
+        "price": 21.35,
+        "categories": 8,
+        "imageUrl": "http://dummyimage.com/174x137.png/ff4444/ffffff",
+        "discountPercentage": 28.85,
+        "status": "ACTIVE"
+      }, {
+        "id": 30,
+        "name": "Wine - Wyndham Estate Bin 777",
+        "price": 26.6,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/243x208.png/cc0000/ffffff",
+        "discountPercentage": 1.17,
+        "status": "ACTIVE"
+      }, {
+        "id": 31,
+        "name": "Bread Ww Cluster",
+        "price": 9.45,
+        "categories": 4,
+        "imageUrl": "http://dummyimage.com/210x160.png/cc0000/ffffff",
+        "discountPercentage": 36.55,
+        "status": "ACTIVE"
+      }, {
+        "id": 32,
+        "name": "Nut - Walnut, Pieces",
+        "price": 3.24,
+        "categories": 1,
+        "imageUrl": "http://dummyimage.com/125x179.png/dddddd/000000",
+        "discountPercentage": 10.78,
+        "status": "ACTIVE"
+      }, {
+        "id": 33,
+        "name": "Bread Foccacia Whole",
+        "price": 28.0,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/167x120.png/cc0000/ffffff",
+        "discountPercentage": 77.58,
+        "status": "ACTIVE"
+      }, {
+        "id": 34,
+        "name": "Bagel - Everything Presliced",
+        "price": 10.39,
+        "categories": 4,
+        "imageUrl": "http://dummyimage.com/105x144.png/cc0000/ffffff",
+        "discountPercentage": 68.18,
+        "status": "ACTIVE"
+      }, {
+        "id": 35,
+        "name": "Parasol Pick Stir Stick",
+        "price": 5.13,
+        "categories": 9,
+        "imageUrl": "http://dummyimage.com/118x182.png/dddddd/000000",
+        "discountPercentage": 58.33,
+        "status": "ACTIVE"
+      }, {
+        "id": 36,
+        "name": "Eggplant Italian",
+        "price": 28.88,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/206x139.png/5fa2dd/ffffff",
+        "discountPercentage": 50.06,
+        "status": "ACTIVE"
+      }, {
+        "id": 37,
+        "name": "Foil Wrap",
+        "price": 1.68,
+        "categories": 9,
+        "imageUrl": "http://dummyimage.com/165x229.png/ff4444/ffffff",
+        "discountPercentage": 14.62,
+        "status": "ACTIVE"
+      }, {
+        "id": 38,
+        "name": "Veal - Nuckle",
+        "price": 1.76,
+        "categories": 7,
+        "imageUrl": "http://dummyimage.com/186x186.png/dddddd/000000",
+        "discountPercentage": 73.17,
+        "status": "ACTIVE"
+      }, {
+        "id": 39,
+        "name": "Lychee - Canned",
+        "price": 29.46,
+        "categories": 9,
+        "imageUrl": "http://dummyimage.com/143x205.png/5fa2dd/ffffff",
+        "discountPercentage": 50.07,
+        "status": "ACTIVE"
+      }, {
+        "id": 40,
+        "name": "Leeks - Baby, White",
+        "price": 9.79,
+        "categories": 10,
+        "imageUrl": "http://dummyimage.com/216x196.png/ff4444/ffffff",
+        "discountPercentage": 43.79,
+        "status": "ACTIVE"
+      }
+    ],
+    "profile": { "name": "typicode" }
+}

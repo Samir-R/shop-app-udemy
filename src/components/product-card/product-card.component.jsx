@@ -12,7 +12,7 @@ import {
 } from './product-card.styles';
 
 const ProductCard = ({ product }) => {
-  const { name, price, imageUrl } = product;
+  const { name, price, imageUrl, categories } = product;
   const { addItemToCart } = useContext(CartContext);
 
   const addProductToCart = () => addItemToCart(product);
@@ -21,7 +21,7 @@ const ProductCard = ({ product }) => {
     <ProductCartContainer>
       <img src={imageUrl} alt={`${name}`} />
       <Footer>
-        <Name>{name}</Name>
+        <Name>{name} ({categories})</Name>
         <Price>{price}</Price>
       </Footer>
       <Button

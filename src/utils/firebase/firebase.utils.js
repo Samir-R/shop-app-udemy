@@ -18,15 +18,16 @@ import {
   writeBatch,
   query,
   getDocs,
+  where,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDDU4V-_QV3M8GyhC9SVieRTDM4dbiT0Yk',
-  authDomain: 'crwn-clothing-db-98d4d.firebaseapp.com',
-  projectId: 'crwn-clothing-db-98d4d',
-  storageBucket: 'crwn-clothing-db-98d4d.appspot.com',
-  messagingSenderId: '626766232035',
-  appId: '1:626766232035:web:506621582dab103a4d08d6',
+  apiKey: "AIzaSyAJXMojLhgxbQfAG4XLJZC1hM1_uip7pq0",
+  authDomain: "shop-app-udemy-fe5b1.firebaseapp.com",
+  projectId: "shop-app-udemy-fe5b1",
+  storageBucket: "shop-app-udemy-fe5b1.appspot.com",
+  messagingSenderId: "762976926664",
+  appId: "1:762976926664:web:1515f7739577f57c6a5efd"
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -60,6 +61,55 @@ export const addCollectionAndDocuments = async (
 
   await batch.commit();
   console.log('done');
+};
+
+export const getAllDocumentsOfCollection = async (collectionName) => {
+  const collectionRef = collection(db, collectionName);
+  const q = query(collectionRef);
+  // const transformedResponseData = [];
+  const querySnapshot = await getDocs(q);
+  // const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+  //   const { title, items } = docSnapshot.data();
+  //   acc[title.toLowerCase()] = items;
+  //   return acc;
+  // }, {});
+
+  // return transformedResponseData;
+  return querySnapshot.docs;
+};
+
+
+export const getDocumentsOfCollectionByCondition = async (collectionName,whereConditions, entity = null) => {
+  const collectionRef = collection(db, collectionName);
+  const wheres = whereConditions.map((whereCondition) => {
+    return where(whereCondition[0], whereCondition[1], whereCondition[2]);
+  });
+  const q = query(collectionRef, ...wheres);
+  // const transformedResponseData = [];
+  const querySnapshot = await getDocs(q);
+  // const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+  //   const { title, items } = docSnapshot.data();
+  //   acc[title.toLowerCase()] = items;
+  //   return acc;
+  // }, {});
+
+  return querySnapshot.docs.map((doc) => {
+    return entity === null ? { ...doc.data(), id: doc.id } : new entity({ ...doc.data(), id: doc.id });
+  });
+  /**
+   * Pour economiser la facture firebase mettre un champs updateAt dans les documents pour ne prendre que 
+   * les documents modifier après une date "lastFetchTimestamp" enregistré dans le local Storage
+   * 
+   * Exemple db.collection('groups')
+   *           .where('participants', 'array-contains', 'user123')
+   *           .where('lastUpdated', '>', lastFetchTimestamp)
+   * 
+   * Voir : https://firebase.google.com/docs/firestore/billing-example#costs-breakdown
+   */
+
+
+  // return transformedResponseData;
+  // return querySnapshot.docs;
 };
 
 export const getCategoriesAndDocuments = async () => {
