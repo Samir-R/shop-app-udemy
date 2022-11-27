@@ -1,4 +1,4 @@
-import { createContext, useState, useReducer } from 'react';
+import {createContext, useState, useReducer, useEffect} from 'react';
 
 import { createAction } from '../utils/reducer/reducer.utils';
 
@@ -87,6 +87,14 @@ export const CartProvider = ({ children }) => {
     INITIAL_STATE
   );
 
+  useEffect(() => {
+    const storedCartItems = JSON.parse(localStorage.getItem('cartItems'));
+    if (storedCartItems) {
+      // TODO : Check if each items is available(inactive ? stock=0 ?...)
+      updateCartItemsReducer(storedCartItems);
+    }
+  }, []);
+
   const updateCartItemsReducer = (cartItems) => {
     const newCartCount = cartItems.reduce(
       (total, cartItem) => total + cartItem.quantity,
@@ -105,6 +113,9 @@ export const CartProvider = ({ children }) => {
     };
 
     dispatch(createAction(CART_ACTION_TYPES.SET_CART_ITEMS, payload));
+
+    // Save Cart in local storage
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
   };
 
   const addItemToCart = (productToAdd) => {

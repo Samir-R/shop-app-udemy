@@ -42,11 +42,11 @@
         "status": "ACTIVE"
       }, {
         "id": 4,
-        "name": "Pork - Butt, Boneless",
-        "price": 16.1,
+        "name": "Double cheese",
+        "price": 3.5,
         "categories": 1,
-        "imageUrl": "http://dummyimage.com/165x117.png/5fa2dd/ffffff",
-        "discountPercentage": 45.24,
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-1.jpg",
+        "discountPercentage": 20,
         "status": "ACTIVE"
       }, {
         "id": 5,
@@ -66,10 +66,10 @@
         "status": "ACTIVE"
       }, {
         "id": 7,
-        "name": "Wine - Barolo Fontanafredda",
-        "price": 12.76,
+        "name": "Double cheese bacon",
+        "price": 4,
         "categories": 1,
-        "imageUrl": "http://dummyimage.com/200x208.png/5fa2dd/ffffff",
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-BACON-1.jpg",
         "discountPercentage": 79.19,
         "status": "ACTIVE"
       }, {
@@ -82,10 +82,10 @@
         "status": "ACTIVE"
       }, {
         "id": 9,
-        "name": "Lettuce - Lambs Mash",
-        "price": 15.25,
+        "name": "Le Royal",
+        "price": 4,
         "categories": 1,
-        "imageUrl": "http://dummyimage.com/166x104.png/cc0000/ffffff",
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/ROYAL-1.jpg",
         "discountPercentage": 37.62,
         "status": "ACTIVE"
       }, {
@@ -138,10 +138,10 @@
         "status": "ACTIVE"
       }, {
         "id": 16,
-        "name": "Tofu - Firm",
-        "price": 7.45,
+        "name": "Le Big",
+        "price": 5.50,
         "categories": 1,
-        "imageUrl": "http://dummyimage.com/119x145.png/dddddd/000000",
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/BIG-1.jpg",
         "discountPercentage": 38.51,
         "status": "ACTIVE"
       }, {
@@ -202,10 +202,10 @@
         "status": "ACTIVE"
       }, {
         "id": 24,
-        "name": "Sauce - Soya, Dark",
-        "price": 5.03,
+        "name": "Le Big Max",
+        "price": 6.50,
         "categories": 1,
-        "imageUrl": "http://dummyimage.com/230x103.png/cc0000/ffffff",
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/BIG-MAX-1.jpg",
         "discountPercentage": 2.27,
         "status": "ACTIVE"
       }, {
@@ -266,10 +266,10 @@
         "status": "ACTIVE"
       }, {
         "id": 32,
-        "name": "Nut - Walnut, Pieces",
-        "price": 3.24,
+        "name": "Chickn Burger",
+        "price": 5,
         "categories": 1,
-        "imageUrl": "http://dummyimage.com/125x179.png/dddddd/000000",
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/CHICKEN-BURGER-1.jpg",
         "discountPercentage": 10.78,
         "status": "ACTIVE"
       }, {
