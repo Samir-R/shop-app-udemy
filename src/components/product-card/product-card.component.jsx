@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import CardMedia from '@mui/material/CardMedia';
 
 import { CartContext } from '../../contexts/cart.context';
 
@@ -19,7 +20,13 @@ const ProductCard = ({ product }) => {
 
   return (
     <ProductCartContainer>
-      <img src={imageUrl} alt={`${name}`} />
+      {/* <img src={imageUrl} alt={`${name}`} /> */}
+      <CardMedia
+        component="img"
+        image={imageUrl}
+        alt={`${name}`}
+        sx={{ objectFit: "contain" }}
+      />
       <Footer>
         <Name>{name} ({categories})</Name>
         <Price>{price}</Price>
