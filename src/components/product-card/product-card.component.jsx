@@ -11,6 +11,7 @@ import {
   Name,
   Price,
 } from './product-card.styles';
+import { Card } from '@mui/material';
 
 const ProductCard = ({ product }) => {
   const { name, price, imageUrl, categories } = product;
@@ -19,7 +20,7 @@ const ProductCard = ({ product }) => {
   const addProductToCart = () => addItemToCart(product);
 
   return (
-    <ProductCartContainer>
+    <Card sx={{ boxShadow: 10, borderRadius: 5 }}>
       {/* <img src={imageUrl} alt={`${name}`} /> */}
       <CardMedia
         component="img"
@@ -37,7 +38,7 @@ const ProductCard = ({ product }) => {
       >
         Add to card
       </Button>
-    </ProductCartContainer>
+    </Card>
   );
 };
 

@@ -1,5 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card } from '@mui/material';
+import { CardContent } from '@mui/material';
 import { CategoriesContext } from '../../contexts/category.context';
 
 import {
@@ -16,10 +18,13 @@ const DirectoryItem = ({ category }) => {
   const onNavigateHandler = () => (setCurrentCategory(category));
 
   return (
-    <DirectoryItemContainer onClick={onNavigateHandler}>
+    <Card onClick={onNavigateHandler}>
+      <CardContent>
+
       {/* <BackgroundImage imageUrl={imageUrl} /> */}
         <h2>{name}</h2>
-    </DirectoryItemContainer>
+      </CardContent>
+    </Card>
   );
 };
 
