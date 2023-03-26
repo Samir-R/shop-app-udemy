@@ -1,8 +1,7 @@
-- FInir le diesign complet de la page principale (responisve, item card, cart drawer ...)
+- FInir le design complet de la page principale (responisve, item card, cart drawer ...)
 
 - corriger le NaN dans le panier(si panier non valide -> supprimer le local storage) dans cart-context.jsx
-
-mettre ci-dessous pour les tests :
+-> mettre ci-dessous pour les tests d'un panier invalide :
 [{"product":"622e19ae50b0882afa1bd0a5","name":"Airpods Wireless Bluetooth Headphones","image":"/images/airpods.jpg","price":89.99,"countInStock":3,"qty":1},{"product":"622e19ae50b0882afa1bd0a8","name":"Sony Playstation 5 Pro White Version","image":"/images/playstation.jpg","price":399.99,"countInStock":10,"qty":1},{"product":"622e19ae50b0882afa1bd0a9","name":"Logitech G-Series Gaming Mouse","image":"/images/mouse.jpg","price":49.99,"countInStock":7,"qty":1}]
 
 - i18n

@@ -18,6 +18,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import { styled, ThemeProvider, createTheme, useTheme } from '@mui/material/styles';
 
 import { DirectoryLeftContainer, DirectoryRightContainer } from './directory.styles';
 
@@ -28,7 +29,43 @@ const drawerWidth = {
   md:300,
 };
 
+
+const CustomListItemCategory = styled(ListItem)(({ theme }) => ({
+  "& .MuiListItemButton-root": {
+    backgroundColor: theme.palette.primary.light,
+    fontWeight: 'bold',
+    color: "white",
+    "& .MuiListItemIcon-root": {
+      color: "white"
+    }
+  },
+  "& .MuiListItemButton-root:hover": {
+    backgroundColor: "blue",
+    color: "white",
+    "& .MuiListItemIcon-root": {
+      color: "white"
+    }
+  },
+  "& .MuiListItemButton-root.Mui-selected": {
+    backgroundColor: theme.palette.primary.main,
+    color: "white",
+    "& .MuiListItemIcon-root": {
+      color: "white"
+    }
+  },
+  "& .MuiListItemButton-root.Mui-selected:hover": {
+    backgroundColor: theme.palette.secondary.main,
+    color: "white",
+    "& .MuiListItemIcon-root": {
+      color: "white"
+    }
+  },
+}));
+
+
 const Directory = () => {
+
+const theme = useTheme();
   const { categories, currentCategory } = useContext(CategoriesContext);
   return (
     // <>
@@ -78,8 +115,8 @@ const Directory = () => {
       >
         <Toolbar />
         <Box sx={{ overflow: 'auto' }}>
-          <List>
-            {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+          <List sx={{ pt: '16px' }} >
+            {/* {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
               <ListItem key={text} disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
@@ -88,25 +125,24 @@ const Directory = () => {
                   <ListItemText primary={text} />
                 </ListItemButton>
               </ListItem>
-            ))}
-          </List>
-          <Divider />
-          <List>
-            {['All mail', 'Trash', 'Spam'].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
+            ))} */}
+                {/* <DirectoryItem key={category.id} category={category} /> */}
+            {categories.map((category) => (
+              <CustomListItemCategory key={category.id} disablePadding>
+                <ListItemButton selected={category.id === 3}>
+                  {/* <ListItemText sx={{ textAlign: 'center', p: 2, fontWeight: 'bold' }} */}
+                  <ListItemText disableTypography
+                  primary={<Typography sx={{ textAlign: 'center', p: 2, fontWeight: 'bold', color: '#FFFFFF' }}>{category.name}</Typography>} />
                 </ListItemButton>
-              </ListItem>
+              </CustomListItemCategory>
             ))}
           </List>
+          {/* <Divider /> */}
         </Box>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { xs: drawerWidth.xs + 'px', sm: drawerWidth.sm + 'px', md: drawerWidth.md + 'px' } }}>
         <Toolbar />
+        {/* {theme.palette.primary.main} */}
           <Category category={currentCategory} />
       </Box>
     {/* </Box> */}

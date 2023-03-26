@@ -1,4 +1,6 @@
 import { useContext } from 'react';
+import IconButton from '@mui/material/IconButton';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { ReactComponent as ShoppingIcon } from '../../assets/shopping-bag.svg';
 
@@ -11,11 +13,21 @@ const CartIcon = () => {
 
   const toggleIsCartOpen = () => setIsCartOpen(!isCartOpen);
 
+    /* <CartIconContainer onClick={toggleIsCartOpen}> 
+      <ShoppingIcon className='shopping-icon' /> 
+      <ItemCount>{cartCount}</ItemCount> 
+    </CartIconContainer> */
   return (
-    <CartIconContainer onClick={toggleIsCartOpen}>
-      <ShoppingIcon className='shopping-icon' />
-      <ItemCount>{cartCount}</ItemCount>
-    </CartIconContainer>
+    <IconButton
+    size="large"
+    aria-label="account of current user"
+    aria-controls="menu-appbar"
+    aria-haspopup="true"
+    onClick={toggleIsCartOpen}
+    color="inherit"
+  >
+    <ShoppingCartIcon />
+  </IconButton>
   );
 };
 
