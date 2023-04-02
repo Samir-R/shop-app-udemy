@@ -45,7 +45,7 @@
         "name": "Double cheese",
         "price": 3.5,
         "categories": 1,
-        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-1.jpg",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1%20(1).jpg?alt=media&token=10ad95e8-e944-4c73-9dde-4e75a04a500c",
         "discountPercentage": 20,
         "status": "ACTIVE"
       }, {
@@ -53,7 +53,7 @@
         "name": "Tea - Jasmin Green",
         "price": 16.47,
         "categories": 10,
-        "imageUrl": "http://dummyimage.com/163x110.png/cc0000/ffffff",
+        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-1.jpg",
         "discountPercentage": 5.28,
         "status": "ACTIVE"
       }, {
@@ -61,7 +61,7 @@
         "name": "Chicken - Base, Ultimate",
         "price": 2.3,
         "categories": 3,
-        "imageUrl": "http://dummyimage.com/107x141.png/cc0000/ffffff",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1.jpg?alt=media&token=66770798-4310-4d9e-8149-480716383e7e",
         "discountPercentage": 56.8,
         "status": "ACTIVE"
       }, {
@@ -69,7 +69,7 @@
         "name": "Double cheese bacon",
         "price": 4,
         "categories": 1,
-        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-BACON-1.jpg",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-BACON-1.jpg?alt=media&token=293279cc-df25-4e48-86d8-4a0c9b45fdf8",
         "discountPercentage": 79.19,
         "status": "ACTIVE"
       }, {
@@ -85,7 +85,7 @@
         "name": "Le Royal",
         "price": 4,
         "categories": 1,
-        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/ROYAL-1.jpg",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/ROYAL-1.jpg?alt=media&token=f8da5784-6806-4c1d-8fe0-a11966ae2812",
         "discountPercentage": 37.62,
         "status": "ACTIVE"
       }, {
@@ -141,7 +141,7 @@
         "name": "Le Big",
         "price": 5.50,
         "categories": 1,
-        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/BIG-1.jpg",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/BIG-1.jpg?alt=media&token=29f207b2-fedc-49cf-b167-5814d0bee248",
         "discountPercentage": 38.51,
         "status": "ACTIVE"
       }, {
@@ -205,7 +205,7 @@
         "name": "Le Big Max",
         "price": 6.50,
         "categories": 1,
-        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/BIG-MAX-1.jpg",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/BIG-MAX-1.jpg?alt=media&token=1cb90e60-a7ae-4c97-9256-7b934d708bc6g",
         "discountPercentage": 2.27,
         "status": "ACTIVE"
       }, {
@@ -269,7 +269,7 @@
         "name": "Chickn Burger",
         "price": 5,
         "categories": 1,
-        "imageUrl": "https://g-ladalle.com/wp-content/uploads/2022/08/CHICKEN-BURGER-1.jpg",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/CHICKEN-BURGER-1.jpg?alt=media&token=c46d94ae-4b72-4672-b14a-3df917c907af",
         "discountPercentage": 10.78,
         "status": "ACTIVE"
       }, {
@@ -338,5 +338,23 @@
         "status": "ACTIVE"
       }
     ],
-    "profile": { "name": "typicode" }
+    "profile": { "name": "typicode" },
+    "theme": {
+      "typography": {
+        "fontFamily": "toto"
+      },
+      "palette": {
+        "primary": {
+          "main": "#E9530D",
+          "light": "#FFD600"
+        },
+        "secondary": {
+          "main": "#802529"
+        },
+        "primaryButton": {
+          "main": "#dbece2",
+          "contrastText": "#616161"
+        }
+      }
+    }
 }

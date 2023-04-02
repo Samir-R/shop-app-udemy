@@ -15,8 +15,11 @@ export const CategoriesProvider = ({ children }) => {
     const getCategoriesMap = async () => {
       const categoriesList = await services.categoryService.getAllCategories();
       console.log(categoriesList);
+      console.log(categoriesList[0] || null);
       setCategories(categoriesList);
+      console.log(categories);
       setCurrentCategory(categoriesList[0] || null);
+      console.log(currentCategory);
     };
 
     getCategoriesMap();

@@ -1,4 +1,5 @@
 // import categoryService from './firebase/categories.service';
+import ThemeService from './json-server/theme.service';
 import CategoryService from './json-server/category.service';
 import ProductService from './json-server/product.service';
 
@@ -8,6 +9,7 @@ const services = {
     // categoryService,// firebase
     categoryService: new CategoryService(apiUrl),
     productService: new ProductService(apiUrl),
+    themeService: new ThemeService(apiUrl),
 }
 
 export default services;

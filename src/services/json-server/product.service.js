@@ -17,9 +17,4 @@ export default class ProductService extends CoreService {
         const { data } = await this.httpGet(this.endpointUrl);
         return data ? data.map(product => new Product(product)) : [];
     }
-
-    async getAllProductsByCategory() {
-        const { data } = await this.httpGet(this.endpointUrl);
-        return data ? data.map(product => new Product(product)) : [];
-    }
 };
