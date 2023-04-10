@@ -6,7 +6,7 @@ export default class ThemeService extends CoreService {
         throw new Error('Missing apiUrl argument for service constructor');
       }
       super(apiUrl);
-      this.fontFamily = 'Manrope';
+      this.fontFamily = process.env.REACT_APP_DEFAULT_FONT_FAMILY;// 'Manrope';
     }
 
     get endpointUrl() {

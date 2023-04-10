@@ -108,7 +108,7 @@ const Navigation = () => {
           <img src="https://gladalle-bonneuil.com/wp-content/uploads/2021/09/Logo-Gladalle.png" alt='logo'
           style={{ height: '80px', marginRight: '10px' }}/>
           <Typography variant="h6" noWrap component="div"  sx={{ flexGrow: 1 }}>
-            G LA DALLE
+            {process.env.REACT_APP_COMPANY_NAME}
           </Typography>
           {currentUser ? (
           <div>

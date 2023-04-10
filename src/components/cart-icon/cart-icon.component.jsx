@@ -27,6 +27,7 @@ const CartIcon = () => {
     color="inherit"
   >
     <ShoppingCartIcon />
+    {cartCount}
   </IconButton>
   );
 };

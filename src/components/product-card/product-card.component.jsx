@@ -11,9 +11,12 @@ import {
   Name,
   Price,
 } from './product-card.styles';
-import { Button, Card, CardContent, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Button, Card, CardActions, CardContent, Typography, useMediaQuery } from '@mui/material';
+import { styled, useTheme } from '@mui/material/styles';
 import ShoppingCart from '@mui/icons-material/ShoppingCart';
+import PreviousPrice from '../previous-price/previous-price.component';
+import ProductCardColumn from './product-card-column.component';
+import ProductCardRow from './product-card-row.component';
 
 
 const CustomOrderButton = styled(Button)(({ theme }) => ({
@@ -29,41 +32,26 @@ const CustomOrderButton = styled(Button)(({ theme }) => ({
 
 
 const ProductCard = ({ product }) => {
-  const { name, price, imageUrl } = product;
+  const theme = useTheme();
+  // const greaterThanMid = useMediaQuery(theme.breakpoints.up("md"));
+  const MidToLarge = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const lessThanSmall = useMediaQuery(theme.breakpoints.down("sm"));
+  // https://stackoverflow.com/questions/72826309/get-current-material-ui-breakpoint-name
+
+  const { name, price, discountPrice, imageUrl } = product;
   const { addItemToCart } = useContext(CartContext);
 
   const addProductToCart = () => addItemToCart(product);
 
   return (
-    <Card sx={{ boxShadow: 10, borderRadius: 3 }}>
-      {/* <img src={imageUrl} alt={`${name}`} /> */}
-      <CardMedia
-        component="img"
-        image={imageUrl}
-        alt={`${name}`}
-        sx={{ objectFit: "contain" }}
-      />
-       <CardContent>
-        <Typography gutterBottom variant="h5" component="div" align='center' sx={{ fontWeight: 'bold'}}> 
-          {name}
-        </Typography>
-        <Typography variant="body1" align='center'>
-        {/* color="text.secondary" */}
-          {price} €
-        </Typography>
-      </CardContent>
-      {/* <Footer>
-        <Name>{name} ({categories})</Name>
-        <Price>{price}</Price>
-      </Footer> */}
-      <CustomOrderButton variant="contained" endIcon={<ShoppingCart />}
-        size='large'
-        sx={{ width: '100%', padding: 2}}
-        onClick={addProductToCart}
-      >
-        Ajouter au panier
-      </CustomOrderButton>
-    </Card>
+    <>
+    {
+      MidToLarge ? 
+      (<ProductCardRow product={product} addProductToCart={addProductToCart} isLessThanSmall={lessThanSmall} />)
+      :
+      (<ProductCardColumn product={product} addProductToCart={addProductToCart} />)
+}
+    </>
   );
 };
 

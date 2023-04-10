@@ -66,7 +66,7 @@
         "status": "ACTIVE"
       }, {
         "id": 7,
-        "name": "Double cheese bacon",
+        "name": "Double cheese bacon à la sauce Algerienne",
         "price": 4,
         "categories": 1,
         "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-BACON-1.jpg?alt=media&token=293279cc-df25-4e48-86d8-4a0c9b45fdf8",
@@ -210,10 +210,10 @@
         "status": "ACTIVE"
       }, {
         "id": 25,
-        "name": "Juice - Grape, White",
+        "name": "Mini Tacos",
         "price": 18.65,
         "categories": 4,
-        "imageUrl": "http://dummyimage.com/242x122.png/ff4444/ffffff",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/5954bcb006b10dbfd0bc160f6370faf3.jpeg?alt=media&token=1832b985-cc03-4e4f-a39e-80aa5f1044c4",
         "discountPercentage": 25.71,
         "status": "ACTIVE"
       }, {
@@ -261,7 +261,7 @@
         "name": "Bread Ww Cluster",
         "price": 9.45,
         "categories": 4,
-        "imageUrl": "http://dummyimage.com/210x160.png/cc0000/ffffff",
+        "imageUrl": "https://d1ralsognjng37.cloudfront.net/e35b8c78-7e30-4d9c-87ee-c2ff9d5969a4.jpeg",
         "discountPercentage": 36.55,
         "status": "ACTIVE"
       }, {
@@ -282,10 +282,11 @@
         "status": "ACTIVE"
       }, {
         "id": 34,
-        "name": "Bagel - Everything Presliced",
+        "name": "Menu Kebab - 4 sauces",
         "price": 10.39,
+        "discountPrice": 9.50,
         "categories": 4,
-        "imageUrl": "http://dummyimage.com/105x144.png/cc0000/ffffff",
+        "imageUrl": "https://d1ralsognjng37.cloudfront.net/10a7fd86-e0a0-430e-bddd-845484ecadbf.jpeg",
         "discountPercentage": 68.18,
         "status": "ACTIVE"
       }, {

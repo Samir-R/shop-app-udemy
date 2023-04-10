@@ -12,8 +12,10 @@ import { useTheme } from '@mui/material/styles';
 
 const drawerWidth = {
   xs:0,
-  sm:240,
-  md:300,
+  sm:0,
+  // sm:240,
+  md:250,
+  lg:300,
 };
 
 
@@ -31,7 +33,7 @@ const theme = useTheme();
       <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
+            display: { sm: 'none', md: 'block' },
             width: { xs: drawerWidth.xs, sm: drawerWidth.sm, md: drawerWidth.md },
             flexShrink: 0,
             [`& .MuiDrawer-paper`]: { width: { xs: drawerWidth.xs, sm: drawerWidth.sm, md: drawerWidth.md }, boxSizing: 'border-box' },
