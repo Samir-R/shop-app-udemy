@@ -1,4 +1,4 @@
-import { useContext, Fragment } from 'react';
+import { useContext, Fragment, useState } from 'react';
 import { CategoriesContext } from '../../contexts/category.context';
 import Category from '../category/category.component';
 import DirectoryItem from '../directory-item/directory-item.component';
@@ -7,6 +7,7 @@ import Drawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import { useTheme } from '@mui/material/styles';
+import { Button } from '@mui/material';
 
 // import { DirectoryLeftContainer, DirectoryRightContainer } from './directory.styles';
 
@@ -26,7 +27,12 @@ const Directory = () => {
 const theme = useTheme();
   const { categories, currentCategory, setCurrentCategory } = useContext(CategoriesContext);
   
-  const handleSelectCurrentCategory = (category) => setCurrentCategory(category);
+  const handleSelectCurrentCategory = (category) => {
+    setCategoryMenuTop(false);
+    setCurrentCategory(category);
+  }
+
+  const [categoryMenuTop, setCategoryMenuTop] = useState(false);
 
   return (
     <Fragment>
@@ -41,18 +47,41 @@ const theme = useTheme();
         >
       <Toolbar />
       <Box sx={{ overflow: 'auto' }}>
-        <List sx={{ pt: '16px' }} >
+        {
+          categories.length > 1 && (
+            <List sx={{ pt: '16px' }} >
+              {categories.map((category) => (
+                <DirectoryItem key={category.id} category={category}
+                  isCurrentCategory={category.id === currentCategory?.id}
+                  handleSelectCurrentCategory={handleSelectCurrentCategory} />
+              ))}
+            </List>
+          ) 
+        }
+        
+      </Box>
+      </Drawer>
+    <Drawer
+      anchor="top"
+      open={categoryMenuTop}
+      onClose={() => setCategoryMenuTop(false)}
+      sx={{
+        display: { sm: 'block', md: 'none' },
+      }}
+    >
+      <Toolbar />
+      <List sx={{ pt: '16px' }} >
           {categories.map((category) => (
             <DirectoryItem key={category.id} category={category}
               isCurrentCategory={category.id === currentCategory?.id}
               handleSelectCurrentCategory={handleSelectCurrentCategory} />
           ))}
         </List>
-      </Box>
-      </Drawer>
+    </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { xs: drawerWidth.xs + 'px', sm: drawerWidth.sm + 'px', md: drawerWidth.md + 'px' } }}>
         <Toolbar />
-          <Category category={currentCategory} />
+          <Category category={currentCategory} categoriesCount={categories.length}
+              handleSetCategoryMenuTop={setCategoryMenuTop} />
       </Box>
     </Fragment>
   );

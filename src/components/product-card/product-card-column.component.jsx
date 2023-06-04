@@ -29,9 +29,22 @@ const CustomOrderButton = styled(Button)(({ theme }) => ({
 }));
 
 
-const ProductCardColumn = ({ product, addProductToCart }) => {
+const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallToMid }) => {
 
   const { name, price, discountPrice, imageUrl } = product;
+  let variantName = 'h5';
+  let variantPrice = 'h6';
+  let sizeButton = 'large';
+  if (isLessThanSmall) {
+    variantName = 'body2';
+    variantPrice = 'body2';
+    sizeButton = 'small';
+  }
+  if (smallToMid) {
+    variantName = 'h6';
+    variantPrice = 'body1';
+    sizeButton = 'medium';
+  }
 
   return (
   <Card  sx={{ height: '100%', display: "flex", flexDirection: "column", boxShadow: 10, borderRadius: 3 }}>
@@ -44,10 +57,10 @@ const ProductCardColumn = ({ product, addProductToCart }) => {
       />
        {/* maxHeight: "281px", */}
        <CardContent sx={{ marginTop: "auto" }}>
-        <Typography gutterBottom variant="body2" component="div" align='center' sx={{ fontWeight: 'bold'}}> 
+        <Typography gutterBottom variant={variantName} component="div" align='center' sx={{ fontWeight: 'bold'}}> 
           {name}
         </Typography>
-        <Typography variant="body2" align='right' sx={{ fontWeight: "bold" }}>
+        <Typography variant={variantPrice} align='right' sx={{ fontWeight: "bold" }}>
         {/* color="text.secondary" */}
         {
             discountPrice ?
@@ -69,7 +82,7 @@ const ProductCardColumn = ({ product, addProductToCart }) => {
       </Footer> */}
       <CardActions sx={{ p: 0 }}>
         <CustomOrderButton variant="contained" endIcon={<ShoppingCart />}
-          size='small'
+          size={sizeButton}
           sx={{ width: '100%', padding: "10px 0px"}}
           onClick={addProductToCart}
           >

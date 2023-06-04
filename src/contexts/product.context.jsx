@@ -4,11 +4,14 @@ import { CategoriesContext } from './category.context';
 
 export const ProductContext = createContext({
   products: [],
+  productWithAttributesToDisplay: null,
+  setProductWithAttributesToDisplay: () => {},
   // productsCurrentCategory: [],
 });
 
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
+  const [productWithAttributesToDisplay, setProductWithAttributesToDisplay] = useState(null);
   // const [productsCurrentCategory, setProductsCurrentCategory] = useState([]);
   // const { currentCategory } = useContext(CategoriesContext);
 
@@ -25,6 +28,8 @@ export const ProductProvider = ({ children }) => {
 
   const value = { 
     products,
+    productWithAttributesToDisplay,
+    setProductWithAttributesToDisplay
     // productsCurrentCategory,
   };
   return (

@@ -9,6 +9,7 @@ import { ProductProvider } from './contexts/product.context';
 import { CartProvider } from './contexts/cart.context';
 
 import './index.scss';
+import { ThemeCustomProvider } from './contexts/theme-custom.context';
 
 const rootElement = document.getElementById('root');
 
@@ -19,7 +20,9 @@ render(
         <CategoriesProvider>
           <ProductProvider>
             <CartProvider>
-              <App />
+              <ThemeCustomProvider>
+                <App />
+              </ThemeCustomProvider>
             </CartProvider>
           </ProductProvider>
         </CategoriesProvider>

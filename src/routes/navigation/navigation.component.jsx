@@ -1,4 +1,4 @@
-import { Fragment, useContext, useState } from 'react';
+import { Fragment, useContext, useRef, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -43,14 +43,19 @@ import {
   LogoContainer,
 } from './navigation.styles';
 import CartDrawer from '../../components/cart-drawer/cart-drawer.component';
+import { createTheme, useTheme } from '@mui/material';
+import { ThemeCustomContext } from '../../contexts/theme-custom.context';
 
 
 const drawerWidth = 240;
 const Navigation = () => {
   const { currentUser } = useContext(UserContext);
+  const { setHeaderHeight } = useContext(ThemeCustomContext);
   const { categories, currentCategory } = useContext(CategoriesContext);
 
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const ref = useRef(null);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -58,6 +63,16 @@ const Navigation = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+
+
+
+  const handleSetHeaderHeight = (height) => {
+    console.log(height);
+    if (height){
+      setHeaderHeight(height);
+    }
   };
 
   return (
@@ -103,7 +118,9 @@ const Navigation = () => {
 
       <Box sx={{ display: 'flex', flexGrow: 1 }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        ref={el => { ref.current = el; handleSetHeaderHeight(ref.current?.clientHeight) }}
+      >
         <Toolbar>
           <img src="https://gladalle-bonneuil.com/wp-content/uploads/2021/09/Logo-Gladalle.png" alt='logo'
           style={{ height: '80px', marginRight: '10px' }}/>

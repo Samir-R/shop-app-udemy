@@ -5,15 +5,15 @@
             "name":"Burger",
             "imageUrl":"https://img.freepik.com/photos-gratuite/big-sandwich-hamburger-burger-boeuf-oignon-rouge-tomate-bacon-frit_2829-5398.jpg?w=900&t=st=1668273474~exp=1668274074~hmac=7760fc791e72a6ee6f8767857c4ffbdd988cee1f79a6d8370a6eb90291b07028",
             "status": "INACTIVE"},
-        {"id":2,"name":"Nos viandes grillées","imageUrl":"https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-1.jpg","status": "ACTIVE"},
-        {"id":3,"name":"Y-find","imageUrl":"http://dummyimage.com/242x100.png/5fa2dd/ffffff","status": "ACTIVE"},
-        {"id":4,"name":"Subin","imageUrl":"http://dummyimage.com/119x100.png/ff4444/ffffff","status": "ACTIVE"},
-        {"id":5,"name":"Temp","imageUrl":"http://dummyimage.com/124x100.png/ff4444/ffffff","status": "INACTIVE"},
-        {"id":6,"name":"Stim","imageUrl":"http://dummyimage.com/217x100.png/5fa2dd/ffffff","status": "ACTIVE"},
-        {"id":7,"name":"Treeflex","imageUrl":"http://dummyimage.com/131x100.png/5fa2dd/ffffff","status": "ACTIVE"},
-        {"id":8,"name":"Tres-Zap","imageUrl":"http://dummyimage.com/224x100.png/ff4444/ffffff","status": "ACTIVE"},
-        {"id":9,"name":"Sonsing","imageUrl":"http://dummyimage.com/234x100.png/dddddd/000000","status": "ACTIVE"},
-        {"id":10,"name":"Sonsing","imageUrl":"http://dummyimage.com/248x100.png/cc0000/ffffff","status": "ACTIVE"}
+            {"id":2,"name":"Nos viandes grillées","imageUrl":"https://g-ladalle.com/wp-content/uploads/2022/08/DOUBLE-CHEESE-1.jpg","status": "ACTIVE"},
+            {"id":3,"name":"Y-find","imageUrl":"http://dummyimage.com/242x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+            {"id":4,"name":"Subin","imageUrl":"http://dummyimage.com/119x100.png/ff4444/ffffff","status": "ACTIVE"},
+            {"id":5,"name":"Temp","imageUrl":"http://dummyimage.com/124x100.png/ff4444/ffffff","status": "INACTIVE"},
+            {"id":6,"name":"Les Menus Salades du Jour by G LA DALLE","imageUrl":"http://dummyimage.com/217x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+            {"id":7,"name":"Treeflex","imageUrl":"http://dummyimage.com/131x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+            {"id":8,"name":"Tres-Zap","imageUrl":"http://dummyimage.com/224x100.png/ff4444/ffffff","status": "ACTIVE"},
+            {"id":9,"name":"Sonsing","imageUrl":"http://dummyimage.com/234x100.png/dddddd/000000","status": "ACTIVE"},
+            {"id":10,"name":"Sonsing","imageUrl":"http://dummyimage.com/248x100.png/cc0000/ffffff","status": "ACTIVE"}
     ],
     "products": [
       {
@@ -205,7 +205,7 @@
         "name": "Le Big Max",
         "price": 6.50,
         "categories": 1,
-        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/BIG-MAX-1.jpg?alt=media&token=1cb90e60-a7ae-4c97-9256-7b934d708bc6g",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/BIG-MAX-1.jpg?alt=media&token=1cb90e60-a7ae-4c97-9256-7b934d708bc6",
         "discountPercentage": 2.27,
         "status": "ACTIVE"
       }, {
@@ -264,7 +264,8 @@
         "imageUrl": "https://d1ralsognjng37.cloudfront.net/e35b8c78-7e30-4d9c-87ee-c2ff9d5969a4.jpeg",
         "discountPercentage": 36.55,
         "status": "ACTIVE"
-      }, {
+      },
+      {
         "id": 32,
         "name": "Chickn Burger",
         "price": 5,
@@ -272,7 +273,8 @@
         "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/CHICKEN-BURGER-1.jpg?alt=media&token=c46d94ae-4b72-4672-b14a-3df917c907af",
         "discountPercentage": 10.78,
         "status": "ACTIVE"
-      }, {
+      }, 
+      {
         "id": 33,
         "name": "Bread Foccacia Whole",
         "price": 28.0,
@@ -337,6 +339,149 @@
         "imageUrl": "http://dummyimage.com/216x196.png/ff4444/ffffff",
         "discountPercentage": 43.79,
         "status": "ACTIVE"
+      }, 
+      {
+        "id": 41,
+        "name": "Compose Ton Burger",
+        "price": 5,
+        "categories": 1,
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-GRILL-3.jpg?alt=media&token=e734b5df-c1a9-489c-8af8-15e27f708363",
+        "discountPercentage": 10.78,
+        "status": "ACTIVE",
+        "attributes": [
+          {
+            "id": 1,
+            "name": "base-1",
+            "title": "Viande",
+            "min": 1,
+            "max": 3,
+            "list": [
+              {
+                "id": 1,
+                "name": "Steack",
+                "imageUrl": "https://media.gettyimages.com/id/174688675/fr/photo/hamburger-patty-isloated-grill%C3%A9.jpg?s=612x612&w=0&k=20&c=99mqyOj7eYhsMtVcVwyPQKRGTwQjvkPUFnw57VTfLc0=",
+                "price": 0
+              },
+              {
+                "id": 2,
+                "name": "Tenders",
+                "imageUrl": "https://media.gettyimages.com/id/172900971/fr/photo/poulet-grill%C3%A9.jpg?s=612x612&w=0&k=20&c=Z9Tu5PvCWL9ozB0JBvbTTc0XBIXcN2p1RzCrhc-5lio=",
+                "price": 0
+              },
+              {
+                "id": 3,
+                "name": "Fish",
+                "imageUrl": "https://media.istockphoto.com/id/459488805/fr/photo/fish-and-chips-%C3%A0-plateau.jpg?s=612x612&w=0&k=20&c=gQ1I8Xf1N_DiDzkg_IpyzT-MZI4o0vKgd7daf_uSPWY=",
+                "price": 0
+              },
+              {
+                "id": 4,
+                "name": "Kebab",
+                "imageUrl": "https://www.coursilliko.com/1079-large_default/emince-de-kebab-the-farmer.jpg",
+                "price": 0
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "name": "base-2",
+            "title": "Frites ou potatoes",
+            "min": 1,
+            "max": 1,
+            "list": [
+              {
+                "id": 1,
+                "name": "Frites",
+                "imageUrl": "https://www.passionfroid.fr/sites/passionfroid/files/styles/main_image_full/public/externals/2bb94cfc9b556c7bc22f483e3eede5fb.jpg?itok=aNzEJHiO",
+                "price": 0
+              },
+              {
+                "id": 2,
+                "name": "Potatoes",
+                "imageUrl": "https://img-3.journaldesfemmes.fr/15iCP4xjH1VEu6TyRzNX0AELSUg=/750x500/smart/fe7006999a794a028fd9393b14920d2f/recipe-jdf/10055251.jpg",
+                "price": 0
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "name": "base-3",
+            "title": "Supplements",
+            "min": 0,
+            "max": 3,
+            "list": [
+              {
+                "id": 1,
+                "name": "Raclette",
+                "imageUrl": "https://fridg-front.s3.amazonaws.com/media/CACHE/images/products/raclette-copy_KhTEWtZ/da2939608f873624cc321a4d07a6c03c.jpg",
+                "price": 1.5
+              },
+              {
+                "id": 2,
+                "name": "Bacon",
+                "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Made20bacon.png/640px-Made20bacon.png",
+                "price": 1
+              },
+              {
+                "id": 3,
+                "name": "Jambon de dinde",
+                "imageUrl": "https://lepanier.net/wp-content/uploads/2020/02/jambon-dinde-tradition-1.jpg",
+                "price": 1
+              },
+              {
+                "id": 4,
+                "name": "Oeuf au plat",
+                "imageUrl": "https://1.bp.blogspot.com/-_bjW_gorG-M/YEg1S-jQ85I/AAAAAAABj9Y/n8nHTgqVvr40Pvwd9nMGDZdnKW11_8bgwCLcBGAsYHQ/s660/sauter-un-oeuf-ou-oeuf-saut%C3%A9.jpg",
+                "price": 0.75
+              },
+              {
+                "id": 5,
+                "name": "Galette de pommes de terres",
+                "imageUrl": "https://www.croquegel.com/Base_Produits_Traites/3247/galettes-de-pommes-de-terre-1_5kg-0007975-l.jpg",
+                "price": 0.6
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "name": "base-4",
+            "title": "Boissons",
+            "min": 1,
+            "max": 1,
+            "list": [
+              {
+                "id": 1,
+                "name": "Coca",
+                "imageUrl": "https://i0.wp.com/commechezmams.fr/wp-content/uploads/2021/01/COCA-33cl.jpg?fit=800%2C800&ssl=1",
+                "price": 0
+              },
+              {
+                "id": 2,
+                "name": "Fanta",
+                "imageUrl": "https://halalfs.com/2115-large_default/fanta-orange-24-x-33-cl.jpg",
+                "price": 0
+              },
+              {
+                "id": 3,
+                "name": "Orangina",
+                "imageUrl": "https://www.delta-food.com/web/image/product.template/920/image_1024?unique=d2d9890",
+                "price": 0
+              },
+              {
+                "id": 4,
+                "name": "Oasis",
+                "imageUrl": "https://halalcourses.com/3438-medium_default/oasis-tropical.jpg",
+                "price": 0
+              },
+              {
+                "id": 5,
+                "name": "Schweppes",
+                "imageUrl": "https://www.clicmarket.fr/4471-large_default/24-canettes-de-schweppes-agrumes-24-x-33-cl.jpg",
+                "price": 0
+              }
+            ]
+          }
+        ]
       }
     ],
     "profile": { "name": "typicode" },

@@ -11,6 +11,7 @@ import Navigation from './routes/navigation/navigation.component';
 import Authentication from './routes/authentication/authentication.component';
 import Shop from './routes/shop/shop.component';
 import Checkout from './routes/checkout/checkout.component';
+import ProductModal from './components/product-modal/product-modal.component';
 
 let theme = createTheme({
   typography: {
@@ -71,7 +72,7 @@ let theme = createTheme({
       main: "#333",
       contrastText: "#fff"
     },
-  },
+  }
 });
 
 const App = () => {
@@ -122,14 +123,16 @@ console.log('on relaod App.js ' + theme.typography.fontFamily);
 
   return (
     <ThemeProvider theme={theme}>
-    {themeObj !== null ? <Routes>
+    {themeObj !== null ? (<><Routes>
       <Route path='/' element={<Navigation />}>
         <Route index element={<Home />} />
         <Route path='shop/*' element={<Shop />} />
         <Route path='auth' element={<Authentication />} />
         <Route path='checkout' element={<Checkout />} />
       </Route>
-    </Routes> : (<><Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+    </Routes>
+    <ProductModal />
+    </>) : (<><Skeleton variant="text" sx={{ fontSize: '1rem' }} />
     <img src="https://static.observatoiredelafranchise.fr/images/logos/gladalle-8f8508.jpg" />
     <Skeleton variant="circular" width={40} height={40} />
 <Skeleton variant="rectangular" width={210} height={60} />

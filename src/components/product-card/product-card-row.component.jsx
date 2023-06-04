@@ -45,7 +45,7 @@ return (
              )
              :
              <>
-               {price} €
+               {price} €!!
              </>
          }
          </Typography>
