@@ -15,3 +15,7 @@ Afficher les Messages d'erreur ? https://github.com/fkhadra/react-toastify
 Image -> 500*375 ou 400*300 (/1.33)
 
  - fonctionnalité "Mettre en avant le produit"
+
+
+ lancer le serveur back > dans dossier server :
+ nodemon server.js -w db.json 

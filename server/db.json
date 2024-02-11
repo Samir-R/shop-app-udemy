@@ -360,7 +360,8 @@
                 "id": 1,
                 "name": "Steack",
                 "imageUrl": "https://media.gettyimages.com/id/174688675/fr/photo/hamburger-patty-isloated-grill%C3%A9.jpg?s=612x612&w=0&k=20&c=99mqyOj7eYhsMtVcVwyPQKRGTwQjvkPUFnw57VTfLc0=",
-                "price": 0
+                "price": 0,
+                "max": 1
               },
               {
                 "id": 2,
@@ -372,13 +373,15 @@
                 "id": 3,
                 "name": "Fish",
                 "imageUrl": "https://media.istockphoto.com/id/459488805/fr/photo/fish-and-chips-%C3%A0-plateau.jpg?s=612x612&w=0&k=20&c=gQ1I8Xf1N_DiDzkg_IpyzT-MZI4o0vKgd7daf_uSPWY=",
-                "price": 0
+                "price": 0,
+                "max": 1
               },
               {
                 "id": 4,
                 "name": "Kebab",
                 "imageUrl": "https://www.coursilliko.com/1079-large_default/emince-de-kebab-the-farmer.jpg",
-                "price": 0
+                "price": 0,
+                "max": 1
               }
             ]
           },
@@ -390,16 +393,18 @@
             "max": 1,
             "list": [
               {
-                "id": 1,
+                "id": 5,
                 "name": "Frites",
                 "imageUrl": "https://www.passionfroid.fr/sites/passionfroid/files/styles/main_image_full/public/externals/2bb94cfc9b556c7bc22f483e3eede5fb.jpg?itok=aNzEJHiO",
-                "price": 0
+                "price": 0,
+                "max": 1
               },
               {
-                "id": 2,
+                "id": 6,
                 "name": "Potatoes",
                 "imageUrl": "https://img-3.journaldesfemmes.fr/15iCP4xjH1VEu6TyRzNX0AELSUg=/750x500/smart/fe7006999a794a028fd9393b14920d2f/recipe-jdf/10055251.jpg",
-                "price": 0
+                "price": 0,
+                "max": 1
               }
             ]
           },
@@ -411,34 +416,39 @@
             "max": 3,
             "list": [
               {
-                "id": 1,
+                "id": 7,
                 "name": "Raclette",
                 "imageUrl": "https://fridg-front.s3.amazonaws.com/media/CACHE/images/products/raclette-copy_KhTEWtZ/da2939608f873624cc321a4d07a6c03c.jpg",
-                "price": 1.5
+                "price": 1.5,
+                "max": 1
               },
               {
-                "id": 2,
+                "id": 8,
                 "name": "Bacon",
                 "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Made20bacon.png/640px-Made20bacon.png",
-                "price": 1
+                "price": 1,
+                "max": 1
               },
               {
-                "id": 3,
+                "id": 9,
                 "name": "Jambon de dinde",
                 "imageUrl": "https://lepanier.net/wp-content/uploads/2020/02/jambon-dinde-tradition-1.jpg",
-                "price": 1
+                "price": 1,
+                "max": 1
               },
               {
-                "id": 4,
+                "id": 10,
                 "name": "Oeuf au plat",
                 "imageUrl": "https://1.bp.blogspot.com/-_bjW_gorG-M/YEg1S-jQ85I/AAAAAAABj9Y/n8nHTgqVvr40Pvwd9nMGDZdnKW11_8bgwCLcBGAsYHQ/s660/sauter-un-oeuf-ou-oeuf-saut%C3%A9.jpg",
-                "price": 0.75
+                "price": 0.75,
+                "max": 1
               },
               {
-                "id": 5,
+                "id": 11,
                 "name": "Galette de pommes de terres",
                 "imageUrl": "https://www.croquegel.com/Base_Produits_Traites/3247/galettes-de-pommes-de-terre-1_5kg-0007975-l.jpg",
-                "price": 0.6
+                "price": 0.6,
+                "max": 1
               }
             ]
           },
@@ -450,31 +460,32 @@
             "max": 1,
             "list": [
               {
-                "id": 1,
+                "id": 12,
                 "name": "Coca",
                 "imageUrl": "https://i0.wp.com/commechezmams.fr/wp-content/uploads/2021/01/COCA-33cl.jpg?fit=800%2C800&ssl=1",
-                "price": 0
+                "price": 0,
+                "max": 1
               },
               {
-                "id": 2,
+                "id": 13,
                 "name": "Fanta",
                 "imageUrl": "https://halalfs.com/2115-large_default/fanta-orange-24-x-33-cl.jpg",
                 "price": 0
               },
               {
-                "id": 3,
+                "id": 14,
                 "name": "Orangina",
                 "imageUrl": "https://www.delta-food.com/web/image/product.template/920/image_1024?unique=d2d9890",
                 "price": 0
               },
               {
-                "id": 4,
+                "id": 15,
                 "name": "Oasis",
                 "imageUrl": "https://halalcourses.com/3438-medium_default/oasis-tropical.jpg",
                 "price": 0
               },
               {
-                "id": 5,
+                "id": 16,
                 "name": "Schweppes",
                 "imageUrl": "https://www.clicmarket.fr/4471-large_default/24-canettes-de-schweppes-agrumes-24-x-33-cl.jpg",
                 "price": 0

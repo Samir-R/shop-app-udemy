@@ -9,15 +9,26 @@ import { useContext } from 'react';
 import { ProductContext } from '../../contexts/product.context';
 import { useMediaQuery, useTheme } from '@mui/material';
 import ProductModalStepper from './product-modal-stepper.component';
+import { CartContext } from '../../contexts/cart.context';
+import { useState } from 'react';
 
 export default function ProductModal() {
   const [open, setOpen] = React.useState(false);
+  const [productToAdd, setProductToAdd] = React.useState(null);
   const { setProductWithAttributesToDisplay, productWithAttributesToDisplay } = useContext(ProductContext);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const { addItemToCart } = useContext(CartContext);
+  const dialogTitleRef = React.useRef(null);
+
+  const addProductToCart = () => {
+      addItemToCart(productToAdd);
+      handleClose();
+  };
 
 
   const handleClose = () => {
+    setProductToAdd(null);
     setProductWithAttributesToDisplay(null);
   };
 
@@ -26,11 +37,20 @@ export default function ProductModal() {
         open={productWithAttributesToDisplay !== null}
         onClose={handleClose}
         fullScreen={fullScreen}
+        maxWidth={"lg"}
+        fullWidth={true}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        sx={{
+          '& .MuiDialog-paper': !fullScreen && {
+            height:  '85%',
+          },
+        }}
       >
-        <DialogTitle id="alert-dialog-title">
-            Use Google's location service?
+        <DialogTitle id="alert-dialog-title" ref={dialogTitleRef} sx={{
+          textAlign: 'center',
+          }}>
+            Use Google's location service ???
         </DialogTitle>
         <DialogContent>
             {/* <DialogContentText id="alert-dialog-description">
@@ -38,12 +58,14 @@ export default function ProductModal() {
             location data to Google, even when no apps are running.
             </DialogContentText> */}
             { productWithAttributesToDisplay &&
-                <ProductModalStepper product={productWithAttributesToDisplay}/>}
+                <ProductModalStepper product={productWithAttributesToDisplay}
+                handleSetProductToAdd={(product) => setProductToAdd(product)}
+                refDialogTitle={dialogTitleRef} />}
         </DialogContent>
         <DialogActions>
             <Button onClick={handleClose}>Disagree</Button>
-            <Button onClick={handleClose} autoFocus>
-            Agree
+            <Button onClick={addProductToCart} disabled={productToAdd === null}>
+            Ajouter au panier
             </Button>
         </DialogActions>
     </Dialog>

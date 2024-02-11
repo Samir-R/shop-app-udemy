@@ -77,10 +77,14 @@ export const CartContext = createContext({
   clearItemFromCart: () => {},
   cartCount: 0,
   cartTotal: 0,
+  productToCompose: null,
+  setProductToCompose: () => {},
 });
 
 export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  // contains current product to compose in modal with all attributes selected
+  const [productToCompose, setProductToCompose] = useState(null);
 
   const [{ cartCount, cartTotal, cartItems }, dispatch] = useReducer(
     cartReducer,
@@ -142,6 +146,8 @@ export const CartProvider = ({ children }) => {
     cartItems,
     cartCount,
     cartTotal,
+    productToCompose,
+    setProductToCompose,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
