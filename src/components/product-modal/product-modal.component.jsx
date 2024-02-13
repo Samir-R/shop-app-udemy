@@ -14,7 +14,8 @@ import { useState } from 'react';
 
 export default function ProductModal() {
   const [open, setOpen] = React.useState(false);
-  const [productToAdd, setProductToAdd] = React.useState(null);
+  // const [productToAdd, setProductToAdd] = React.useState(null);
+  const { productToCompose, setProductToCompose } = React.useContext(CartContext);
   const { setProductWithAttributesToDisplay, productWithAttributesToDisplay } = useContext(ProductContext);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -22,13 +23,15 @@ export default function ProductModal() {
   const dialogTitleRef = React.useRef(null);
 
   const addProductToCart = () => {
-      addItemToCart(productToAdd);
+      // addItemToCart(productToAdd);
+      addItemToCart(productToCompose);
       handleClose();
   };
 
 
   const handleClose = () => {
-    setProductToAdd(null);
+    // setProductToAdd(null);
+    setProductToCompose(null);
     setProductWithAttributesToDisplay(null);
   };
 
@@ -59,12 +62,11 @@ export default function ProductModal() {
             </DialogContentText> */}
             { productWithAttributesToDisplay &&
                 <ProductModalStepper product={productWithAttributesToDisplay}
-                handleSetProductToAdd={(product) => setProductToAdd(product)}
                 refDialogTitle={dialogTitleRef} />}
         </DialogContent>
         <DialogActions>
             <Button onClick={handleClose}>Disagree</Button>
-            <Button onClick={addProductToCart} disabled={productToAdd === null}>
+            <Button onClick={addProductToCart} disabled={productToCompose === null}>
             Ajouter au panier
             </Button>
         </DialogActions>

@@ -9,31 +9,12 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import ProductModalStepperContent from './product-modal-stepper-content.component';
 import { Step, StepLabel, Stepper, useMediaQuery } from '@mui/material';
+import { CartContext } from '../../contexts/cart.context';
 
-const steps = [
-  {
-    label: 'Select campaign settings',
-    description: `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`,
-  },
-  {
-    label: 'Create an ad group',
-    description:
-      'An ad group contains one or more ads which target a shared set of keywords.',
-  },
-  {
-    label: 'Create an ad',
-    description: `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`,
-  },
-];
-
-export default function ProductModalStepper({ product, handleSetProductToAdd, refDialogTitle }) {
+export default function ProductModalStepper({ product, refDialogTitle }) {
   const theme = useTheme();
   const isMobileFormat = useMediaQuery(theme.breakpoints.down('md'));
+  const { setProductToCompose } = React.useContext(CartContext);
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const [attributesSelected, setAttributesSelected] = React.useState([]);
@@ -45,7 +26,6 @@ export default function ProductModalStepper({ product, handleSetProductToAdd, re
   const [stepperHeight, setStepperHeight] = React.useState(0);
   const heightTitleStepperMobile = 50;
 
-console.log(refDialogTitle);
 
   React.useLayoutEffect(() => {
     const stepperHeightValue = (stepperRef.current?.offsetHeight +15) || 65;
@@ -101,20 +81,23 @@ console.log(refDialogTitle);
       newAttributesSelected[attributeSelectedIndex].listSelected.splice(attributeItemIndex, 1)
     }
     newAttributesSelected[attributeSelectedIndex].listSelected.push(item);
-    console.log(newAttributesSelected);
+    // console.log(newAttributesSelected);
     setAttributesSelected(newAttributesSelected);
     setProductToAdd();
   };
 
   const setProductToAdd = () => {
-    if (isLastStep()) {
-      const { attributes, ...productToAdd } = product;
-      productToAdd['attributesSelected'] = [...attributesSelected];
-      handleSetProductToAdd(productToAdd)
-    } else {
+    const { attributes, ...productToAdd } = product;
+    productToAdd['attributesSelected'] = [...attributesSelected];
+    setProductToCompose({...productToAdd});
+    // if (isLastStep()) {
+    //   const { attributes, ...productToAdd } = product;
+    //   productToAdd['attributesSelected'] = [...attributesSelected];
+    //   handleSetProductToAdd(productToAdd)
+    // } else {
 
-      handleSetProductToAdd(null);
-    }
+    //   handleSetProductToAdd(null);
+    // }
   }
 
   return (
@@ -130,7 +113,7 @@ console.log(refDialogTitle);
           position: 'absolute',
           width: '100%',
           left: 0,
-          top: (refDialogTitle?.current ? (refDialogTitle.current?.offsetHeight-2) + 'px' : 'initial'),
+          top: (refDialogTitle?.current?.offsetHeight ? (refDialogTitle.current.offsetHeight-2) + 'px' : 'initial'),
         }}
       >
         {/* <Typography>{steps[activeStep].label}</Typography> */}

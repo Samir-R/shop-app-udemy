@@ -22,7 +22,7 @@ const ProductModalStepperContent = ({ attribute, onSelectAttributeItem }) => {
     sx={{backgroundColor: '#fff'}}>
       {attribute.list.map((element) => (
         <Grid key={element.id} xs={12} sm={6} md={6} lg={4} xl={3}>
-            <ProductModalStepperContentItem  element={element} maxAttributeQuantity={attribute.max ||1} onChangeAttributeItemQuantity={handleChangeAttributeItemQuantity}/>
+            <ProductModalStepperContentItem  element={element} attributeParent={attribute} onChangeAttributeItemQuantity={handleChangeAttributeItemQuantity}/>
         </Grid>
       ))}
         </Grid>
