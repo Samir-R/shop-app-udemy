@@ -12,7 +12,6 @@ import ProductModalStepperContentItem from './product-modal-stepper-content-item
 const ProductModalStepperContent = ({ attribute, onSelectAttributeItem }) => {
 
   const handleChangeAttributeItemQuantity = (element) => {
-      
     onSelectAttributeItem(attribute, element);
   } 
 

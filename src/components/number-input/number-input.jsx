@@ -32,6 +32,7 @@ export default function QuantityInput({ initValue = 0, handleChange, min = 0, ma
     const [value, setValue] = React.useState(initValue);
 
     const handleChangeValue = (val) => {
+      console.log('on fait bien le handlechange !!!!!!! ' + val);
         setValue(val);
         handleChange(val);
     }

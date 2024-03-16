@@ -10,16 +10,18 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import ProductModalStepperContent from './product-modal-stepper-content.component';
 import { Step, StepLabel, Stepper, useMediaQuery } from '@mui/material';
 import { CartContext } from '../../contexts/cart.context';
+import ProductModalFinalStepperContent from './product-modal-final-stepper-content.component';
+import { ShoppingCartRounded } from '@mui/icons-material';
 
 export default function ProductModalStepper({ product, refDialogTitle }) {
   const theme = useTheme();
   const isMobileFormat = useMediaQuery(theme.breakpoints.down('md'));
-  const { setProductToCompose } = React.useContext(CartContext);
+  const { setProductToCompose, productToCompose } = React.useContext(CartContext);
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const [attributesSelected, setAttributesSelected] = React.useState([]);
   // const maxSteps = steps.length;
-  const maxSteps = product?.attributes?.length || 0;
+  const maxSteps = (product?.attributes?.length+1) || 0;
   const stepperRef = React.useRef(null);
   const stepperTitleRef = React.useRef(null);
 
@@ -31,6 +33,11 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
     const stepperHeightValue = (stepperRef.current?.offsetHeight +15) || 65;
     setStepperHeight(stepperHeightValue);
   }, []);
+
+  React.useEffect(() => {
+
+    setProductToAdd();
+  }, [attributesSelected])
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -67,6 +74,19 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
     return activeStep === maxSteps - 1;
   };
 
+  const nextButtonIsDisabled = () => {
+    console.log('on fait le nextButtonIsDisabled');
+    const minimumToAllowNextStep = product.attributes[activeStep]?.min || 0;
+    const attributeActiveStepId = product.attributes[activeStep]?.id;
+    if (attributeActiveStepId) {
+      const currentQty = productToCompose?.attributesSelected?.find((item) => item.id === attributeActiveStepId)?.listSelected?.reduce((acc, obj) => acc + obj.quantity, 0) || 0;
+        if (currentQty >= minimumToAllowNextStep) {
+          return true;
+        }
+    }
+    return false;
+  }
+
   const handleSelectAttributes = (attribute, item) => {
     const newAttributesSelected = [...attributesSelected];
     let attributeSelectedIndex = newAttributesSelected.findIndex((element) => element.id === attribute.id);
@@ -80,24 +100,16 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
     if (attributeItemIndex !== -1) {
       newAttributesSelected[attributeSelectedIndex].listSelected.splice(attributeItemIndex, 1)
     }
-    newAttributesSelected[attributeSelectedIndex].listSelected.push(item);
-    // console.log(newAttributesSelected);
+    if (item.quantity > 0) {
+      newAttributesSelected[attributeSelectedIndex].listSelected.push(item);
+    }
     setAttributesSelected(newAttributesSelected);
-    setProductToAdd();
   };
 
   const setProductToAdd = () => {
     const { attributes, ...productToAdd } = product;
     productToAdd['attributesSelected'] = [...attributesSelected];
     setProductToCompose({...productToAdd});
-    // if (isLastStep()) {
-    //   const { attributes, ...productToAdd } = product;
-    //   productToAdd['attributesSelected'] = [...attributesSelected];
-    //   handleSetProductToAdd(productToAdd)
-    // } else {
-
-    //   handleSetProductToAdd(null);
-    // }
   }
 
   return (
@@ -118,7 +130,8 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
       >
         {/* <Typography>{steps[activeStep].label}</Typography> */}
         <Typography sx={{ width: '100%', textAlign: 'center'}}>
-        {product.attributes[activeStep].title}</Typography>
+        {isLastStep() ? 'Recap' : product.attributes[activeStep].title}
+        </Typography>
       </Paper>}
       {!isMobileFormat &&
     (<Stepper activeStep={activeStep} alternativeLabel
@@ -133,6 +146,9 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
           <StepLabel>{attribute.title}</StepLabel>
         </Step>
       ))}
+      <Step>
+        <StepLabel><ShoppingCartRounded /></StepLabel>
+      </Step>
     </Stepper>)
     }
     {/* ((stepperRef?.current?.offsetHeight + 10) || 80) + 'px' */}
@@ -143,11 +159,16 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
         paddingTop: (isMobileFormat ? (heightTitleStepperMobile+10) : stepperHeight) + 'px',
         paddingBottom: '50px',
         }}>
+          {/* {isLastStep() ? 'vari' : 'faux'}
+          {activeStep}
+          {maxSteps} */}
           {/* { stepperRef?.current?.offsetHeight } */}
         {/* {steps[activeStep].description} */}
         {/* {product.attributes[activeStep].name} */}
-        <ProductModalStepperContent attribute={product.attributes[activeStep]}
-          onSelectAttributeItem={handleSelectAttributes} /> 
+        {isLastStep() ?
+        (<ProductModalFinalStepperContent productReadyToAdd={productToCompose} />)
+        : (<ProductModalStepperContent attribute={product.attributes[activeStep]}
+          onSelectAttributeItem={handleSelectAttributes} />)} 
       </Box>
       {isMobileFormat ? (<MobileStepper sx={{ 
             display: 'flex',
@@ -166,7 +187,7 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
           <Button
             size="small"
             onClick={handleNext}
-            disabled={isLastStep()}
+            disabled={!nextButtonIsDisabled()}
           >
             Next
             {theme.direction === 'rtl' ? (
@@ -215,8 +236,8 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
               </Button>
             )}
 
-            <Button onClick={handleNext}>
-              {activeStep === product.attributes.length - 1 ? 'Finish' : 'Next'}
+            <Button onClick={handleNext} disabled={!nextButtonIsDisabled()}>
+              Next
             </Button>
           </Box>
         </>

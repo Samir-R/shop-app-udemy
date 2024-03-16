@@ -14,7 +14,7 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
   const { productToCompose } = React.useContext(CartContext);
   
   const handleChange = (quantity) => {
-      
+      console.log('on fait le change qty ' + element.name);
     onChangeAttributeItemQuantity({ ...element, quantity });
   } 
 
