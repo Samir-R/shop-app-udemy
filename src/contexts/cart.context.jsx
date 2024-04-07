@@ -3,19 +3,20 @@ import {createContext, useState, useReducer, useEffect} from 'react';
 import { createAction } from '../utils/reducer/reducer.utils';
 
 const addCartItem = (cartItems, productToAdd) => {
-  const existingCartItem = cartItems.find(
+  const existingCartItem = !productToAdd.attributesSelected && cartItems.find(
     (cartItem) => cartItem.id === productToAdd.id
   );
+  const quantityToAdd = productToAdd.quantityToAdd || 1;
 
   if (existingCartItem) {
     return cartItems.map((cartItem) =>
       cartItem.id === productToAdd.id
-        ? { ...cartItem, quantity: cartItem.quantity + 1 }
+        ? { ...cartItem, quantity: cartItem.quantity + quantityToAdd }
         : cartItem
     );
   }
 
-  return [...cartItems, { ...productToAdd, quantity: 1 }];
+  return [...cartItems, { ...productToAdd, quantity: quantityToAdd }];
 };
 
 const removeCartItem = (cartItems, cartItemToRemove) => {

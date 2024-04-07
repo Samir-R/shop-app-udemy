@@ -64,24 +64,44 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
     // console.log(getMaxQuantity());
 
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    // <Card sx={{ maxWidth: 345 }}>
+    <Card  sx={{ 
+      height: '100%',
+      display: "flex",
+      flexDirection: "column",
+      boxShadow: 0,
+      borderRadius: 2,
+      border: '1px solid #ecf0f1',
+      }}>
             <CardMedia
               component="img"
               alt="green iguana"
-              height="140"
+              // height="140"
               image={element.imageUrl}
+              sx={{ 
+                objectFit: "contain",
+                width: "auto",
+              }}
             />
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
+            <CardContent sx={{ marginTop: "auto" }}>
+              <Typography gutterBottom variant="body2" component="div"
+               align='center' sx={{ fontWeight: 'bold'}}>
               {element.name}
               </Typography>
               {/* <Typography variant="body2" color="text.secondary">
                 Lizards are a widespread group of squamate reptiles, with over 6,000
                 species, ranging across all continents except Antarctica
               </Typography> */}
-              <Typography variant="body2" color="text.secondary">
-                { element.price > 0 && '+' + element.price + '€' }
-              </Typography>
+              { element.price > 0 && (<Typography sx={{
+                fontSize: '10px',
+                width: 'fit-content',
+                padding: '2px 7px',
+                borderRadius: 3,
+                fontWeight: 'bold'
+
+              }} bgcolor="#ecf0f1">
+                 + {element.price} €
+              </Typography>)}
             </CardContent>
             <CardActions>
               {/* <Button size="small"

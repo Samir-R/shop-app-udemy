@@ -92,19 +92,21 @@ const StyledInput = styled('input')(
   };
   border-radius: 8px;
   margin: 0 8px;
-  padding: 10px 12px;
+  padding: 4px 10px;
   outline: 0;
   min-width: 0;
-  width: 4rem;
+  // width: 4rem;
+  width: 100%;
   text-align: center;
 
   &:hover {
-    border-color: ${blue[400]};
+    // border-color: ${blue[400]};
   }
 
   &:focus {
-    border-color: ${blue[400]};
-    box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[700] : blue[200]};
+    // border-color: ${blue[400]};
+    // box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? blue[700] : blue[200]};
+    box-shadow: 0 0 0 3px #ecf0f1;
   }
 
   &:focus-visible {
@@ -124,8 +126,8 @@ const StyledButton = styled('button')(
   border-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[200]};
   background: ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
   color: ${theme.palette.mode === 'dark' ? grey[200] : grey[900]};
-  width: 32px;
-  height: 32px;
+  width: 25px;
+  height: 25px;
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
@@ -136,8 +138,10 @@ const StyledButton = styled('button')(
 
   &:hover {
     cursor: pointer;
-    background: ${theme.palette.mode === 'dark' ? blue[700] : blue[500]};
-    border-color: ${theme.palette.mode === 'dark' ? blue[500] : blue[400]};
+    // background: ${theme.palette.mode === 'dark' ? blue[700] : blue[500]};
+    background: ${theme.palette.primary.main};
+    // border-color: ${theme.palette.mode === 'dark' ? blue[500] : blue[400]};
+    border-color: ${theme.palette.primary.main};
     color: ${grey[50]};
   }
 

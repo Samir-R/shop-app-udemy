@@ -402,7 +402,8 @@
               {
                 "id": 6,
                 "name": "Potatoes",
-                "imageUrl": "https://img-3.journaldesfemmes.fr/15iCP4xjH1VEu6TyRzNX0AELSUg=/750x500/smart/fe7006999a794a028fd9393b14920d2f/recipe-jdf/10055251.jpg",
+                "imageUrlBis": "https://img-3.journaldesfemmes.fr/15iCP4xjH1VEu6TyRzNX0AELSUg=/750x500/smart/fe7006999a794a028fd9393b14920d2f/recipe-jdf/10055251.jpg",
+                "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/potatoes-maison-aux-epices%20(2).jpeg?alt=media&token=f0a36b8b-ede2-4880-8122-e125a4845590",
                 "price": 0,
                 "max": 1
               }

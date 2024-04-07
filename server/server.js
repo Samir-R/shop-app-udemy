@@ -16,6 +16,6 @@ server.use(
   })
 );
 server.options("*", cors());
-server.listen(3001, () => {
+server.listen(9001, () => {
   console.log("JSON Server is running");
 });

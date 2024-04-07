@@ -20,7 +20,7 @@ const ProductModalStepperContent = ({ attribute, onSelectAttributeItem }) => {
     <Grid container rowSpacing={4} columnSpacing={{ xs: 1, sm: 2, md: 1 }}
     sx={{backgroundColor: '#fff'}}>
       {attribute.list.map((element) => (
-        <Grid key={element.id} xs={12} sm={6} md={6} lg={4} xl={3}>
+        <Grid key={element.id} xs={12} sm={6} md={6} lg={2} xl={2}>
             <ProductModalStepperContentItem  element={element} attributeParent={attribute} onChangeAttributeItemQuantity={handleChangeAttributeItemQuantity}/>
         </Grid>
       ))}
