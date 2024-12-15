@@ -17,7 +17,7 @@ import ShoppingCart from '@mui/icons-material/ShoppingCart';
 import PreviousPrice from '../previous-price/previous-price.component';
 
 
-const CustomOrderButton = styled(Button)(({ theme }) => ({
+export const CustomOrderButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.OrderButton.main,
   fontWeight: 'bold',
   color: theme.palette.OrderButton.contrastText,

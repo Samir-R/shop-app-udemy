@@ -7,10 +7,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useContext } from 'react';
 import { ProductContext } from '../../contexts/product.context';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { IconButton, useMediaQuery, useTheme } from '@mui/material';
 import ProductModalStepper from './product-modal-stepper.component';
 import { CartContext } from '../../contexts/cart.context';
 import { useState } from 'react';
+import { ProductModalDialogButtonCloseCustom, ProductModalDialogContentCustom, ProductModalDialogCustom, ProductModalDialogTitleCustom } from './product-modal-stepper-style.component';
+import { IoChevronBackOutline } from "react-icons/io5";
 
 export default function ProductModal() {
   const [open, setOpen] = React.useState(false);
@@ -18,7 +20,8 @@ export default function ProductModal() {
   const { productToCompose, setProductToCompose } = React.useContext(CartContext);
   const { setProductWithAttributesToDisplay, productWithAttributesToDisplay } = useContext(ProductContext);
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  // const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const { addItemToCart } = useContext(CartContext);
   const dialogTitleRef = React.useRef(null);
 
@@ -36,40 +39,57 @@ export default function ProductModal() {
   };
 
   return (
-    <Dialog
+    <ProductModalDialogCustom
         open={productWithAttributesToDisplay !== null}
         onClose={handleClose}
         fullScreen={fullScreen}
-        maxWidth={"lg"}
+        // maxWidth={"lg"}
+        maxWidth={"sm"}
         fullWidth={true}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         sx={{
           '& .MuiDialog-paper': !fullScreen && {
-            height:  '85%',
+            height:  '90%',
           },
         }}
       >
-        <DialogTitle id="alert-dialog-title" ref={dialogTitleRef} sx={{
-          textAlign: 'center',
-          }}>
-            Use Google's location service ???
-        </DialogTitle>
-        <DialogContent>
+        <ProductModalDialogTitleCustom id="alert-dialog-title" ref={dialogTitleRef}
+        // sx={{
+        //   textAlign: 'center',
+        //   }}
+          >
+            { productWithAttributesToDisplay?.name }
+        </ProductModalDialogTitleCustom>
+        <ProductModalDialogButtonCloseCustom
+          aria-label="close"
+          onClick={handleClose}
+          // sx={{
+          //   position: 'absolute',
+          //   left: 0,
+          //   top: 8,
+          //   color: (theme) => theme.palette.grey[500],
+          // }}
+        >
+          {/* <CloseIcon /> */}
+          <IoChevronBackOutline /> Annuler
+        </ProductModalDialogButtonCloseCustom>
+        <ProductModalDialogContentCustom>
             {/* <DialogContentText id="alert-dialog-description">
             Let Google help apps determine location. This means sending anonymous
             location data to Google, even when no apps are running.
             </DialogContentText> */}
             { productWithAttributesToDisplay &&
                 <ProductModalStepper product={productWithAttributesToDisplay}
-                refDialogTitle={dialogTitleRef} />}
-        </DialogContent>
-        <DialogActions>
+                refDialogTitle={dialogTitleRef}
+                handleClose={handleClose} />}
+        </ProductModalDialogContentCustom>
+        {/* <DialogActions>
             <Button onClick={handleClose}>Disagree</Button>
             <Button onClick={addProductToCart} disabled={productToCompose === null}>
             Ajouter au panier
             </Button>
-        </DialogActions>
-    </Dialog>
+        </DialogActions> */}
+    </ProductModalDialogCustom>
   );
 }

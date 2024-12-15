@@ -8,56 +8,49 @@ import Typography from '@mui/material/Typography';
 import QuantityInput from '../number-input/number-input';
 import Grid from "@mui/material/Unstable_Grid2";
 import ProductModalStepperContentItem from './product-modal-stepper-content-item.component';
+import { Avatar, Checkbox, List, ListItem, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
+import { ProductModalListCustom } from './product-modal-stepper-style.component';
 
 const ProductModalStepperContent = ({ attribute, onSelectAttributeItem }) => {
 
   const handleChangeAttributeItemQuantity = (element) => {
     onSelectAttributeItem(attribute, element);
-  } 
-
+  }
+  
+  // let elementActionType = 'input';
+  // if (!attribute.max || attribute.max < 2) {
+  //   elementActionType = 'radio';
+  // } else {
+  //     const listMaxGreatherThanOne = attribute.list.filter((ele) => ele.max !== 1);
+  //     if (listMaxGreatherThanOne.length === 0) {
+  //       elementActionType = 'checkbox';
+  //     }
+  // }
+  
+  const listMaxGreatherThanOne = attribute.list.filter((ele) => ele.max !== 1);
+  let elementActionType = 'input';
+  if (!attribute.max || attribute.max < 2 || listMaxGreatherThanOne.length === 0) {
+    elementActionType = 'checkbox';
+  }
 
   return (
-    <Grid container rowSpacing={4} columnSpacing={{ xs: 1, sm: 2, md: 1 }}
-    sx={{backgroundColor: '#fff'}}>
-      {attribute.list.map((element) => (
-        <Grid key={element.id} xs={12} sm={6} md={6} lg={2} xl={2}>
-            <ProductModalStepperContentItem  element={element} attributeParent={attribute} onChangeAttributeItemQuantity={handleChangeAttributeItemQuantity}/>
-        </Grid>
-      ))}
-        </Grid>
+    // <List dense sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+    <ProductModalListCustom>
+      {attribute.list.map((element, index) => {
+        return (
+          <ProductModalStepperContentItem
+          key={element.id}
+          element={element}
+          elementActionType={elementActionType}
+          attributeParent={attribute}
+          onChangeAttributeItemQuantity={handleChangeAttributeItemQuantity}
+          classCustomName={index===0 ? 'FirstElement-Item' : (index === attribute.list.length-1 ? 'LastElement-Item' : '')}
+          />
+        );
+      })}
+    </ProductModalListCustom>
         );
 
-  {/* return (
-    attribute.list.map((element) => (<Card sx={{ maxWidth: 345 }} key={element.id}>
-            <CardMedia
-              component="img"
-              alt="green iguana"
-              height="140"
-              image={element.imageUrl}
-            />
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
-              {element.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Lizards are a widespread group of squamate reptiles, with over 6,000
-                species, ranging across all continents except Antarctica
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                { element.price > 0 && '+' + element.price + '€' }
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button size="small"
-                onClick={() => onSelectAttributeItem(attribute, element)}>
-                  Choisir
-              </Button>
-              <QuantityInput handleChange={handleChange} />
-            </CardActions>
-          </Card>
-          )
-          )
-  ) */}
 }
 
 export default ProductModalStepperContent

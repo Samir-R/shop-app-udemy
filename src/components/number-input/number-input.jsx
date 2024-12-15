@@ -91,12 +91,13 @@ const StyledInput = styled('input')(
     theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
   };
   border-radius: 8px;
-  margin: 0 8px;
+  /*margin: 0 8px;*/
+  margin: 0 4px;
   padding: 4px 10px;
   outline: 0;
   min-width: 0;
-  // width: 4rem;
-  width: 100%;
+  width: 3rem;
+  // width: 100%;
   text-align: center;
 
   &:hover {

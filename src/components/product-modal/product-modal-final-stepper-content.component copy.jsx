@@ -9,48 +9,49 @@ import QuantityInput from '../number-input/number-input';
 import Grid from "@mui/material/Unstable_Grid2";
 import ProductModalStepperContentItem from './product-modal-stepper-content-item.component';
 import { Avatar, Chip, List, ListItem, ListItemAvatar, ListItemText, ListSubheader } from '@mui/material';
-import { ProductModalStepButtonCustom } from './product-modal-stepper-style.component';
-import { IoChevronUpOutline } from 'react-icons/io5';
 
-const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
+const ProductModalFinalStepperContent = ({ productReadyToAdd }) => {
 
 
   
   return (
-    <>
-      <Typography variant='subtitle2'
-      sx={{
-        fontWeight: 'bold',
-        padding: '5px 10px 5px 12px',
-        color: '#bdc3c7',
-      }}
-      >
-        Resultat final :
-
-    <ProductModalStepButtonCustom
-      color="inherit"
-      onClick={handleBack}
-      endIcon={<IoChevronUpOutline />}
-      className='Back-Button'
-      sx={{ 
-        mt: 0,
-        mr: 0,
-        float: 'right',
-      }}
-    >
-      Back
-    </ProductModalStepButtonCustom>
-      </Typography>
+    
+    <Grid container rowSpacing={4} columnSpacing={{ xs: 1, sm: 2, md: 1 }}
+    sx={{ height: '100%'}}>
+      {/* <Grid xs={12} sm={12} md={6} lg={4} xl={4}> */}
+      <Grid xs={12}>
+            
+          {/* <Card sx={{ maxWidth: 345 }}> */}
+          <Card  sx={{ 
+            height: '100%',
+            display: "flex",
+            flexDirection: "column",
+            boxShadow: 0,
+            borderRadius: 3 }}>
+          <CardMedia
+            component="img"
+            sx={{ 
+              // height: 140,
+              objectFit: "contain",
+              width: "auto",
+            }}
+            image={productReadyToAdd.imageUrl}
+            title={productReadyToAdd.name}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="body2" component="div"
+            align='center' sx={{ fontWeight: 'bold'}}>
+              {productReadyToAdd.name}
+            </Typography>
             <List
               sx={{
                 width: '100%',
-                // maxWidth: 360,
+                maxWidth: 360,
                 bgcolor: 'background.paper',
                 position: 'relative',
                 overflow: 'auto',
-                // maxHeight: 300,
+                maxHeight: 300,
                 zIndex: 0,
-                paddingBottom: '50px',
                 '& ul': { padding: 0 },
               }}
               subheader={<li />}
@@ -58,14 +59,7 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
               {productReadyToAdd.attributesSelected.map((attributeSelected) => (
                 <li key={`section-${attributeSelected.id}`}>
                   <ul>
-                    <ListSubheader
-                      sx={{
-                        fontStyle: 'italic',
-                        fontSize: '0.75rem'
-                      }}
-                      >
-                      {attributeSelected.title}
-                    </ListSubheader>
+                    <ListSubheader>{attributeSelected.title}</ListSubheader>
                     {attributeSelected.listSelected.map((item) => (
                       <ListItem key={`item-${attributeSelected.id}-${item.id}`}>
                         <ListItemAvatar>
@@ -93,7 +87,17 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
                 </li>
               ))}
             </List>
-            </>
+          </CardContent>
+          {/* <CardActions>
+            <Button size="small">Share</Button>
+            <Button size="small">Learn More</Button>
+          </CardActions> */}
+        </Card>
+      </Grid>
+      {/* <Grid xs={12} sm={12} md={6} lg={8} xl={8}>
+        TOTO
+      </Grid> */}
+    </Grid>
         );
 
   {/* return (

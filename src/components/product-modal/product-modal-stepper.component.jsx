@@ -8,20 +8,34 @@ import Button from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import ProductModalStepperContent from './product-modal-stepper-content.component';
-import { Step, StepLabel, Stepper, useMediaQuery } from '@mui/material';
+import { Step, StepContent, StepLabel, Stepper, useMediaQuery } from '@mui/material';
 import { CartContext } from '../../contexts/cart.context';
 import ProductModalFinalStepperContent from './product-modal-final-stepper-content.component';
-import { ShoppingCartRounded } from '@mui/icons-material';
+import { ShoppingCart, ShoppingCartRounded } from '@mui/icons-material';
+import { IoChevronDownOutline, IoChevronUpOutline } from "react-icons/io5";
+import { v4 as uuidv4 } from 'uuid';
+import { ProductModalStepButtonCustom, ProductModalStepContentCustom, ProductModalStepLabelCustom, ProductModalStepperCustom } from './product-modal-stepper-style.component';
+import QuantityInput from '../number-input/number-input';
+import { useState } from 'react';
+import { CustomOrderButton } from '../product-card/product-card-column.component';
 
-export default function ProductModalStepper({ product, refDialogTitle }) {
+export default function ProductModalStepper({ product, refDialogTitle, handleClose }) {
   const theme = useTheme();
+  const [quantityToAdd, setQuantityToAdd] = useState(1);
   const isMobileFormat = useMediaQuery(theme.breakpoints.down('md'));
-  const { setProductToCompose, productToCompose } = React.useContext(CartContext);
+  const { setProductToCompose, productToCompose, addItemToCart } = React.useContext(CartContext);
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const [attributesSelected, setAttributesSelected] = React.useState([]);
   // const maxSteps = steps.length;
   const maxSteps = (product?.attributes?.length+1) || 0;
+  const steps = maxSteps > 0 ? [
+    ...product?.attributes,
+    {
+      id: uuidv4(),
+      title: 'Recap',
+    }
+  ] : [];
   const stepperRef = React.useRef(null);
   const stepperTitleRef = React.useRef(null);
 
@@ -112,136 +126,103 @@ export default function ProductModalStepper({ product, refDialogTitle }) {
     setProductToCompose({...productToAdd});
   }
 
+
+  const addProductToCart = () => {
+    // addItemToCart(productToAdd);
+    const productToComposeWithQuantity = {
+      ...productToCompose,
+      quantityToAdd: quantityToAdd,
+    }
+    console.log('productToComposeWithQuantity');
+    console.log(productToComposeWithQuantity);
+    // addItemToCart(productToCompose);
+    addItemToCart(productToComposeWithQuantity);
+    handleClose();
+};
+
+const handleChangeQuantityToAdd = (quantity) => {
+  // console.log('on fait le change qty ' + element.name);
+  setQuantityToAdd(quantity);
+}
+
   return (
+    // <Box sx={{ maxWidth: 400 }}>
     <Box sx={{  }}>
-     {isMobileFormat && <Paper
-        square
-        elevation={0}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          height: heightTitleStepperMobile,
-          bgcolor: 'background.default',
-          position: 'absolute',
-          width: '100%',
-          left: 0,
-          top: (refDialogTitle?.current?.offsetHeight ? (refDialogTitle.current.offsetHeight-2) + 'px' : 'initial'),
-        }}
-      >
-        {/* <Typography>{steps[activeStep].label}</Typography> */}
-        <Typography sx={{ width: '100%', textAlign: 'center'}}>
-        {isLastStep() ? 'Recap' : product.attributes[activeStep].title}
-        </Typography>
-      </Paper>}
-      {!isMobileFormat &&
-    (<Stepper activeStep={activeStep} alternativeLabel
-      ref={stepperRef}
-    sx={{
-      position: 'absolute',
-      bgcolor: 'background.default',
-      width: '100%'
-    }}>
-      {product.attributes.map((attribute) => (
+    <ProductModalStepperCustom activeStep={activeStep} orientation="vertical">
+      {/* {product.attributes.map((attribute, index) => ( */}
+      {steps.map((attribute, index) => (
         <Step key={attribute.id}>
-          <StepLabel>{attribute.title}</StepLabel>
+          <ProductModalStepLabelCustom
+            // optional={
+            //   index === 2 ? (
+            //     <Typography variant="caption">Last step</Typography>
+            //   ) : null
+            // }
+          >
+            {attribute.title}
+          </ProductModalStepLabelCustom>
+          <ProductModalStepContentCustom>
+            {/* <Typography>{attribute.title}</Typography> */}
+            {isLastStep() ?
+        (<ProductModalFinalStepperContent productReadyToAdd={productToCompose} handleBack={handleBack}/>)
+        : (<ProductModalStepperContent attribute={product.attributes[activeStep]}
+          onSelectAttributeItem={handleSelectAttributes} />)}
+            <Box sx={{ mb: 0 }} className={isLastStep() && 'Last-Step-Footer'}>
+              <div>{isLastStep()
+              ? <>
+                  <QuantityInput 
+              handleChange={handleChangeQuantityToAdd} 
+              // initValue={currentQtyOfElement}
+              initValue={quantityToAdd}
+              min={1}
+              max={99}/>
+                  <CustomOrderButton
+                   variant="contained" endIcon={<ShoppingCart />}
+                  sx={{
+                      marginLeft: '15px',
+                     }}
+                     onClick={addProductToCart} disabled={productToCompose === null}>
+                    Ajouter au panier
+                  </CustomOrderButton>
+                </>
+                : <ProductModalStepButtonCustom
+                  color="inherit"
+                  // variant="contained"
+                  onClick={handleNext}
+                  disabled={!nextButtonIsDisabled()}
+                  endIcon={<IoChevronDownOutline />}
+                  // sx={{ mt: 1, mr: 1 }}
+                >
+                  {/* {index === steps.length - 1 ? 'Finish' : 'Continue'} */}
+                   Next
+                </ProductModalStepButtonCustom>}
+                {!isLastStep() && <ProductModalStepButtonCustom
+                  color="inherit"
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  endIcon={<IoChevronUpOutline />}
+                  className='Back-Button'
+                  // sx={{
+                  //   mt: 0,
+                  //   mr: 0
+                  // }}
+                >
+                  Back
+                </ProductModalStepButtonCustom>}
+              </div>
+            </Box>
+          </ProductModalStepContentCustom>
         </Step>
       ))}
-      <Step>
-        <StepLabel><ShoppingCartRounded /></StepLabel>
-      </Step>
-    </Stepper>)
-    }
-    {/* ((stepperRef?.current?.offsetHeight + 10) || 80) + 'px' */}
-      {/* <Box sx={{ height: 255, maxWidth: 400, width: '100%', p: 2 }}> */}
-      <Box sx={{ 
-        overflow: 'auto',
-        p: 3,
-        paddingTop: (isMobileFormat ? (heightTitleStepperMobile+10) : stepperHeight) + 'px',
-        paddingBottom: '50px',
-        }}>
-          {/* {isLastStep() ? 'vari' : 'faux'}
-          {activeStep}
-          {maxSteps} */}
-          {/* { stepperRef?.current?.offsetHeight } */}
-        {/* {steps[activeStep].description} */}
-        {/* {product.attributes[activeStep].name} */}
-        {isLastStep() ?
-        (<ProductModalFinalStepperContent productReadyToAdd={productToCompose} />)
-        : (<ProductModalStepperContent attribute={product.attributes[activeStep]}
-          onSelectAttributeItem={handleSelectAttributes} />)} 
-      </Box>
-      {isMobileFormat ? (<MobileStepper sx={{ 
-            display: 'flex',
-            flexDirection: 'row',
-            position: 'absolute',
-            bgcolor: 'background.default',
-            bottom: '50px',
-            left: 0,
-            width: '100%'
-            }}
-        variant="text"
-        steps={maxSteps}
-        position="static"
-        activeStep={activeStep}
-        nextButton={
-          <Button
-            size="small"
-            onClick={handleNext}
-            disabled={!nextButtonIsDisabled()}
-          >
-            Next
-            {theme.direction === 'rtl' ? (
-              <KeyboardArrowLeft />
-            ) : (
-              <KeyboardArrowRight />
-            )}
-          </Button>
-        }
-        backButton={
-          <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-            {theme.direction === 'rtl' ? (
-              <KeyboardArrowRight />
-            ) : (
-              <KeyboardArrowLeft />
-            )}
-            Back
-          </Button>
-        }
-      />) : (
-        <>
-          {/* <Typography sx={{ mt: 2, mb: 1 }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            Step {activeStep + 1}</Typography> */}
-          <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'row',
-            position: 'absolute',
-            bgcolor: 'background.default',
-            bottom: '50px',
-            left: 0,
-            width: '100%'
-            }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                Skip
-              </Button>
-            )}
-
-            <Button onClick={handleNext} disabled={!nextButtonIsDisabled()}>
-              Next
-            </Button>
-          </Box>
-        </>
-      )}
-    </Box>
+    </ProductModalStepperCustom>
+    {/* {activeStep === product.attributes.length && (
+      <Paper square elevation={0} sx={{ p: 3 }}>
+        <Typography>All steps completed - you&apos;re finished</Typography>
+        <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
+          Reset
+        </Button>
+      </Paper>
+    )} */}
+  </Box>
   );
 }

@@ -1,4 +1,13 @@
 {
+  "pre-booking": [
+    {
+      "id": "7b971791-1315-4fd0-b6bb-c629a3017f42",
+      "departureDate": "2024-06-10",
+      "departurePlace": "Marseille, France",
+      "passengers": 12,
+      "luggage": true
+    }
+  ],
     "categories": [
         {
             "id":1,
@@ -61,7 +70,8 @@
         "name": "Chicken - Base, Ultimate",
         "price": 2.3,
         "categories": 3,
-        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1.jpg?alt=media&token=66770798-4310-4d9e-8149-480716383e7e",
+        "imageUrlBis": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1.jpg?alt=media&token=66770798-4310-4d9e-8149-480716383e7e",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/double-cheese-bacon-g-la-dalle.jpg-2.png?alt=media&token=b7375e22-b8a2-46f7-9074-f41c78005c35",
         "discountPercentage": 56.8,
         "status": "ACTIVE"
       }, {
@@ -149,7 +159,8 @@
         "name": "Chick Peas - Canned",
         "price": 22.78,
         "categories": 3,
-        "imageUrl": "http://dummyimage.com/244x161.png/5fa2dd/ffffff",
+        "imageUrlBis": "http://dummyimage.com/244x161.png/5fa2dd/ffffff",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/tacos-crunchy-onion-copy%20(1).jpg?alt=media&token=f3b63685-d2bf-4364-bd6a-ff0d0acb256b",
         "discountPercentage": 58.39,
         "status": "ACTIVE"
       }, {
