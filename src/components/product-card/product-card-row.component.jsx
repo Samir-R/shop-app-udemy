@@ -58,7 +58,8 @@ return (
            >
            { 
             !isLessThanSmall ?
-            'Ajouter au panier'
+            // 'Ajouter au panier'
+            'Ajouter'
             : '+1'
            }
          </CustomOrderButton>

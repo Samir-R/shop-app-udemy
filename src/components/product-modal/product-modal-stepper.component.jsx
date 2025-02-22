@@ -18,6 +18,7 @@ import { ProductModalStepButtonCustom, ProductModalStepContentCustom, ProductMod
 import QuantityInput from '../number-input/number-input';
 import { useState } from 'react';
 import { CustomOrderButton } from '../product-card/product-card-column.component';
+import {TbPaperBag} from "react-icons/tb";
 
 export default function ProductModalStepper({ product, refDialogTitle, handleClose }) {
   const theme = useTheme();
@@ -177,12 +178,15 @@ const handleChangeQuantityToAdd = (quantity) => {
               min={1}
               max={99}/>
                   <CustomOrderButton
-                   variant="contained" endIcon={<ShoppingCart />}
+                   variant="contained"
+                   // endIcon={<ShoppingCart />}
+                   endIcon={<TbPaperBag size="26px"/>}
                   sx={{
                       marginLeft: '15px',
                      }}
                      onClick={addProductToCart} disabled={productToCompose === null}>
-                    Ajouter au panier
+                    {/*Ajouter au panier*/}
+                    Ajouter
                   </CustomOrderButton>
                 </>
                 : <ProductModalStepButtonCustom

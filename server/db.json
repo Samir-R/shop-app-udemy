@@ -5,7 +5,8 @@
       "departureDate": "2024-06-10",
       "departurePlace": "Marseille, France",
       "passengers": 12,
-      "luggage": true
+      "luggage": true,
+      "language": "fr"
     }
   ],
     "categories": [

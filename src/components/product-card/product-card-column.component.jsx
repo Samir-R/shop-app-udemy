@@ -15,6 +15,7 @@ import { Button, Card, CardActions, CardContent, Typography, useMediaQuery } fro
 import { styled, useTheme } from '@mui/material/styles';
 import ShoppingCart from '@mui/icons-material/ShoppingCart';
 import PreviousPrice from '../previous-price/previous-price.component';
+import {TbPaperBag} from "react-icons/tb";
 
 
 export const CustomOrderButton = styled(Button)(({ theme }) => ({
@@ -81,12 +82,14 @@ const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallTo
         <Price>{price}</Price>
       </Footer> */}
       <CardActions sx={{ p: 0 }}>
-        <CustomOrderButton variant="contained" endIcon={<ShoppingCart />}
+        {/*<CustomOrderButton variant="contained" endIcon={<ShoppingCart />}*/}
+        <CustomOrderButton variant="contained" endIcon={<TbPaperBag size="28px"/>}
           size={sizeButton}
           sx={{ width: '100%', padding: "10px 0px"}}
           onClick={addProductToCart}
           >
-          Ajouter au panier
+          {/*Ajouter au panier*/}
+          Ajouter
         </CustomOrderButton>
       </CardActions>
     </Card>);
