@@ -7,16 +7,16 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import ProductModalStepperContent from './product-modal-stepper-content.component';
+import ProductModalStepperContent from './stepper-content/product-modal-stepper-content.component';
 import { Step, StepContent, StepLabel, Stepper, useMediaQuery } from '@mui/material';
 import { CartContext } from '../../contexts/cart.context';
-import ProductModalFinalStepperContent from './product-modal-final-stepper-content.component';
+import ProductModalFinalStepperContent from './stepper-content/product-modal-final-stepper-content.component';
 import { ShoppingCart, ShoppingCartRounded } from '@mui/icons-material';
 import { IoChevronDownOutline, IoChevronUpOutline } from "react-icons/io5";
 import { v4 as uuidv4 } from 'uuid';
-import { ProductModalStepButtonCustom, ProductModalStepContentCustom, ProductModalStepLabelCustom, ProductModalStepperCustom } from './product-modal-stepper-style.component';
+import { ProductModalStepButtonCustom, ProductModalStepContentCustom, ProductModalStepLabelCustom, ProductModalStepperCustom } from './styles/product-modal-stepper-style.component';
 import QuantityInput from '../number-input/number-input';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { CustomOrderButton } from '../product-card/product-card-column.component';
 import {TbPaperBag} from "react-icons/tb";
 
@@ -26,6 +26,7 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
   const isMobileFormat = useMediaQuery(theme.breakpoints.down('md'));
   const { setProductToCompose, productToCompose, addItemToCart } = React.useContext(CartContext);
   const [activeStep, setActiveStep] = React.useState(0);
+  const [finalProductToCompose, setFinalProductToCompose] = React.useState(null);
   const [skipped, setSkipped] = React.useState(new Set());
   const [attributesSelected, setAttributesSelected] = React.useState([]);
   // const maxSteps = steps.length;
@@ -95,9 +96,9 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
     const attributeActiveStepId = product.attributes[activeStep]?.id;
     if (attributeActiveStepId) {
       const currentQty = productToCompose?.attributesSelected?.find((item) => item.id === attributeActiveStepId)?.listSelected?.reduce((acc, obj) => acc + obj.quantity, 0) || 0;
-        if (currentQty >= minimumToAllowNextStep) {
-          return true;
-        }
+      if (currentQty >= minimumToAllowNextStep) {
+        return true;
+      }
     }
     return false;
   }
@@ -128,10 +129,38 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
   }
 
 
+  const getFinalProductToCompose = () => {
+    if (productToCompose?.isMenu && productToCompose?.mainProduct) {
+      const { mainProduct, ...finalProductToCompose } = productToCompose;
+      finalProductToCompose.attributesSelected?.unshift({
+        // id: uuidv4(),
+        id: 'main-attribute-of-menu',
+        max: 1,
+        min: 1,
+        name: 'main-product',
+        isMainProduct: true,
+        listSelected: [
+          {
+            // id: uuidv4(),
+            id: 'main-product-of-menu',
+            ...mainProduct,
+            max: 1,
+            price: 0,
+            quantity: 1,
+          }
+        ]
+      });
+      return finalProductToCompose;
+    }
+    return productToCompose;
+  };
+
   const addProductToCart = () => {
+    // const finalProductToCompose = getFinalProductToCompose();
     // addItemToCart(productToAdd);
     const productToComposeWithQuantity = {
-      ...productToCompose,
+      // ...productToCompose,
+      ...finalProductToCompose,
       quantityToAdd: quantityToAdd,
     }
     console.log('productToComposeWithQuantity');
@@ -139,87 +168,98 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
     // addItemToCart(productToCompose);
     addItemToCart(productToComposeWithQuantity);
     handleClose();
-};
+  };
 
-const handleChangeQuantityToAdd = (quantity) => {
-  // console.log('on fait le change qty ' + element.name);
-  setQuantityToAdd(quantity);
-}
+  const handleChangeQuantityToAdd = (quantity) => {
+    // console.log('on fait le change qty ' + element.name);
+    setQuantityToAdd(quantity);
+  }
+
+  useEffect(() => {
+    if (isLastStep()) {
+      const result = getFinalProductToCompose();
+      setFinalProductToCompose(result);
+    } else {
+      setFinalProductToCompose(null);
+    }
+
+
+  }, [activeStep]);
 
   return (
-    // <Box sx={{ maxWidth: 400 }}>
-    <Box sx={{  }}>
-    <ProductModalStepperCustom activeStep={activeStep} orientation="vertical">
-      {/* {product.attributes.map((attribute, index) => ( */}
-      {steps.map((attribute, index) => (
-        <Step key={attribute.id}>
-          <ProductModalStepLabelCustom
-            // optional={
-            //   index === 2 ? (
-            //     <Typography variant="caption">Last step</Typography>
-            //   ) : null
-            // }
-          >
-            {attribute.title}
-          </ProductModalStepLabelCustom>
-          <ProductModalStepContentCustom>
-            {/* <Typography>{attribute.title}</Typography> */}
-            {isLastStep() ?
-        (<ProductModalFinalStepperContent productReadyToAdd={productToCompose} handleBack={handleBack}/>)
-        : (<ProductModalStepperContent attribute={product.attributes[activeStep]}
-          onSelectAttributeItem={handleSelectAttributes} />)}
-            <Box sx={{ mb: 0 }} className={isLastStep() && 'Last-Step-Footer'}>
-              <div>{isLastStep()
-              ? <>
-                  <QuantityInput 
-              handleChange={handleChangeQuantityToAdd} 
-              // initValue={currentQtyOfElement}
-              initValue={quantityToAdd}
-              min={1}
-              max={99}/>
-                  <CustomOrderButton
-                   variant="contained"
-                   // endIcon={<ShoppingCart />}
-                   endIcon={<TbPaperBag size="26px"/>}
-                  sx={{
-                      marginLeft: '15px',
-                     }}
-                     onClick={addProductToCart} disabled={productToCompose === null}>
-                    {/*Ajouter au panier*/}
-                    Ajouter
-                  </CustomOrderButton>
-                </>
-                : <ProductModalStepButtonCustom
-                  color="inherit"
-                  // variant="contained"
-                  onClick={handleNext}
-                  disabled={!nextButtonIsDisabled()}
-                  endIcon={<IoChevronDownOutline />}
-                  // sx={{ mt: 1, mr: 1 }}
+      // <Box sx={{ maxWidth: 400 }}>
+      <Box sx={{  }}>
+        <ProductModalStepperCustom activeStep={activeStep} orientation="vertical">
+          {/* {product.attributes.map((attribute, index) => ( */}
+          {steps.map((attribute, index) => (
+              <Step key={attribute.id}>
+                <ProductModalStepLabelCustom
+                    // optional={
+                    //   index === 2 ? (
+                    //     <Typography variant="caption">Last step</Typography>
+                    //   ) : null
+                    // }
                 >
-                  {/* {index === steps.length - 1 ? 'Finish' : 'Continue'} */}
-                   Next
-                </ProductModalStepButtonCustom>}
-                {!isLastStep() && <ProductModalStepButtonCustom
-                  color="inherit"
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  endIcon={<IoChevronUpOutline />}
-                  className='Back-Button'
-                  // sx={{
-                  //   mt: 0,
-                  //   mr: 0
-                  // }}
-                >
-                  Back
-                </ProductModalStepButtonCustom>}
-              </div>
-            </Box>
-          </ProductModalStepContentCustom>
-        </Step>
-      ))}
-    </ProductModalStepperCustom>
-    {/* {activeStep === product.attributes.length && (
+                  {attribute.title}
+                </ProductModalStepLabelCustom>
+                <ProductModalStepContentCustom>
+                  {/* <Typography>{attribute.title}</Typography> */}
+                  {isLastStep() ?
+                      (<ProductModalFinalStepperContent productReadyToAdd={finalProductToCompose} handleBack={handleBack}/>)
+                      : (<ProductModalStepperContent attribute={product.attributes[activeStep]}
+                                                     onSelectAttributeItem={handleSelectAttributes} />)}
+                  <Box sx={{ mb: 0 }} className={isLastStep() && 'Last-Step-Footer'}>
+                    <div>{isLastStep()
+                        ? <>
+                          <QuantityInput
+                              handleChange={handleChangeQuantityToAdd}
+                              // initValue={currentQtyOfElement}
+                              initValue={quantityToAdd}
+                              min={1}
+                              max={99}/>
+                          <CustomOrderButton
+                              variant="contained"
+                              // endIcon={<ShoppingCart />}
+                              endIcon={<TbPaperBag size="26px"/>}
+                              sx={{
+                                marginLeft: '15px',
+                              }}
+                              onClick={addProductToCart} disabled={productToCompose === null}>
+                            {/*Ajouter au panier*/}
+                            Ajouter
+                          </CustomOrderButton>
+                        </>
+                        : <ProductModalStepButtonCustom
+                            color="inherit"
+                            // variant="contained"
+                            onClick={handleNext}
+                            disabled={!nextButtonIsDisabled()}
+                            endIcon={<IoChevronDownOutline />}
+                            // sx={{ mt: 1, mr: 1 }}
+                        >
+                          {/* {index === steps.length - 1 ? 'Finish' : 'Continue'} */}
+                          Next
+                        </ProductModalStepButtonCustom>}
+                      {!isLastStep() && <ProductModalStepButtonCustom
+                          color="inherit"
+                          disabled={activeStep === 0}
+                          onClick={handleBack}
+                          endIcon={<IoChevronUpOutline />}
+                          className='Back-Button'
+                          // sx={{
+                          //   mt: 0,
+                          //   mr: 0
+                          // }}
+                      >
+                        Back
+                      </ProductModalStepButtonCustom>}
+                    </div>
+                  </Box>
+                </ProductModalStepContentCustom>
+              </Step>
+          ))}
+        </ProductModalStepperCustom>
+        {/* {activeStep === product.attributes.length && (
       <Paper square elevation={0} sx={{ p: 3 }}>
         <Typography>All steps completed - you&apos;re finished</Typography>
         <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
@@ -227,6 +267,6 @@ const handleChangeQuantityToAdd = (quantity) => {
         </Button>
       </Paper>
     )} */}
-  </Box>
+      </Box>
   );
 }

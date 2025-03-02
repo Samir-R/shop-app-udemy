@@ -5,11 +5,11 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import QuantityInput from '../number-input/number-input';
+import QuantityInput from '../../number-input/number-input';
 import Grid from "@mui/material/Unstable_Grid2";
-import ProductModalStepperContentItem from './product-modal-stepper-content-item.component';
+import ProductModalStepperContentItem from './item/product-modal-stepper-content-item.component';
 import { Avatar, Chip, List, ListItem, ListItemAvatar, ListItemText, ListSubheader } from '@mui/material';
-import { ProductModalStepButtonCustom } from './product-modal-stepper-style.component';
+import { ProductModalStepButtonCustom } from '../styles/product-modal-stepper-style.component';
 import { IoChevronUpOutline } from 'react-icons/io5';
 
 const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
@@ -17,7 +17,7 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
 
   
   return (
-    <>
+      productReadyToAdd === null ? <span>Chargement du resultat !!! ....</span> : (<>
       <Typography variant='subtitle2'
       sx={{
         fontWeight: 'bold',
@@ -55,17 +55,17 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
               }}
               subheader={<li />}
             >
-              {productReadyToAdd.attributesSelected.map((attributeSelected) => (
+              {productReadyToAdd.attributesSelected.map((attributeSelected, index) => (
                 <li key={`section-${attributeSelected.id}`}>
                   <ul>
-                    <ListSubheader
-                      sx={{
-                        fontStyle: 'italic',
-                        fontSize: '0.75rem'
-                      }}
+                      {(attributeSelected.title && !attributeSelected.isMainProduct) && <ListSubheader
+                          sx={{
+                              fontStyle: 'italic',
+                              fontSize: '0.75rem'
+                          }}
                       >
-                      {attributeSelected.title}
-                    </ListSubheader>
+                          {attributeSelected.title}
+                      </ListSubheader>}
                     {attributeSelected.listSelected.map((item) => (
                       <ListItem key={`item-${attributeSelected.id}-${item.id}`}>
                         <ListItemAvatar>
@@ -93,7 +93,7 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
                 </li>
               ))}
             </List>
-            </>
+            </>)
         );
 
   {/* return (

@@ -3,14 +3,18 @@ import {createContext, useState, useReducer, useEffect} from 'react';
 import { createAction } from '../utils/reducer/reducer.utils';
 
 const addCartItem = (cartItems, productToAdd) => {
-  const existingCartItem = !productToAdd.attributesSelected && cartItems.find(
-    (cartItem) => cartItem.id === productToAdd.id
+  // const existingCartItem = !productToAdd.attributesSelected && cartItems.find(
+  //   (cartItem) => cartItem.id === productToAdd.id
+  // );
+  const existingCartItem = cartItems.find(
+    (cartItem) => cartItem.reference === productToAdd.reference
   );
   const quantityToAdd = productToAdd.quantityToAdd || 1;
 
   if (existingCartItem) {
     return cartItems.map((cartItem) =>
-      cartItem.id === productToAdd.id
+      // cartItem.id === productToAdd.id
+      cartItem.reference === productToAdd.reference
         ? { ...cartItem, quantity: cartItem.quantity + quantityToAdd }
         : cartItem
     );
@@ -22,7 +26,8 @@ const addCartItem = (cartItems, productToAdd) => {
 const removeCartItem = (cartItems, cartItemToRemove) => {
   // find the cart item to remove
   const existingCartItem = cartItems.find(
-    (cartItem) => cartItem.id === cartItemToRemove.id
+    // (cartItem) => cartItem.id === cartItemToRemove.id
+    (cartItem) => cartItem.reference === cartItemToRemove.reference
   );
 
   // check if quantity is equal to 1, if it is remove that item from the cart
@@ -32,7 +37,8 @@ const removeCartItem = (cartItems, cartItemToRemove) => {
 
   // return back cartitems with matching cart item with reduced quantity
   return cartItems.map((cartItem) =>
-    cartItem.id === cartItemToRemove.id
+    // cartItem.id === cartItemToRemove.id
+    cartItem.reference === cartItemToRemove.reference
       ? { ...cartItem, quantity: cartItem.quantity - 1 }
       : cartItem
   );
@@ -123,8 +129,25 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   };
 
+  const generateReference = (productToAdd) => {
+    if (productToAdd?.attributesSelected?.length > 0) {
+      return productToAdd.id + '#' + productToAdd?.attributesSelected.flatMap(item => [
+        item.id,
+        ...item.listSelected.map(s => `${s.id}.${s.quantity}`)
+      ]).join('_');
+    }
+    return productToAdd.id;
+  };
+
   const addItemToCart = (productToAdd) => {
-    const newCartItems = addCartItem(cartItems, productToAdd);
+    const reference = generateReference(productToAdd);
+    const newCartItems = addCartItem(
+        cartItems,
+        {
+          ...productToAdd,
+          reference,
+        }
+        );
     updateCartItemsReducer(newCartItems);
   };
 

@@ -42,12 +42,22 @@ const ProductCard = ({ product }) => {
 
   const { name, price, discountPrice, imageUrl } = product;
   const { addItemToCart } = useContext(CartContext);
-  const { setProductWithAttributesToDisplay } = useContext(ProductContext);
+  const { setProductWithAttributesToDisplay, products, setDisplayErrorNoProductMenu } = useContext(ProductContext);
 
-  const addProductToCart = () => {
-    
-    if (product.attributes.length) {
+  const addProductToCart = (openModalMenu = false) => {
+    console.log('addProductToCart')
+    console.log(product);
+    console.log(openModalMenu);
+    if (product.attributes.length && product.productMenu === null) {
         setProductWithAttributesToDisplay(product);
+    } else if(openModalMenu) {
+      // la recherche seera p-e inutile vu que le backend va renvoyer le product et non l'id
+      const productMenu = products.find((prod) => prod.id === product.productMenu);
+      if (productMenu) {
+        setProductWithAttributesToDisplay(productMenu);
+      } else {
+        setDisplayErrorNoProductMenu(true);
+      }
     } else {
       addItemToCart(product);
     }

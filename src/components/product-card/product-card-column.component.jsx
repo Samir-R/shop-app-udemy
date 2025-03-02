@@ -16,6 +16,8 @@ import { styled, useTheme } from '@mui/material/styles';
 import ShoppingCart from '@mui/icons-material/ShoppingCart';
 import PreviousPrice from '../previous-price/previous-price.component';
 import {TbPaperBag} from "react-icons/tb";
+import {IoFastFoodOutline} from "react-icons/io5";
+import {MenuIconComponent} from "../custom-icon/menu-icon.component";
 
 
 export const CustomOrderButton = styled(Button)(({ theme }) => ({
@@ -46,6 +48,7 @@ const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallTo
     variantPrice = 'body1';
     sizeButton = 'medium';
   }
+  const buttonWidth = product.productMenu ? '50%' : '100%';
 
   return (
   <Card  sx={{ height: '100%', display: "flex", flexDirection: "column", boxShadow: 10, borderRadius: 3 }}>
@@ -85,12 +88,22 @@ const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallTo
         {/*<CustomOrderButton variant="contained" endIcon={<ShoppingCart />}*/}
         <CustomOrderButton variant="contained" endIcon={<TbPaperBag size="28px"/>}
           size={sizeButton}
-          sx={{ width: '100%', padding: "10px 0px"}}
-          onClick={addProductToCart}
+          sx={{ width: buttonWidth, padding: "10px 0px"}}
+          onClick={() => addProductToCart(false)}
           >
           {/*Ajouter au panier*/}
           Ajouter
         </CustomOrderButton>
+          {product.productMenu && (<CustomOrderButton variant="contained"
+                                                      // endIcon={<IoFastFoodOutline size="28px"/>}
+                                                      endIcon={<MenuIconComponent />}
+                              size={sizeButton}
+                              sx={{width: buttonWidth, padding: "10px 0px", marginLeft: '3px !important', backgroundColor: '#555'}}
+                              onClick={() => addProductToCart(true)}
+          >
+              {/*Ajouter au panier*/}
+              Menu
+          </CustomOrderButton>)}
       </CardActions>
     </Card>);
 };

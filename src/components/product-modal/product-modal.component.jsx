@@ -11,7 +11,7 @@ import { IconButton, useMediaQuery, useTheme } from '@mui/material';
 import ProductModalStepper from './product-modal-stepper.component';
 import { CartContext } from '../../contexts/cart.context';
 import { useState } from 'react';
-import { ProductModalDialogButtonCloseCustom, ProductModalDialogContentCustom, ProductModalDialogCustom, ProductModalDialogTitleCustom } from './product-modal-stepper-style.component';
+import { ProductModalDialogButtonCloseCustom, ProductModalDialogContentCustom, ProductModalDialogCustom, ProductModalDialogTitleCustom } from './styles/product-modal-stepper-style.component';
 import { IoChevronBackOutline } from "react-icons/io5";
 
 export default function ProductModal() {

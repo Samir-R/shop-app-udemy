@@ -5,11 +5,11 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import QuantityInput from '../number-input/number-input';
+import QuantityInput from '../../number-input/number-input';
 import Grid from "@mui/material/Unstable_Grid2";
-import ProductModalStepperContentItem from './product-modal-stepper-content-item.component';
+import ProductModalStepperContentItem from './item/product-modal-stepper-content-item.component';
 import { Avatar, Checkbox, List, ListItem, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
-import { ProductModalListCustom } from './product-modal-stepper-style.component';
+import { ProductModalListCustom } from '../styles/product-modal-stepper-style.component';
 
 const ProductModalStepperContent = ({ attribute, onSelectAttributeItem }) => {
 

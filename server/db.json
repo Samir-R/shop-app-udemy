@@ -20,7 +20,7 @@
             {"id":4,"name":"Subin","imageUrl":"http://dummyimage.com/119x100.png/ff4444/ffffff","status": "ACTIVE"},
             {"id":5,"name":"Temp","imageUrl":"http://dummyimage.com/124x100.png/ff4444/ffffff","status": "INACTIVE"},
             {"id":6,"name":"Les Menus Salades du Jour by G LA DALLE","imageUrl":"http://dummyimage.com/217x100.png/5fa2dd/ffffff","status": "ACTIVE"},
-            {"id":7,"name":"Treeflex","imageUrl":"http://dummyimage.com/131x100.png/5fa2dd/ffffff","status": "ACTIVE"},
+            {"id":7,"name":"Nos Menus","imageUrl":"http://dummyimage.com/131x100.png/5fa2dd/ffffff","status": "ACTIVE"},
             {"id":8,"name":"Tres-Zap","imageUrl":"http://dummyimage.com/224x100.png/ff4444/ffffff","status": "ACTIVE"},
             {"id":9,"name":"Sonsing","imageUrl":"http://dummyimage.com/234x100.png/dddddd/000000","status": "ACTIVE"},
             {"id":10,"name":"Sonsing","imageUrl":"http://dummyimage.com/248x100.png/cc0000/ffffff","status": "ACTIVE"}
@@ -57,6 +57,7 @@
         "categories": 1,
         "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1%20(1).jpg?alt=media&token=10ad95e8-e944-4c73-9dde-4e75a04a500c",
         "discountPercentage": 20,
+        "productMenu": 8,
         "status": "ACTIVE"
       }, {
         "id": 5,
@@ -82,15 +83,124 @@
         "categories": 1,
         "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-BACON-1.jpg?alt=media&token=293279cc-df25-4e48-86d8-4a0c9b45fdf8",
         "discountPercentage": 79.19,
+        "productMenu": 345,
         "status": "ACTIVE"
       }, {
         "id": 8,
-        "name": "Pork Loin Cutlets",
+        "name": "Menu - Double cheese",
         "price": 22.74,
         "categories": 7,
-        "imageUrl": "http://dummyimage.com/242x133.png/cc0000/ffffff",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1%20(1).jpg?alt=media&token=10ad95e8-e944-4c73-9dde-4e75a04a500c",
         "discountPercentage": 63.18,
-        "status": "ACTIVE"
+        "status": "ACTIVE",
+        "isMenu": true,
+        "mainProduct": {
+          "name": "Double cheese",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/DOUBLE-CHEESE-1%20(1).jpg?alt=media&token=10ad95e8-e944-4c73-9dde-4e75a04a500c"
+        },
+        "attributes": [
+          {
+            "id": 2,
+            "name": "menu-item-2",
+            "title": "Frites ou potatoes",
+            "min": 1,
+            "max": 1,
+            "list": [
+              {
+                "id": 5,
+                "name": "Frites",
+                "imageUrl": "https://www.passionfroid.fr/sites/passionfroid/files/styles/main_image_full/public/externals/2bb94cfc9b556c7bc22f483e3eede5fb.jpg?itok=aNzEJHiO",
+                "price": 0,
+                "max": 1
+              },
+              {
+                "id": 6,
+                "name": "Potatoes",
+                "imageUrlBis": "https://img-3.journaldesfemmes.fr/15iCP4xjH1VEu6TyRzNX0AELSUg=/750x500/smart/fe7006999a794a028fd9393b14920d2f/recipe-jdf/10055251.jpg",
+                "imageUrl": "https://firebasestorage.googleapis.com/v0/b/shop-app-udemy-fe5b1.appspot.com/o/potatoes-maison-aux-epices%20(2).jpeg?alt=media&token=f0a36b8b-ede2-4880-8122-e125a4845590",
+                "price": 0,
+                "max": 1
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "name": "menu-item-3",
+            "title": "Sauce",
+            "min": 1,
+            "max": 3,
+            "list": [
+              {
+                "id": 7,
+                "name": "Ketchup",
+                "imageUrl": "https://papafrance.fr/3313-large_default/pot-a-sauce.jpg",
+                "price": 0,
+                "max": 2
+              },
+              {
+                "id": 8,
+                "name": "Mayonaise",
+                "imageUrl": "https://www.lacorpo.com/556-large_default/pot-rond-trsp-pp-125cl-p100.jpg",
+                "price": 0,
+                "max": 2
+              },
+              {
+                "id": 9,
+                "name": "Biggy",
+                "imageUrl": "https://www.emballagefute.com/1028-medium_default/pots-a-sauce.jpg",
+                "price": 0,
+                "max": 2
+              },
+              {
+                "id": 10,
+                "name": "Pitta",
+                "imageUrl": "https://m.media-amazon.com/images/I/61VHBNtZIQL.jpg",
+                "price": 0,
+                "max": 2
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "name": "menu-item-4",
+            "title": "Boissons",
+            "min": 1,
+            "max": 1,
+            "list": [
+              {
+                "id": 12,
+                "name": "Coca",
+                "imageUrl": "https://i0.wp.com/commechezmams.fr/wp-content/uploads/2021/01/COCA-33cl.jpg?fit=800%2C800&ssl=1",
+                "price": 0,
+                "max": 1
+              },
+              {
+                "id": 13,
+                "name": "Fanta",
+                "imageUrl": "https://halalfs.com/2115-large_default/fanta-orange-24-x-33-cl.jpg",
+                "price": 0
+              },
+              {
+                "id": 14,
+                "name": "Orangina",
+                "imageUrl": "https://www.delta-food.com/web/image/product.template/920/image_1024?unique=d2d9890",
+                "price": 0
+              },
+              {
+                "id": 15,
+                "name": "Oasis",
+                "imageUrl": "https://halalcourses.com/3438-medium_default/oasis-tropical.jpg",
+                "price": 0
+              },
+              {
+                "id": 16,
+                "name": "Schweppes",
+                "imageUrl": "https://www.clicmarket.fr/4471-large_default/24-canettes-de-schweppes-agrumes-24-x-33-cl.jpg",
+                "price": 0
+              }
+            ]
+          }
+        ]
       }, {
         "id": 9,
         "name": "Le Royal",

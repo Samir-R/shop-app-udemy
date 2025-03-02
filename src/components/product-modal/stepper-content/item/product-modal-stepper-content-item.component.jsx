@@ -5,10 +5,10 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import QuantityInput from '../number-input/number-input';
-import { CartContext } from '../../contexts/cart.context';
+import QuantityInput from '../../../number-input/number-input';
+import { CartContext } from '../../../../contexts/cart.context';
 import { Avatar, Checkbox, ListItem, ListItemAvatar, ListItemButton, ListItemText, Radio } from '@mui/material';
-import { ProductModalListItemCustom } from './product-modal-stepper-style.component';
+import { ProductModalListItemCustom } from '../../styles/product-modal-stepper-style.component';
 
 const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity, attributeParent, elementActionType, classCustomName }) => {
 
@@ -95,9 +95,9 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
   const labelId = `checkbox-list-secondary-label-${element.id}`;
     // console.log(element.name);
     // console.log(getMaxQuantity());
-  let toto = null;
+  let secondaryActionButton = null;
   if (elementActionType === 'radio') {
-    toto = <Radio checked={radio === element.id}
+    secondaryActionButton = <Radio checked={radio === element.id}
     // value={value}
     onChange={() => setRadio(element.id)}
     />
@@ -108,13 +108,13 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
     //   inputProps={{ 'aria-labelledby': labelId }}
     // />
   } else if (elementActionType === 'checkbox') {
-    // toto = <Checkbox
+    // secondaryActionButton = <Checkbox
     //   edge="end"
     //   onChange={handleToggle(element.id)}
     //   checked={checked.indexOf(element.id) !== -1}
     //   inputProps={{ 'aria-labelledby': labelId }}
     // />
-    toto = <Checkbox
+    secondaryActionButton = <Checkbox
       edge="end"
       checked={currentQtyOfElement>0}
       disabled={maxOfElement===0}
@@ -122,7 +122,7 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
       inputProps={{ 'aria-label': 'controlled' }}
     />
   } else {
-    toto = <QuantityInput 
+    secondaryActionButton = <QuantityInput 
               handleChange={handleChange} 
               initValue={currentQtyOfElement} 
               max={maxOfElement}/>
@@ -131,7 +131,7 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
   return (
     <ProductModalListItemCustom
     className={`${classCustomName} Action-Type-${elementActionType}`}
-            secondaryAction={toto
+            secondaryAction={secondaryActionButton
               // elementActionType === 'radio'
               // ? ( <Checkbox
               //   edge="end"

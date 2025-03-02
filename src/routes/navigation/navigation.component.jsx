@@ -43,8 +43,10 @@ import {
   LogoContainer,
 } from './navigation.styles';
 import CartDrawer from '../../components/cart-drawer/cart-drawer.component';
-import { createTheme, useTheme } from '@mui/material';
+import {Button, createTheme, useTheme} from '@mui/material';
 import { ThemeCustomContext } from '../../contexts/theme-custom.context';
+import ShopModal from "../../components/shop-modal/shop-modal.component";
+import {LuMapPin} from "react-icons/lu";
 
 
 const drawerWidth = 240;
@@ -56,6 +58,13 @@ const Navigation = () => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const ref = useRef(null);
+
+  const [restaurantModalOpen, setRestaurantModalOpen] = useState(false);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const handleSelectRestaurant = (restaurant) => {
+    setSelectedRestaurant(restaurant);
+    console.log('Restaurant sélectionné:', restaurant);
+  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -162,6 +171,38 @@ const Navigation = () => {
             <NavLink to='/auth'>SIGN IN</NavLink>
           )}
             <CartIcon />
+          <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<LuMapPin />}
+              onClick={() => setRestaurantModalOpen(true)}
+              size="large"
+              fullWidth
+              sx={{ mb: 2, justifyContent: 'flex-start', py: 1.5 }}
+          >
+            {selectedRestaurant ? (
+                <Box sx={{ textAlign: 'left', overflow: 'hidden' }}>
+                  <Box component="span" sx={{ display: 'block', fontWeight: 'bold' }}>
+                    {selectedRestaurant.name}
+                  </Box>
+                  <Box
+                      component="span"
+                      sx={{
+                        display: 'block',
+                        fontSize: '0.75rem',
+                        color: 'text.secondary',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                  >
+                    {selectedRestaurant.address}
+                  </Box>
+                </Box>
+            ) : (
+                "Choisir un restaurant"
+            )}
+          </Button>
         </Toolbar>
       </AppBar>
         {/* {isCartOpen && <CartDropdown />} */}
@@ -195,6 +236,11 @@ const Navigation = () => {
           posuere sollicitudin aliquam ultrices sagittis orci a.
         </Typography> */}
     </Box>
+      <ShopModal
+          open={restaurantModalOpen}
+          onClose={() => setRestaurantModalOpen(false)}
+          onSelectRestaurant={handleSelectRestaurant}
+      />
     </Fragment>
   );
 };
