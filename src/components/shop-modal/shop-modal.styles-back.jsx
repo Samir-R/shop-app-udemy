@@ -1,16 +1,14 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, Paper, InputBase, Dialog, Button } from '@mui/material';
+import { Box, Typography, Paper, InputBase, Dialog } from '@mui/material';
 
 export const ModalContainer = styled(Dialog)(({ theme }) => ({
     '& .MuiDialog-paper': {
         width: '100%',
         maxWidth: 600,
-        maxHeight: '90vh',
+        maxHeight: '80vh',
         borderRadius: 12,
         overflow: 'hidden',
         margin: theme.spacing(2),
-        display: 'flex',
-        flexDirection: 'column',
     },
 }));
 
@@ -50,8 +48,6 @@ export const SearchInput = styled(InputBase)(({ theme }) => ({
 export const RestaurantList = styled(Box)(({ theme }) => ({
     padding: theme.spacing(2),
     overflowY: 'auto',
-    flex: 1,
-    maxHeight: '50vh',
 }));
 
 export const RestaurantCard = styled(Box)(({ theme }) => ({
@@ -125,41 +121,4 @@ export const EmptyResults = styled(Box)(({ theme }) => ({
     padding: theme.spacing(6),
     textAlign: 'center',
     height: '50vh',
-}));
-
-export const ModalFooter = styled(Box)(({ theme }) => ({
-    padding: theme.spacing(3),
-    borderTop: `1px solid ${theme.palette.divider}`,
-    backgroundColor: theme.palette.background.paper,
-}));
-
-export const DeliveryOptionButton = styled(Button)(({ theme, selected }) => ({
-    flex: 1,
-    padding: theme.spacing(1.5),
-    border: `2px solid ${selected ? theme.palette.primary.main : theme.palette.divider}`,
-    backgroundColor: selected ? theme.palette.primary.light : theme.palette.background.paper,
-    color: selected ? theme.palette.primary.main : theme.palette.text.primary,
-    '&:hover': {
-        backgroundColor: selected ? theme.palette.primary.light : theme.palette.action.hover,
-    },
-}));
-
-export const DateToggleButton = styled(Button)(({ theme, selected }) => ({
-    padding: theme.spacing(1, 2),
-    borderRadius: 8,
-    border: `2px solid ${selected ? theme.palette.primary.main : theme.palette.divider}`,
-    backgroundColor: selected ? theme.palette.primary.light : theme.palette.background.paper,
-    color: selected ? theme.palette.primary.main : theme.palette.text.primary,
-    '&:hover': {
-        backgroundColor: selected ? theme.palette.primary.light : theme.palette.action.hover,
-    },
-    minWidth: 100,
-    height: 40,
-}));
-
-export const TimeSelect = styled(Paper)(({ theme }) => ({
-    padding: theme.spacing(2),
-    marginTop: theme.spacing(2),
-    backgroundColor: theme.palette.background.default,
-    borderRadius: 8,
 }));

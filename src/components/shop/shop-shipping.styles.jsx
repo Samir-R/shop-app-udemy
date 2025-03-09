@@ -14,7 +14,7 @@ export const ModalContainer = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-export const ModalHeader = styled(Box)(({ theme }) => ({
+export const ShopAndShippingHeader = styled(Box)(({ theme }) => ({
     padding: theme.spacing(3),
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -127,7 +127,7 @@ export const EmptyResults = styled(Box)(({ theme }) => ({
     height: '50vh',
 }));
 
-export const ModalFooter = styled(Box)(({ theme }) => ({
+export const ShopAndShippingFooter = styled(Box)(({ theme }) => ({
     padding: theme.spacing(3),
     borderTop: `1px solid ${theme.palette.divider}`,
     backgroundColor: theme.palette.background.paper,

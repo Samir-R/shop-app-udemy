@@ -10,6 +10,7 @@ import { CartProvider } from './contexts/cart.context';
 
 import './index.scss';
 import { ThemeCustomProvider } from './contexts/theme-custom.context';
+import {ShopShippingProvider} from "./contexts/shop-shipping.context";
 
 const rootElement = document.getElementById('root');
 
@@ -17,15 +18,17 @@ render(
   <React.StrictMode>
     <BrowserRouter>
       <UserProvider>
-        <CategoriesProvider>
-          <ProductProvider>
-            <CartProvider>
-              <ThemeCustomProvider>
-                <App />
-              </ThemeCustomProvider>
-            </CartProvider>
-          </ProductProvider>
-        </CategoriesProvider>
+        <ShopShippingProvider>
+          <CategoriesProvider>
+            <ProductProvider>
+              <CartProvider>
+                <ThemeCustomProvider>
+                  <App />
+                </ThemeCustomProvider>
+              </CartProvider>
+            </ProductProvider>
+          </CategoriesProvider>
+        </ShopShippingProvider>
       </UserProvider>
     </BrowserRouter>
   </React.StrictMode>,
