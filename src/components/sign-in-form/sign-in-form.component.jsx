@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import FormInput from '../form-input/form-input.component';
-import Button, { BUTTON_TYPE_CLASSES } from '../button/button.component';
+// import Button, { BUTTON_TYPE_CLASSES } from '../button/button.component';
 
 import {
   signInAuthUserWithEmailAndPassword,
@@ -9,6 +9,10 @@ import {
 } from '../../utils/firebase/firebase.utils';
 
 import { SignInContainer, ButtonsContainer } from './sign-in-form.styles';
+import {Card, CardContent, TextField, Typography} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import {LoginOutlined} from "@mui/icons-material";
 
 const defaultFormFields = {
   email: '',
@@ -31,6 +35,9 @@ const SignInForm = () => {
     event.preventDefault();
 
     try {
+      console.log('handleSubmit');
+      console.log(email);
+      console.log(password);
       await signInAuthUserWithEmailAndPassword(email, password);
       resetFormFields();
     } catch (error) {
@@ -46,36 +53,57 @@ const SignInForm = () => {
 
   return (
     <SignInContainer>
-      <h2>Already have an account?</h2>
-      <span>Sign in with your email and password</span>
       <form onSubmit={handleSubmit}>
-        <FormInput
-          label='Email'
-          type='email'
-          required
-          onChange={handleChange}
-          name='email'
-          value={email}
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Card sx={{boxShadow: 'none', borderBottom: '2px dashed #dfe6e9', borderRadius: 0 }} >
+              <CardContent sx={{ textAlign: 'center', py: 3 }}>
+                <LoginOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Se connecter</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  J'ai déjà un compte
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+        <TextField
+            fullWidth
+            label="Adresse email"
+            type="email"
+            required={true}
+            onChange={handleChange}
+            name='email'
+            value={email}
         />
-
-        <FormInput
-          label='Password'
-          type='password'
-          required
-          onChange={handleChange}
-          name='password'
-          value={password}
-        />
-        <ButtonsContainer>
-          <Button type='submit'>Sign In</Button>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label='Password'
+              type='password'
+              required
+              onChange={handleChange}
+              name='password'
+              value={password}
+            />
+          </Grid>
+          <Grid item xs={12}>
           <Button
-            buttonType={BUTTON_TYPE_CLASSES.google}
-            type='button'
-            onClick={signInWithGoogle}
+              type="submit"
+              variant="contained"
+              size="large"
           >
-            Sign In With Google
+            Se connecter
           </Button>
-        </ButtonsContainer>
+          {/*<Button*/}
+          {/*  type='button'*/}
+          {/*  onClick={signInWithGoogle}*/}
+          {/*>*/}
+          {/*  Sign In With Google*/}
+          {/*</Button>*/}
+          </Grid>
+        </Grid>
       </form>
     </SignInContainer>
   );

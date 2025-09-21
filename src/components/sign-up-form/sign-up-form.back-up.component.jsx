@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import FormInput from '../form-input/form-input.component';
 import Button from '../button/button.component';
@@ -9,9 +9,6 @@ import {
 } from '../../utils/firebase/firebase.utils';
 
 import { SignUpContainer } from './sign-up-form.styles';
-import {Card, CardContent, TextField, Typography} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import {PersonAddOutlined} from "@mui/icons-material";
 
 const defaultFormFields = {
   displayName: '',
@@ -61,22 +58,10 @@ const SignUpForm = () => {
 
   return (
     <SignUpContainer>
+      <h2>Don't have an account?</h2>
+      <span>Sign up with your email and password</span>
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Card sx={{boxShadow: 'none', borderBottom: '2px dashed #dfe6e9', borderRadius: 0 }}>
-              <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                <PersonAddOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Créer un compte</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Nouveau client
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12}>
-        <TextField
-            fullWidth
+        <FormInput
           label='Display Name'
           type='text'
           required
@@ -85,10 +70,7 @@ const SignUpForm = () => {
           value={displayName}
         />
 
-          </Grid>
-          <Grid item xs={12}>
-        <TextField
-            fullWidth
+        <FormInput
           label='Email'
           type='email'
           required
@@ -97,10 +79,7 @@ const SignUpForm = () => {
           value={email}
         />
 
-          </Grid>
-          <Grid item xs={12}>
-        <TextField
-            fullWidth
+        <FormInput
           label='Password'
           type='password'
           required
@@ -109,10 +88,7 @@ const SignUpForm = () => {
           value={password}
         />
 
-          </Grid>
-          <Grid item xs={12}>
-        <TextField
-            fullWidth
+        <FormInput
           label='Confirm Password'
           type='password'
           required
@@ -120,12 +96,7 @@ const SignUpForm = () => {
           name='confirmPassword'
           value={confirmPassword}
         />
-          </Grid>
-          <Grid item xs={12}>
         <Button type='submit'>Sign Up</Button>
-
-          </Grid>
-        </Grid>
       </form>
     </SignUpContainer>
   );
