@@ -1,5 +1,5 @@
 import { Fragment, useContext, useRef, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
@@ -47,10 +47,14 @@ import {Button, createTheme, useTheme} from '@mui/material';
 import { ThemeCustomContext } from '../../contexts/theme-custom.context';
 import ShopModal from "../../components/shop-modal/shop-modal.component";
 import {LuMapPin} from "react-icons/lu";
+import useAuth from "../../hooks/use-auth.hook";
 
 
 const drawerWidth = 240;
 const Navigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { logout } = useAuth();
   const { currentUser } = useContext(UserContext);
   const { setHeaderHeight } = useContext(ThemeCustomContext);
   const { categories, currentCategory } = useContext(CategoriesContext);
@@ -68,6 +72,19 @@ const Navigation = () => {
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
+  };
+
+  const handleGoToMyAccount = () => {
+    navigate('/my-account');
+    handleClose();
+  };
+
+  const handleLogout = () => {
+    logout();
+    if(location.pathname.startsWith('/my-account')) {
+      navigate('/auth');
+    }
+    handleClose();
   };
 
   const handleClose = () => {
@@ -163,8 +180,8 @@ const Navigation = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleGoToMyAccount}>My account</MenuItem>
+                <MenuItem onClick={handleLogout}>Déconnexion</MenuItem>
               </Menu>
             </div>
           ) : (

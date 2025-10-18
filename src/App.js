@@ -13,6 +13,12 @@ import Shop from './routes/shop/shop.component';
 import Checkout from './routes/checkout/checkout.component';
 import ProductModal from './components/product-modal/product-modal.component';
 import CheckoutStepper from "./components/checkout/CheckoutStepper";
+import MyAccount from "./routes/account/account.component";
+import ForgotPassword from "./components/sign-up-form/forgot-password.component";
+import ResetPassword from "./components/sign-up-form/reset-password.component";
+import VerifyEmail from "./components/sign-up-form/verify-email.component";
+import VerifyEmailSent from "./components/sign-up-form/verify-email-sent.component";
+import ProtectedRoute from "./components/protected-route/protected-route.component";
 
 let theme = createTheme({
   typography: {
@@ -129,8 +135,16 @@ console.log('on relaod App.js ' + theme.typography.fontFamily);
         <Route index element={<Home />} />
         <Route path='shop/*' element={<Shop />} />
         <Route path='auth' element={<Authentication />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
         {/*<Route path='checkout' element={<Checkout />} />*/}
         <Route path='checkout' element={<CheckoutStepper />} />
+        <Route path='my-account' element={
+          <ProtectedRoute>
+            <MyAccount />
+          </ProtectedRoute>} />
       </Route>
     </Routes>
     <ProductModal />
