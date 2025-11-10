@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Box,
   Typography,
@@ -13,8 +13,10 @@ import {
   Chip,
   Divider,
 } from '@mui/material';
-import { Store, LocalShipping, Schedule, LocationOn } from '@mui/icons-material';
+import { Store, LocalShipping } from '@mui/icons-material';
 import { useFormContext, Controller } from 'react-hook-form';
+import AddressManagement from '../../account/address-management.component';
+import { AddressContext } from '../../../contexts/address.context';
 
 const restaurants = [
   { id: 'resto1', name: 'Chez Luigi', address: '12 rue de la Paix, Paris' },
@@ -29,6 +31,7 @@ const timeSlots = [
 
 const RestaurantStep = () => {
   const { control, watch, setValue, formState: { errors } } = useFormContext();
+  const { currentAddress } = useContext(AddressContext);
   const deliveryMode = watch('deliveryMode');
 
   return (
@@ -150,59 +153,15 @@ const RestaurantStep = () => {
           <>
             <Grid item xs={12}>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle1" gutterBottom>
-                <LocationOn sx={{ mr: 1, verticalAlign: 'middle' }} />
-                Adresse de livraison
-              </Typography>
             </Grid>
-            
+
             <Grid item xs={12}>
-              <Controller
-                name="address.street"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Adresse"
-                    placeholder="Numéro et nom de rue"
-                    error={!!errors.address?.street}
-                    helperText={errors.address?.street?.message}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <Controller
-                name="address.zipCode"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Code postal"
-                    error={!!errors.address?.zipCode}
-                    helperText={errors.address?.zipCode?.message}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={8}>
-              <Controller
-                name="address.city"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Ville"
-                    error={!!errors.address?.city}
-                    helperText={errors.address?.city?.message}
-                  />
-                )}
-              />
+              <AddressManagement mode="select" />
+              {!currentAddress && (
+                <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                  Veuillez sélectionner une adresse de livraison pour continuer
+                </Typography>
+              )}
             </Grid>
           </>
         )}

@@ -17,11 +17,12 @@ import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { UserContext } from '../../contexts/user.context';
 
 const ForgotPassword = () => {
-  const { forgotPassword, isLoading } = useContext(UserContext);
+  const { forgotPassword } = useContext(UserContext);
 
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setEmail(e.target.value);
@@ -43,6 +44,7 @@ const ForgotPassword = () => {
       return;
     }
 
+    setIsLoading(true);
     const result = await forgotPassword(email);
 
     if (result.success) {
@@ -51,6 +53,8 @@ const ForgotPassword = () => {
     } else {
       setError(result.message);
     }
+
+    setIsLoading(false);
   };
 
   return (

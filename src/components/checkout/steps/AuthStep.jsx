@@ -1,47 +1,148 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Box,
   Typography,
-  TextField,
-  Button,
   Card,
   CardContent,
   Grid,
   Divider,
-  Chip,
+  Button,
+  Alert,
+  Avatar,
 } from '@mui/material';
-import { PersonOutline, LoginOutlined, PersonAddOutlined } from '@mui/icons-material';
-import { useFormContext, Controller } from 'react-hook-form';
+import { PersonOutline, LoginOutlined, PersonAddOutlined, LogoutOutlined, CheckCircleOutline } from '@mui/icons-material';
+import Login from '../../sign-in-form/sign-in-form.component';
+import Register from '../../sign-up-form/sign-up-form.component';
+import GuestCheckout from '../../guest-checkout/guest-checkout.component';
+import { UserContext } from '../../../contexts/user.context';
 
-const AuthStep = () => {
-  const { control, watch, setValue, formState: { errors } } = useFormContext();
-  const authMode = watch('authMode');
+const AuthStep = ({ onAuthComplete }) => {
+  const [authMode, setAuthMode] = useState(null);
+  const { currentUser, currentUserGuest, logout, resetGuestUser } = useContext(UserContext);
 
-  const setAuthMode = (mode) => {
-    setValue('authMode', mode);
-    // Reset optional fields when switching modes
-    if (mode !== 'register') {
-      setValue('firstName', '');
-      setValue('lastName', '');
-    }
-    if (mode !== 'guest') {
-      setValue('guestName', '');
-    }
-    if (mode === 'guest') {
-      setValue('password', '');
+  const handleAuthSuccess = () => {
+    if (onAuthComplete) {
+      onAuthComplete();
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    setAuthMode(null);
+  };
+
+  const handleGuestLogout = () => {
+    resetGuestUser();
+    setAuthMode(null);
+  };
+
+  // Si un utilisateur est connecté ou un invité est défini
+  if (currentUser || currentUserGuest) {
+    const isGuest = !!currentUserGuest;
+    const user = currentUser || currentUserGuest;
+
+    // Gérer les différents formats de nom possibles
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+    const userName = firstName && lastName
+      ? `${firstName} ${lastName}`
+      : user.name || user.email?.split('@')[0] || 'Utilisateur';
+
+    // Pour l'avatar
+    const avatarLetters = firstName && lastName
+      ? `${firstName[0]}${lastName[0]}`
+      : userName[0]?.toUpperCase() || 'U';
+
+    return (
+      <Box>
+        <Alert
+          severity="success"
+          icon={<CheckCircleOutline fontSize="large" />}
+          sx={{ mb: 3 }}
+        >
+          <Typography variant="h6" gutterBottom>
+            {isGuest ? 'Commande en tant qu\'invité' : 'Connecté avec succès'}
+          </Typography>
+          <Typography variant="body1">
+            Vous êtes connecté en tant que <strong>{userName}</strong>
+          </Typography>
+          {user.email && (
+            <Typography variant="body2" color="text.secondary">
+              {user.email}
+            </Typography>
+          )}
+        </Alert>
+
+        <Card sx={{ p: 3, textAlign: 'center' }}>
+          <Avatar
+            sx={{
+              width: 80,
+              height: 80,
+              margin: '0 auto 16px',
+              bgcolor: isGuest ? 'secondary.main' : 'primary.main',
+              fontSize: '2rem'
+            }}
+          >
+            {avatarLetters}
+          </Avatar>
+
+          <Typography variant="h5" gutterBottom>
+            {userName}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {user.email}
+          </Typography>
+
+          {user.phone && (
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {user.phone}
+            </Typography>
+          )}
+
+          <Divider sx={{ my: 2 }} />
+
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<LogoutOutlined />}
+            onClick={isGuest ? handleGuestLogout : handleLogout}
+            fullWidth
+          >
+            {isGuest ? 'Changer de mode' : 'Se déconnecter'}
+          </Button>
+
+          {isGuest && (
+            <Typography variant="caption" display="block" sx={{ mt: 2 }} color="text.secondary">
+              En tant qu'invité, vous ne pourrez pas suivre votre commande après validation
+            </Typography>
+          )}
+        </Card>
+
+        <Box sx={{ textAlign: 'center', mt: 3 }}>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handleAuthSuccess}
+          >
+            Continuer vers la livraison
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Si aucun utilisateur n'est connecté, afficher les options d'authentification
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
         Comment souhaitez-vous continuer ?
       </Typography>
-      
+
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={4}>
-          <Card 
-            sx={{ 
+          <Card
+            sx={{
               cursor: 'pointer',
               border: authMode === 'login' ? '2px solid' : '1px solid',
               borderColor: authMode === 'login' ? 'primary.main' : 'grey.300',
@@ -60,8 +161,8 @@ const AuthStep = () => {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card 
-            sx={{ 
+          <Card
+            sx={{
               cursor: 'pointer',
               border: authMode === 'register' ? '2px solid' : '1px solid',
               borderColor: authMode === 'register' ? 'primary.main' : 'grey.300',
@@ -80,8 +181,8 @@ const AuthStep = () => {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card 
-            sx={{ 
+          <Card
+            sx={{
               cursor: 'pointer',
               border: authMode === 'guest' ? '2px solid' : '1px solid',
               borderColor: authMode === 'guest' ? 'primary.main' : 'grey.300',
@@ -103,158 +204,24 @@ const AuthStep = () => {
       <Divider sx={{ my: 3 }} />
 
       {authMode === 'login' && (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            Connexion
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Adresse email"
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Mot de passe"
-                    type="password"
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
-        </Box>
+        <Login
+          mode="stepper"
+          onSuccess={handleAuthSuccess}
+        />
       )}
 
       {authMode === 'register' && (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            Créer un compte
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Controller
-                name="firstName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Prénom"
-                    error={!!errors.firstName}
-                    helperText={errors.firstName?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Controller
-                name="lastName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Nom"
-                    error={!!errors.lastName}
-                    helperText={errors.lastName?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Adresse email"
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Mot de passe"
-                    type="password"
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
-        </Box>
+        <Register
+          mode="stepper"
+          onSuccess={handleAuthSuccess}
+        />
       )}
 
       {authMode === 'guest' && (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            Commande sans compte
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Controller
-                name="guestName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Nom complet"
-                    error={!!errors.guestName}
-                    helperText={errors.guestName?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Adresse email"
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
-        </Box>
+        <GuestCheckout
+          isInline={true}
+          onSuccess={handleAuthSuccess}
+        />
       )}
     </Box>
   );

@@ -5,8 +5,7 @@ import services from "../services";
 
 export const UserContext = createContext({
   currentUser: null,
-  isLoading: true,
-  error: null,
+  currentUserGuest: null,
   login: () => {},
   register: () => {},
   logout: () => {},
@@ -15,21 +14,24 @@ export const UserContext = createContext({
   verifyEmail: () => {},
   resendVerificationEmail: () => {},
   changePassword: () => {},
+  updateUser: () => {},
   refreshUser: () => {},
+  setGuestUser: () => {},
+  resetGuestUser: () => {},
+  handleUnauthenticated: () => {},
+  onUnauthenticated: null,
 });
 
 export const USER_ACTION_TYPES = {
   SET_CURRENT_USER: 'SET_CURRENT_USER',
-  SET_LOADING: 'SET_LOADING',
-  SET_ERROR: 'SET_ERROR',
-  CLEAR_ERROR: 'CLEAR_ERROR',
+  SET_GUEST_USER: 'SET_GUEST_USER',
+  RESET_GUEST_USER: 'RESET_GUEST_USER',
   LOGOUT: 'LOGOUT',
 };
 
 const INITIAL_STATE = {
   currentUser: null,
-  isLoading: true,
-  error: null,
+  currentUserGuest: null,
 };
 
 const userReducer = (state, action) => {
@@ -40,35 +42,27 @@ const userReducer = (state, action) => {
       return {
         ...state,
         currentUser: payload,
-        isLoading: false,
-        error: null,
+        currentUserGuest: null, // Réinitialiser l'invité si un utilisateur se connecte
       };
 
-    case USER_ACTION_TYPES.SET_LOADING:
+    case USER_ACTION_TYPES.SET_GUEST_USER:
       return {
         ...state,
-        isLoading: payload,
+        currentUserGuest: payload,
+        currentUser: null, // Assurer que currentUser et currentUserGuest ne coexistent pas
       };
 
-    case USER_ACTION_TYPES.SET_ERROR:
+    case USER_ACTION_TYPES.RESET_GUEST_USER:
       return {
         ...state,
-        error: payload,
-        isLoading: false,
-      };
-
-    case USER_ACTION_TYPES.CLEAR_ERROR:
-      return {
-        ...state,
-        error: null,
+        currentUserGuest: null,
       };
 
     case USER_ACTION_TYPES.LOGOUT:
       return {
         ...state,
         currentUser: null,
-        isLoading: false,
-        error: null,
+        currentUserGuest: null,
       };
 
     default:
@@ -76,80 +70,17 @@ const userReducer = (state, action) => {
   }
 };
 
-export const UserProvider = ({ children }) => {
-  const [{ currentUser, isLoading, error }, dispatch] = useReducer(
+export const UserProvider = ({ children, onUnauthenticated }) => {
+  const [{ currentUser, currentUserGuest }, dispatch] = useReducer(
       userReducer,
       INITIAL_STATE
   );
 
-  // Actions
-  const setCurrentUser = useCallback((user) => {
+  // Actions - Pas besoin de useCallback pour ces fonctions simples
+  // car elles utilisent dispatch qui a une référence stable
+  const setCurrentUser = (user) => {
     dispatch({ type: USER_ACTION_TYPES.SET_CURRENT_USER, payload: user });
-  }, []);
-
-  const setLoading = useCallback((loading) => {
-    dispatch({ type: USER_ACTION_TYPES.SET_LOADING, payload: loading });
-  }, []);
-
-  const setError = useCallback((error) => {
-    dispatch({ type: USER_ACTION_TYPES.SET_ERROR, payload: error });
-  }, []);
-
-  const clearError = useCallback(() => {
-    dispatch({ type: USER_ACTION_TYPES.CLEAR_ERROR });
-  }, []);
-
-  /**
-   * Inscription
-   */
-  const register = useCallback(async (userData) => {
-    try {
-      setLoading(true);
-      clearError();
-
-      const result = await services.userService.register(userData);
-
-      return {
-        success: true,
-        message: result.message,
-        user: result.user,
-      };
-    } catch (err) {
-      const errorMessage = err.message || 'Erreur lors de l\'inscription';
-      setError(errorMessage);
-      return {
-        success: false,
-        message: errorMessage,
-        errors: err.errors || {},
-      };
-    } finally {
-      setLoading(false);
-    }
-  }, [clearError, setError, setLoading]);
-
-  /**
-   * Connexion
-   */
-  const login = useCallback(async (email, password) => {
-    try {
-      setLoading(true);
-      clearError();
-
-      const result = await services.userService.login(email, password);
-      setCurrentUser(result.user);
-
-      return { success: true };
-    } catch (err) {
-      const errorMessage = err.message || 'Identifiants invalides';
-      setError(errorMessage);
-      return {
-        success: false,
-        message: errorMessage,
-      };
-    } finally {
-      setLoading(false);
-    }
-  }, [clearError, setCurrentUser, setError, setLoading]);
+  };
 
   /**
    * Déconnexion
@@ -160,13 +91,77 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   /**
+   * Gérer les erreurs 401 (non authentifié)
+   */
+  const handleUnauthenticated = useCallback(() => {
+    logout();
+    if (onUnauthenticated) {
+      onUnauthenticated();
+    }
+  }, [logout, onUnauthenticated]);
+
+  /**
+   * Inscription
+   */
+  const register = useCallback(async (userData) => {
+    try {
+      const result = await services.userService.register(userData);
+
+      return {
+        success: true,
+        message: result.message,
+        user: result.user,
+      };
+    } catch (err) {
+      const errorMessage = err.message || 'Erreur lors de l\'inscription';
+      return {
+        success: false,
+        message: errorMessage,
+        errors: err.errors || {},
+      };
+    }
+  }, []);
+
+  /**
+   * Connexion
+   */
+  const login = useCallback(async (email, password) => {
+    try {
+      // Étape 1: Login pour obtenir le token
+      const result = await services.userService.login(email, password);
+      console.log('🔍 User après login:', result.user);
+
+      // Étape 2: Récupérer le profil complet depuis l'API
+      try {
+        const profile = await services.userService.getProfile();
+        console.log('🔍 Profile complet récupéré après login:', profile);
+        setCurrentUser(profile);
+      } catch (profileErr) {
+        // Si getProfile échoue, utiliser les données du login
+        console.warn('Impossible de récupérer le profil, utilisation des données du login');
+        setCurrentUser(result.user);
+      }
+
+      return { success: true };
+    } catch (err) {
+      // Gérer l'erreur 401
+      if (err.status === 401) {
+        handleUnauthenticated();
+      }
+
+      const errorMessage = err.message || 'Identifiants invalides';
+      return {
+        success: false,
+        message: errorMessage,
+      };
+    }
+  }, [handleUnauthenticated]);
+
+  /**
    * Mot de passe oublié
    */
   const forgotPassword = useCallback(async (email) => {
     try {
-      setLoading(true);
-      clearError();
-
       await services.userService.forgotPassword(email);
 
       return {
@@ -175,24 +170,18 @@ export const UserProvider = ({ children }) => {
       };
     } catch (err) {
       const errorMessage = err.message || 'Erreur lors de l\'envoi de l\'email';
-      setError(errorMessage);
       return {
         success: false,
         message: errorMessage,
       };
-    } finally {
-      setLoading(false);
     }
-  }, [clearError, setError, setLoading]);
+  }, []);
 
   /**
    * Réinitialiser le mot de passe
    */
   const resetPassword = useCallback(async (token, password, passwordConfirm) => {
     try {
-      setLoading(true);
-      clearError();
-
       await services.userService.resetPassword(token, password, passwordConfirm);
 
       return {
@@ -201,25 +190,19 @@ export const UserProvider = ({ children }) => {
       };
     } catch (err) {
       const errorMessage = err.message || 'Erreur lors de la réinitialisation';
-      setError(errorMessage);
       return {
         success: false,
         message: errorMessage,
         errors: err.errors || {},
       };
-    } finally {
-      setLoading(false);
     }
-  }, [clearError, setError, setLoading]);
+  }, []);
 
   /**
    * Vérifier l'email
    */
   const verifyEmail = useCallback(async (token) => {
     try {
-      setLoading(true);
-      clearError();
-
       await services.userService.verifyEmail(token);
 
       return {
@@ -228,24 +211,18 @@ export const UserProvider = ({ children }) => {
       };
     } catch (err) {
       const errorMessage = err.message || 'Token invalide ou expiré';
-      setError(errorMessage);
       return {
         success: false,
         message: errorMessage,
       };
-    } finally {
-      setLoading(false);
     }
-  }, [clearError, setError, setLoading]);
+  }, []);
 
   /**
    * Renvoyer l'email de vérification
    */
   const resendVerificationEmail = useCallback(async (email) => {
     try {
-      setLoading(true);
-      clearError();
-
       await services.userService.resendVerificationEmail(email);
 
       return {
@@ -254,24 +231,18 @@ export const UserProvider = ({ children }) => {
       };
     } catch (err) {
       const errorMessage = err.message || 'Erreur lors de l\'envoi';
-      setError(errorMessage);
       return {
         success: false,
         message: errorMessage,
       };
-    } finally {
-      setLoading(false);
     }
-  }, [clearError, setError, setLoading]);
+  }, []);
 
   /**
    * Changer le mot de passe
    */
   const changePassword = useCallback(async (currentPassword, newPassword, newPasswordConfirm) => {
     try {
-      setLoading(true);
-      clearError();
-
       await services.userService.changePassword(currentPassword, newPassword, newPasswordConfirm);
 
       return {
@@ -279,17 +250,65 @@ export const UserProvider = ({ children }) => {
         message: 'Votre mot de passe a été modifié.',
       };
     } catch (err) {
+      // Gérer l'erreur 401 (non authentifié ou token expiré)
+      if (err.status === 401) {
+        handleUnauthenticated();
+        return {
+          success: false,
+          message: 'Session expirée. Vous allez être redirigé vers la page de connexion.',
+          errors: {},
+        };
+      }
+
       const errorMessage = err.message || 'Erreur lors du changement';
-      setError(errorMessage);
       return {
         success: false,
         message: errorMessage,
         errors: err.errors || {},
       };
-    } finally {
-      setLoading(false);
     }
-  }, [clearError, setError, setLoading]);
+  }, [handleUnauthenticated]);
+
+  /**
+   * Mettre à jour les informations de l'utilisateur
+   */
+  const updateUser = useCallback(async (customerId, userData) => {
+    try {
+      const result = await services.userService.updateUser(customerId, userData);
+
+      // Mettre à jour currentUser dans le contexte
+      if (result.user) {
+        setCurrentUser(result.user);
+      }
+
+      return {
+        success: true,
+        message: result.message || 'Vos informations ont été mises à jour.',
+        user: result.user,
+      };
+    } catch (err) {
+      console.error('❌ Erreur dans updateUser (contexte):', err);
+
+      // Gérer l'erreur 401 (non authentifié ou token expiré)
+      if (err.status === 401) {
+        handleUnauthenticated();
+        return {
+          success: false,
+          message: 'Session expirée. Vous allez être redirigé vers la page de connexion.',
+          errors: {},
+        };
+      }
+
+      const errorMessage = err.message || 'Erreur lors de la mise à jour';
+      console.log('📝 Message d\'erreur à retourner:', errorMessage);
+
+      return {
+        success: false,
+        message: errorMessage,
+        errors: err.errors || {},
+      };
+    }
+  }, [handleUnauthenticated]);
 
   /**
    * Rafraîchir le profil utilisateur
@@ -302,11 +321,25 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       // Si erreur 401, l'utilisateur sera déconnecté automatiquement
       if (err.status === 401) {
-        logout();
+        handleUnauthenticated();
       }
       return { success: false };
     }
-  }, [logout, setCurrentUser]);
+  }, [handleUnauthenticated]); // handleUnauthenticated utilise dispatch qui est stable
+
+  /**
+   * Définir un utilisateur invité
+   */
+  const setGuestUser = (guestData) => {
+    dispatch({ type: USER_ACTION_TYPES.SET_GUEST_USER, payload: guestData });
+  };
+
+  /**
+   * Réinitialiser l'utilisateur invité
+   */
+  const resetGuestUser = () => {
+    dispatch({ type: USER_ACTION_TYPES.RESET_GUEST_USER });
+  };
 
   /**
    * Vérifier l'authentification au chargement
@@ -317,25 +350,23 @@ export const UserProvider = ({ children }) => {
         try {
           // Récupérer le profil depuis l'API
           const profile = await services.userService.getProfile();
+          console.log('🔍 Profile récupéré:', profile);
           setCurrentUser(profile);
         } catch (err) {
           // Si erreur, déconnecter
           console.error('Erreur initialisation auth:', err);
           services.userService.logout();
-          setLoading(false);
         }
-      } else {
-        setLoading(false);
       }
     };
 
     initializeAuth();
-  }, [setCurrentUser, setLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Exécuter une seule fois au montage
 
   const value = {
     currentUser,
-    isLoading,
-    error,
+    currentUserGuest,
     login,
     register,
     logout,
@@ -344,8 +375,11 @@ export const UserProvider = ({ children }) => {
     verifyEmail,
     resendVerificationEmail,
     changePassword,
+    updateUser,
     refreshUser,
-    clearError,
+    setGuestUser,
+    resetGuestUser,
+    handleUnauthenticated,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

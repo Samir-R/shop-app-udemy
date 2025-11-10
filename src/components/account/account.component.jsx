@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Grid,
@@ -16,9 +17,10 @@ import {
   Edit as EditIcon
 } from '@mui/icons-material';
 // import { useUser } from '../context/UserContext';
-import {orders, user} from "../../routes/checkout/fakeData";
+import {orders, user} from "./fakeData";
 
-export default function AccountDashboard({ onNavigate }) {
+export default function AccountDashboard() {
+  const navigate = useNavigate();
   // const { user, orders, promoCodes } = useUser();
 
   const menuItems = [
@@ -49,7 +51,7 @@ export default function AccountDashboard({ onNavigate }) {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, mt: 10 }}>
       {/* Header */}
       <Box sx={{ mb: 4, textAlign: 'center' }}>
         <Avatar
@@ -86,7 +88,7 @@ export default function AccountDashboard({ onNavigate }) {
                   boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
                 }
               }}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => navigate(`/my-account/${item.id}`)}
             >
               <CardContent sx={{ p: 3, textAlign: 'center' }}>
                 <Box

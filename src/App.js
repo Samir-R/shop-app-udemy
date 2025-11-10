@@ -14,6 +14,11 @@ import Checkout from './routes/checkout/checkout.component';
 import ProductModal from './components/product-modal/product-modal.component';
 import CheckoutStepper from "./components/checkout/CheckoutStepper";
 import MyAccount from "./routes/account/account.component";
+import AccountDashboard from "./components/account/account.component";
+import PersonalInfo from "./components/account/personal-info.component";
+import OrderHistory from "./components/order/order-history.component";
+import OrderDetail from "./components/order/order-detail.component";
+import Rewards from "./components/account/rewards.component";
 import ForgotPassword from "./components/sign-up-form/forgot-password.component";
 import ResetPassword from "./components/sign-up-form/reset-password.component";
 import VerifyEmail from "./components/sign-up-form/verify-email.component";
@@ -53,7 +58,7 @@ let theme = createTheme({
       contrastText: '#333',
     },
     primaryButton: {
-      main: "red",
+      main: "#e74c3c",
       dark: '#333',
       light: '#fff',
       contrastText: "#616161"
@@ -144,7 +149,14 @@ console.log('on relaod App.js ' + theme.typography.fontFamily);
         <Route path='my-account' element={
           <ProtectedRoute>
             <MyAccount />
-          </ProtectedRoute>} />
+          </ProtectedRoute>
+        }>
+          <Route index element={<AccountDashboard />} />
+          <Route path='personal-info' element={<PersonalInfo />} />
+          <Route path='orders' element={<OrderHistory />} />
+          <Route path='orders/:orderId' element={<OrderDetail />} />
+          <Route path='rewards' element={<Rewards />} />
+        </Route>
       </Route>
     </Routes>
     <ProductModal />

@@ -63,7 +63,7 @@ export const ProductModalStepLabelCustom = styled(StepLabel)(({ theme }) => ({
     "&.Mui-active": {
       fontWeight: 'bold',
       color: "#555"
-      // color: "red"
+      // color: "#e74c3c"
     },
     "&.Mui-disabled": {
       fontWeight: 'bold',

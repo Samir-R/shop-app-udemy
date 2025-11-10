@@ -33,7 +33,7 @@ const PreviousPrice = ({ price }) => {
   return (
     <span style={{ 
         textDecoration: "line-through",
-        color: "red",
+        color: "#e74c3c",
         margin: "0px 8px", 
         }}>
         {price}

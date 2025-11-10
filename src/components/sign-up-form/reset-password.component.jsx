@@ -13,11 +13,12 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { UserContext } from '../../contexts/user.context';
+import PasswordFields, { validatePasswords } from './password-fields.component';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { resetPassword, isLoading } = useContext(UserContext);
+  const { resetPassword } = useContext(UserContext);
 
   const token = searchParams.get('token');
 
@@ -28,10 +29,11 @@ const ResetPassword = () => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!token) {
-      navigate('/login');
+      navigate('/auth');
     }
   }, [token, navigate]);
 
@@ -52,35 +54,29 @@ const ResetPassword = () => {
     setErrors({});
     setSuccessMessage('');
 
-    const newErrors = {};
+    // Validation avec Zod via validatePasswords
+    const validationErrors = validatePasswords(formData.password, formData.passwordConfirm);
 
-    if (!formData.password) {
-      newErrors.password = 'Le mot de passe est requis';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
-    }
-
-    if (formData.password !== formData.passwordConfirm) {
-      newErrors.passwordConfirm = 'Les mots de passe ne correspondent pas';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
+    setIsLoading(true);
     const result = await resetPassword(token, formData.password, formData.passwordConfirm);
 
     if (result.success) {
       setSuccessMessage(result.message);
       setTimeout(() => {
-        navigate('/login', {
+        navigate('/auth', {
           state: { message: 'Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.' }
         });
       }, 3000);
     } else {
       setErrors(result.errors || { global: result.message });
     }
+
+    setIsLoading(false);
   };
 
   if (!token) {
@@ -120,37 +116,15 @@ const ResetPassword = () => {
             )}
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Nouveau mot de passe"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  autoFocus
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={!!errors.password}
-                  helperText={errors.password || 'Minimum 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial'}
-                  disabled={isLoading}
-              />
-
-              <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="passwordConfirm"
-                  label="Confirmer le mot de passe"
-                  type="password"
-                  id="passwordConfirm"
-                  autoComplete="new-password"
-                  value={formData.passwordConfirm}
-                  onChange={handleChange}
-                  error={!!errors.passwordConfirm}
-                  helperText={errors.passwordConfirm}
-                  disabled={isLoading}
+              <PasswordFields
+                password={formData.password}
+                passwordConfirm={formData.passwordConfirm}
+                onPasswordChange={handleChange}
+                onPasswordConfirmChange={handleChange}
+                errors={errors}
+                disabled={isLoading}
+                passwordLabel="Nouveau mot de passe"
+                useGrid={false}
               />
 
               <Button

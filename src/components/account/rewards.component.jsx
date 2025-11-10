@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -14,12 +15,14 @@ import {
   LocalOffer as LocalOfferIcon,
   Stars as StarsIcon,
   CardGiftcard as CardGiftcardIcon,
-  ContentCopy as ContentCopyIcon
+  ContentCopy as ContentCopyIcon,
+  ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
-import {promoCodes, user} from "../../routes/checkout/fakeData";
+import {promoCodes, user} from "./fakeData";
 // import { useUser } from '../context/UserContext';
 
-export default function Rewards({ onBack }) {
+export default function Rewards() {
+  const navigate = useNavigate();
   // const { user, promoCodes } = useUser();
 
   const copyToClipboard = (code) => {
@@ -30,12 +33,13 @@ export default function Rewards({ onBack }) {
   const progressPercentage = (user.loyaltyPoints / nextRewardPoints) * 100;
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, mt: 10 }}>
       <Button
-        onClick={onBack}
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/my-account')}
         sx={{ mb: 3, color: '#1976d2' }}
       >
-        ← Retour au tableau de bord
+        Retour au tableau de bord
       </Button>
 
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>

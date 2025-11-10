@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -13,20 +14,15 @@ import {
   CheckCircle as CheckCircleIcon,
   Schedule as ScheduleIcon,
   Cancel as CancelIcon,
-  Visibility as VisibilityIcon
+  Visibility as VisibilityIcon,
+  ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
-import OrderDetail from "./order-detail.component";
-import {orders} from "../../routes/checkout/fakeData";
+import {orders} from "../account/fakeData";
 // import { useUser } from '../context/UserContext';
-// import OrderDetail from './OrderDetail';
 
-export default function OrderHistory({ onBack }) {
+export default function OrderHistory() {
+  const navigate = useNavigate();
   // const { orders } = useUser();
-  const [selectedOrder, setSelectedOrder] = useState(null);
-
-  if (selectedOrder) {
-    return <OrderDetail order={selectedOrder} onBack={() => setSelectedOrder(null)} />;
-  }
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -68,12 +64,13 @@ export default function OrderHistory({ onBack }) {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, mt: 10 }}>
       <Button
-        onClick={onBack}
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/my-account')}
         sx={{ mb: 3, color: '#1976d2' }}
       >
-        ← Retour au tableau de bord
+        Retour au tableau de bord
       </Button>
 
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
@@ -151,7 +148,7 @@ export default function OrderHistory({ onBack }) {
                   <Button
                     startIcon={<VisibilityIcon />}
                     variant="outlined"
-                    onClick={() => setSelectedOrder(order)}
+                    onClick={() => navigate(`/my-account/orders/${order.id}`)}
                     sx={{ color: '#1976d2', borderColor: '#1976d2' }}
                   >
                     Voir le détail

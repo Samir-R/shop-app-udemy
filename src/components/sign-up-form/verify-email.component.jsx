@@ -47,7 +47,7 @@ const VerifyEmail = () => {
   }, [token, verifyEmail]);
 
   const handleGoToLogin = () => {
-    navigate('/login', {
+    navigate('/auth', {
       state: { message: 'Votre email a été vérifié. Vous pouvez vous connecter.' }
     });
   };
@@ -112,7 +112,7 @@ const VerifyEmail = () => {
                   </Typography>
                   <Button
                       variant="outlined"
-                      onClick={() => navigate('/login')}
+                      onClick={() => navigate('/auth')}
                   >
                     Retour à la connexion
                   </Button>

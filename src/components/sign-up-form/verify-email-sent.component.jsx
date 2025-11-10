@@ -17,12 +17,13 @@ import {UserContext} from "../../contexts/user.context";
 const VerifyEmailSent = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { resendVerificationEmail, isLoading } = useContext(UserContext);
+  const { resendVerificationEmail } = useContext(UserContext);
 
   const email = location.state?.email;
 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!email) {
     navigate('/register');
@@ -33,6 +34,7 @@ const VerifyEmailSent = () => {
     setMessage('');
     setError('');
 
+    setIsLoading(true);
     const result = await resendVerificationEmail(email);
 
     if (result.success) {
@@ -40,6 +42,8 @@ const VerifyEmailSent = () => {
     } else {
       setError(result.message);
     }
+
+    setIsLoading(false);
   };
 
   return (

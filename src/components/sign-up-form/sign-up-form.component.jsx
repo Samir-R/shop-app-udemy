@@ -16,13 +16,25 @@ import {
   FormControlLabel,
   CircularProgress,
 } from '@mui/material';
-import {UserContext} from "../../contexts/user.context";
+import { UserContext } from "../../contexts/user.context";
+import { registerSchema, editUserSchema } from './validation';
+import PasswordFields from './password-fields.component';
 
-const Register = () => {
+/**
+ * Mode peut être: 'register' | 'stepper' | 'edit'
+ * - register: formulaire standalone pour créer un compte
+ * - stepper: utilisé dans le checkout stepper
+ * - edit: utilisé dans PersonalInfo pour modifier les infos user (sans password)
+ */
+const Register = ({ mode = 'register', onSuccess, initialData = null }) => {
   const navigate = useNavigate();
-  const { register, isLoading } = useContext(UserContext);
+  const { register, login, updateUser } = useContext(UserContext);
 
-  const [formData, setFormData] = useState({
+  const isEditMode = mode === 'edit';
+  const isStepperMode = mode === 'stepper';
+
+  const { id:customerId, ...initialFormData } = initialData || {};;
+  const [formData, setFormData] = useState(initialFormData || {
     email: '',
     password: '',
     passwordConfirm: '',
@@ -34,6 +46,7 @@ const Register = () => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -52,49 +65,224 @@ const Register = () => {
     setErrors({});
     setSuccessMessage('');
 
-    const newErrors = {};
+    // Choisir le schéma de validation selon le mode
+    const validationSchema = isEditMode ? editUserSchema : registerSchema;
+    const validation = validationSchema.safeParse(formData);
 
-    if (!formData.email) {
-      newErrors.email = 'L\'email est requis';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email invalide';
-    }
+    if (!validation.success) {
+      // Convertir les erreurs Zod en format objet
+      const zodErrors = {};
+      console.log(validation.error);
 
-    if (!formData.password) {
-      newErrors.password = 'Le mot de passe est requis';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
-    }
+      if (validation.error?.issues) {
+        validation.error.issues.forEach((err) => {
+          const path = err.path[0];
+          zodErrors[path] = err.message;
+        });
+      }
 
-    if (formData.password !== formData.passwordConfirm) {
-      newErrors.passwordConfirm = 'Les mots de passe ne correspondent pas';
-    }
-
-    if (!formData.firstName) {
-      newErrors.firstName = 'Le prénom est requis';
-    }
-
-    if (!formData.lastName) {
-      newErrors.lastName = 'Le nom est requis';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      setErrors(zodErrors);
       return;
     }
 
+    setIsLoading(true);
+
+    // En mode edit, mettre à jour les informations utilisateur
+    if (isEditMode) {
+      const result = await updateUser(customerId, formData);
+      console.log('🔍 Résultat updateUser dans Register:', result);
+
+      if (result.success) {
+        setSuccessMessage(result.message);
+
+        // Appeler onSuccess pour informer le parent
+        if (onSuccess) {
+          onSuccess(formData);
+        }
+      } else {
+        console.log('❌ Erreur détectée - Setting errors:', { global: result.message, ...result.errors });
+        setErrors(result.errors && Object.keys(result.errors).length > 0 ? result.errors : { global: result.message });
+      }
+
+      setIsLoading(false);
+      return;
+    }
+
+    // Mode register ou stepper: créer un compte
     const result = await register(formData);
 
     if (result.success) {
       setSuccessMessage(result.message);
-      setTimeout(() => {
-        navigate('/verify-email-sent', { state: { email: formData.email } });
-      }, 3000);
+
+      // Si on est dans le stepper, connecter automatiquement l'utilisateur
+      if (isStepperMode && onSuccess) {
+        // Essayer de connecter automatiquement après l'inscription
+        try {
+          const loginResult = await login(formData.email, formData.password);
+          if (loginResult.success) {
+            onSuccess();
+          } else {
+            setErrors({ global: 'Inscription réussie mais connexion automatique échouée. Veuillez vous connecter manuellement.' });
+          }
+        } catch (loginErr) {
+          setErrors({ global: 'Inscription réussie mais connexion automatique échouée. Veuillez vous connecter manuellement.' });
+        }
+      } else {
+        setTimeout(() => {
+          navigate('/verify-email-sent', { state: { email: formData.email } });
+        }, 3000);
+      }
     } else {
-      setErrors(result.errors || { global: result.message });
+      console.log('❌ Erreur détectée - Setting errors:', { global: result.message, ...result.errors });
+      setErrors(result.errors && Object.keys(result.errors).length > 0 ? result.errors : { global: result.message });
     }
+
+    setIsLoading(false);
   };
 
+  // Champs de formulaire (déclarés une seule fois)
+  const formFields = (
+    <Grid container spacing={2}>
+      <Grid item xs={12} sm={6}>
+        <TextField
+          required
+          fullWidth
+          id="firstName"
+          label="Prénom"
+          name="firstName"
+          autoComplete="given-name"
+          value={formData.firstName}
+          onChange={handleChange}
+          error={!!errors.firstName}
+          helperText={errors.firstName}
+          disabled={isLoading}
+        />
+      </Grid>
+
+      <Grid item xs={12} sm={6}>
+        <TextField
+          required
+          fullWidth
+          id="lastName"
+          label="Nom"
+          name="lastName"
+          autoComplete="family-name"
+          value={formData.lastName}
+          onChange={handleChange}
+          error={!!errors.lastName}
+          helperText={errors.lastName}
+          disabled={isLoading}
+        />
+      </Grid>
+
+      <Grid item xs={12}>
+        <TextField
+          required
+          fullWidth
+          id="email"
+          label="Adresse email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={formData.email}
+          onChange={handleChange}
+          error={!!errors.email}
+          helperText={errors.email}
+          disabled={isLoading}
+        />
+      </Grid>
+
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          id="phone"
+          label="Téléphone"
+          name="phone"
+          autoComplete="tel"
+          placeholder="0612345678"
+          value={formData.phone}
+          onChange={handleChange}
+          error={!!errors.phone}
+          helperText={errors.phone}
+          disabled={isLoading}
+        />
+      </Grid>
+
+      {!isEditMode && (
+        <PasswordFields
+          password={formData.password}
+          passwordConfirm={formData.passwordConfirm}
+          onPasswordChange={handleChange}
+          onPasswordConfirmChange={handleChange}
+          errors={errors}
+          disabled={isLoading}
+          useGrid={true}
+        />
+      )}
+
+      <Grid item xs={12}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="newsletterSubscribed"
+              checked={formData.newsletterSubscribed}
+              onChange={handleChange}
+              color="primary"
+              disabled={isLoading}
+            />
+          }
+          label="Je souhaite recevoir la newsletter"
+        />
+      </Grid>
+    </Grid>
+  );
+
+  const submitButton = (
+    <Button
+      type={isStepperMode || isEditMode ? 'button' : 'submit'}
+      fullWidth
+      variant="contained"
+      sx={{ mt: 3, mb: 2 }}
+      disabled={isLoading}
+      onClick={isStepperMode || isEditMode ? handleSubmit : undefined}
+    >
+      {isLoading ? (
+        <CircularProgress size={24} color="inherit" />
+      ) : (
+        isEditMode ? 'Sauvegarder' : "S'inscrire"
+      )}
+    </Button>
+  );
+
+  // Rendu pour le stepper ou edit (mode inline)
+  if (isStepperMode || isEditMode) {
+    return (
+      <Box>
+        {!isEditMode && (
+          <Typography variant="h6" gutterBottom>
+            Créer un compte
+          </Typography>
+        )}
+
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+
+        {errors.global && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errors.global}
+          </Alert>
+        )}
+
+        {formFields}
+        {submitButton}
+      </Box>
+    );
+  }
+
+  // Rendu pour la page standalone
   return (
       <Container component="main" maxWidth="sm">
         <Box
@@ -124,134 +312,8 @@ const Register = () => {
             )}
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                      required
-                      fullWidth
-                      id="firstName"
-                      label="Prénom"
-                      name="firstName"
-                      autoComplete="given-name"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      error={!!errors.firstName}
-                      helperText={errors.firstName}
-                      disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                      required
-                      fullWidth
-                      id="lastName"
-                      label="Nom"
-                      name="lastName"
-                      autoComplete="family-name"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      error={!!errors.lastName}
-                      helperText={errors.lastName}
-                      disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                      required
-                      fullWidth
-                      id="email"
-                      label="Adresse email"
-                      name="email"
-                      autoComplete="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      error={!!errors.email}
-                      helperText={errors.email}
-                      disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                      fullWidth
-                      id="phone"
-                      label="Téléphone"
-                      name="phone"
-                      autoComplete="tel"
-                      placeholder="0612345678"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      error={!!errors.phone}
-                      helperText={errors.phone}
-                      disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                      required
-                      fullWidth
-                      name="password"
-                      label="Mot de passe"
-                      type="password"
-                      id="password"
-                      autoComplete="new-password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      error={!!errors.password}
-                      helperText={errors.password || 'Minimum 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial'}
-                      disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                      required
-                      fullWidth
-                      name="passwordConfirm"
-                      label="Confirmer le mot de passe"
-                      type="password"
-                      id="passwordConfirm"
-                      autoComplete="new-password"
-                      value={formData.passwordConfirm}
-                      onChange={handleChange}
-                      error={!!errors.passwordConfirm}
-                      helperText={errors.passwordConfirm}
-                      disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <FormControlLabel
-                      control={
-                        <Checkbox
-                            name="newsletterSubscribed"
-                            checked={formData.newsletterSubscribed}
-                            onChange={handleChange}
-                            color="primary"
-                            disabled={isLoading}
-                        />
-                      }
-                      label="Je souhaite recevoir la newsletter"
-                  />
-                </Grid>
-              </Grid>
-
-              <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
-                  disabled={isLoading}
-              >
-                {isLoading ? (
-                    <CircularProgress size={24} color="inherit" />
-                ) : (
-                    "S'inscrire"
-                )}
-              </Button>
+              {formFields}
+              {submitButton}
 
               <Box sx={{ textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">

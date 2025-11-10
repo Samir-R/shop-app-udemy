@@ -8,42 +8,78 @@ export default class CoreService {
   }
 
   httpGet(url, options = {}, withAuthHeaders = true) {
-    let optionsWithUserToken = {
-      headers: withAuthHeaders ? authService.getAuthHeaders() : {},
+    const authHeaders = withAuthHeaders ? authService.getAuthHeaders() : {};
+    const defaultHeaders = {
+      'Accept': 'application/ld+json',
     };
-    optionsWithUserToken = { ...optionsWithUserToken, ...options };
-    return this.httpClient.get(url, optionsWithUserToken);
+    const mergedOptions = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+        ...options.headers,
+      },
+    };
+    return this.httpClient.get(url, mergedOptions);
   }
 
   httpPost(url, data, options = {}, withAuthHeaders = true) {
-    let optionsWithUserToken = {
-      headers: withAuthHeaders ? authService.getAuthHeaders() : {},
+    const authHeaders = withAuthHeaders ? authService.getAuthHeaders() : {};
+    const defaultHeaders = {
+      'Content-Type': 'application/ld+json',
     };
-    optionsWithUserToken = { ...optionsWithUserToken, ...options };
-    return this.httpClient.post(url, data, optionsWithUserToken);
+    const mergedOptions = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+        ...options.headers,
+      },
+    };
+    return this.httpClient.post(url, data, mergedOptions);
   }
 
   httpPut(url, data, options = {}, withAuthHeaders = true) {
-    let optionsWithUserToken = {
-      headers: withAuthHeaders ? authService.getAuthHeaders() : {},
+    const authHeaders = withAuthHeaders ? authService.getAuthHeaders() : {};
+    const defaultHeaders = {
+      'Content-Type': 'application/ld+json',
     };
-    optionsWithUserToken = { ...optionsWithUserToken, ...options };
-    return this.httpClient.put(url, data, optionsWithUserToken);
+    const mergedOptions = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+        ...options.headers,
+      },
+    };
+    return this.httpClient.put(url, data, mergedOptions);
   }
 
   httpPatch(url, data, options = {}, withAuthHeaders = true) {
-    let optionsWithUserToken = {
-      headers: withAuthHeaders ? authService.getAuthHeaders() : {},
+    const authHeaders = withAuthHeaders ? authService.getAuthHeaders() : {};
+    const defaultHeaders = {
+      'Content-Type': 'application/merge-patch+json',
     };
-    optionsWithUserToken = { ...optionsWithUserToken, ...options };
-    return this.httpClient.patch(url, data, optionsWithUserToken);
+    const mergedOptions = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...authHeaders,
+        ...options.headers,
+      },
+    };
+    return this.httpClient.patch(url, data, mergedOptions);
   }
 
   httpDelete(url, options = {}, withAuthHeaders = true) {
-    let optionsWithUserToken = {
-      headers: withAuthHeaders ? authService.getAuthHeaders() : {},
+    const authHeaders = withAuthHeaders ? authService.getAuthHeaders() : {};
+    const mergedOptions = {
+      ...options,
+      headers: {
+        ...authHeaders,
+        ...options.headers,
+      },
     };
-    optionsWithUserToken = { ...optionsWithUserToken, ...options };
-    return this.httpClient.delete(url, optionsWithUserToken);
+    return this.httpClient.delete(url, mergedOptions);
   }
 }

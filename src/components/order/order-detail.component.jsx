@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -15,10 +16,40 @@ import {
   Schedule as ScheduleIcon,
   Cancel as CancelIcon,
   LocationOn as LocationOnIcon,
-  CalendarToday as CalendarTodayIcon
+  CalendarToday as CalendarTodayIcon,
+  ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
+import { orders } from '../account/fakeData';
+// import { useUser } from '../../contexts/user.context';
 
-export default function OrderDetail({ order, onBack }) {
+export default function OrderDetail() {
+  const { orderId } = useParams();
+  const navigate = useNavigate();
+  // const { orders } = useUser();
+
+  // Find the order by ID
+  const order = orders.find(o => o.id === orderId);
+
+  // If order not found, show error message
+  if (!order) {
+    return (
+      <Box sx={{ p: 3, mt: 10, textAlign: 'center' }}>
+        <Typography variant="h5" color="error" gutterBottom>
+          Commande introuvable
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          La commande #{orderId} n'existe pas ou a été supprimée.
+        </Typography>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          variant="contained"
+          onClick={() => navigate('/my-account/orders')}
+        >
+          Retour aux commandes
+        </Button>
+      </Box>
+    );
+  }
   const getStatusIcon = (status) => {
     switch (status) {
       case 'completed':
@@ -59,12 +90,13 @@ export default function OrderDetail({ order, onBack }) {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, mt: 10 }}>
       <Button
-        onClick={onBack}
+        startIcon={<ArrowBackIcon />}
+        onClick={() => navigate('/my-account/orders')}
         sx={{ mb: 3, color: '#1976d2' }}
       >
-        ← Retour aux commandes
+        Retour aux commandes
       </Button>
 
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>

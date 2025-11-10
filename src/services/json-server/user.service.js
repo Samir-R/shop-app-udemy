@@ -1,47 +1,23 @@
 // src/services/customerService.js
 
-const API_BASE_URL = 'https://localhost:4435';
+import CoreService from "../core/core.service";
+
 const RESELLER_ID = process.env.REACT_APP_RESELLER_ID || 10; // ID de la boutique
 
 /**
  * Service pour gérer l'authentification des customers
  */
-export default class UserService {
-  constructor() {
-    this.token = localStorage.getItem('customer_token');
+export default class UserService extends CoreService {
+  constructor(apiUrl) {
+    if (!apiUrl) {
+      throw new Error('Missing apiUrl argument for UserService constructor');
+    }
+    super(apiUrl);
     this.user = JSON.parse(localStorage.getItem('customer_user') || 'null');
   }
 
-  /**
-   * Configuration des headers pour les requêtes
-   */
-  getHeaders(includeAuth = false) {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-
-    if (includeAuth && this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
-    return headers;
-  }
-
-  /**
-   * Gestion des erreurs API
-   */
-  async handleResponse(response) {
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw {
-        status: response.status,
-        message: data.error || data.message || 'Une erreur est survenue',
-        errors: data.errors || {},
-      };
-    }
-
-    return data;
+  get endpointUrl() {
+    return `${this.apiUrl}/api/customer`;
   }
 
   /**
@@ -49,10 +25,9 @@ export default class UserService {
    */
   async register(userData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/register`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({
+      const { data } = await this.httpPost(
+        `${this.endpointUrl}/register`,
+        {
           reseller_id: RESELLER_ID, // Important : ID de la boutique
           email: userData.email,
           password: userData.password,
@@ -64,10 +39,10 @@ export default class UserService {
           gender: userData.gender || null,
           newsletterSubscribed: userData.newsletterSubscribed || false,
           acceptTerms: true,
-        }),
-      });
-
-      const data = await this.handleResponse(response);
+        },
+        {},
+        false // Pas d'authentification pour l'inscription
+      );
 
       // L'inscription réussie retourne les infos user mais pas de token
       // Le customer doit vérifier son email avant de pouvoir se connecter
@@ -78,7 +53,11 @@ export default class UserService {
       };
     } catch (error) {
       console.error('Erreur inscription:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -87,22 +66,19 @@ export default class UserService {
    */
   async login(email, password) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/login`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({
+      const { data } = await this.httpPost(
+        `${this.endpointUrl}/login`,
+        {
           reseller_id: RESELLER_ID, // Important : ID de la boutique
           email,
           password,
-        }),
-      });
-
-      const data = await this.handleResponse(response);
+        },
+        {},
+        false // Pas d'authentification pour le login
+      );
 
       // Stocker le token et les infos user
-      this.token = data.token;
       this.user = data.user;
-
       localStorage.setItem('customer_token', data.token);
       localStorage.setItem('customer_user', JSON.stringify(data.user));
 
@@ -113,7 +89,11 @@ export default class UserService {
       };
     } catch (error) {
       console.error('Erreur connexion:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -122,12 +102,7 @@ export default class UserService {
    */
   async getProfile() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/me`, {
-        method: 'GET',
-        headers: this.getHeaders(true),
-      });
-
-      const data = await this.handleResponse(response);
+      const { data } = await this.httpGet(`${this.endpointUrl}/me`);
 
       // Mettre à jour les infos user en cache
       this.user = data;
@@ -136,13 +111,17 @@ export default class UserService {
       return data;
     } catch (error) {
       console.error('Erreur récupération profil:', error);
-      
+
       // Si erreur 401, déconnecter l'utilisateur
-      if (error.status === 401) {
+      if (error.response?.status === 401) {
         this.logout();
       }
-      
-      throw error;
+
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -151,16 +130,20 @@ export default class UserService {
    */
   async verifyEmail(token) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/verify-email`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({ token }),
-      });
-
-      return await this.handleResponse(response);
+      const { data } = await this.httpPost(
+        `${this.endpointUrl}/verify-email`,
+        { token },
+        {},
+        false // Pas d'authentification
+      );
+      return data;
     } catch (error) {
       console.error('Erreur vérification email:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -169,16 +152,20 @@ export default class UserService {
    */
   async resendVerificationEmail(email) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/resend-verification`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({ email }),
-      });
-
-      return await this.handleResponse(response);
+      const { data } = await this.httpPost(
+        `${this.endpointUrl}/resend-verification`,
+        { email },
+        {},
+        false // Pas d'authentification
+      );
+      return data;
     } catch (error) {
       console.error('Erreur renvoi email:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -187,16 +174,20 @@ export default class UserService {
    */
   async forgotPassword(email) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/forgot-password`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({ email }),
-      });
-
-      return await this.handleResponse(response);
+      const { data } = await this.httpPost(
+        `${this.endpointUrl}/forgot-password`,
+        { email },
+        {},
+        false // Pas d'authentification
+      );
+      return data;
     } catch (error) {
       console.error('Erreur mot de passe oublié:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -205,20 +196,24 @@ export default class UserService {
    */
   async resetPassword(token, password, passwordConfirm) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/reset-password`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify({
+      const { data } = await this.httpPost(
+        `${this.endpointUrl}/reset-password`,
+        {
           token,
           password,
           passwordConfirm,
-        }),
-      });
-
-      return await this.handleResponse(response);
+        },
+        {},
+        false // Pas d'authentification
+      );
+      return data;
     } catch (error) {
       console.error('Erreur réinitialisation:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -227,20 +222,52 @@ export default class UserService {
    */
   async changePassword(currentPassword, newPassword, newPasswordConfirm) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/customer/change-password`, {
-        method: 'POST',
-        headers: this.getHeaders(true),
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-          newPasswordConfirm,
-        }),
+      const { data } = await this.httpPost(`${this.endpointUrl}/change-password`, {
+        currentPassword,
+        newPassword,
+        newPasswordConfirm,
       });
-
-      return await this.handleResponse(response);
+      return data;
     } catch (error) {
       console.error('Erreur changement mot de passe:', error);
-      throw error;
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
+    }
+  }
+
+  /**
+   * Mettre à jour les informations de l'utilisateur connecté
+   */
+  async updateUser(customerId, userData) {
+    try {
+      const { data } = await this.httpPatch(
+        `${this.apiUrl}/customers/${customerId}`,
+        {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          phone: userData.phone || null,
+          newsletterSubscribed: userData.newsletterSubscribed || false,
+        }
+      );
+
+      // Mettre à jour les infos user en cache
+      if (data) {
+        this.user = data;
+        localStorage.setItem('customer_user', JSON.stringify(data));
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erreur mise à jour utilisateur:', error);
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.error || error.response?.data?.message || 'Une erreur est survenue',
+        errors: error.response?.data?.errors || {},
+      };
     }
   }
 
@@ -248,7 +275,6 @@ export default class UserService {
    * Déconnexion
    */
   logout() {
-    this.token = null;
     this.user = null;
     localStorage.removeItem('customer_token');
     localStorage.removeItem('customer_user');
@@ -258,14 +284,14 @@ export default class UserService {
    * Vérifier si l'utilisateur est connecté
    */
   isAuthenticated() {
-    return !!this.token;
+    return !!localStorage.getItem('customer_token');
   }
 
   /**
    * Récupérer le token actuel
    */
   getToken() {
-    return this.token;
+    return localStorage.getItem('customer_token');
   }
 
   /**
@@ -275,6 +301,3 @@ export default class UserService {
     return this.user;
   }
 }
-
-// Export d'une instance unique (singleton)
-// export default new CustomerService();
