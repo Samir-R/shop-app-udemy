@@ -1,34 +1,40 @@
 import { useContext } from 'react';
 import IconButton from '@mui/material/IconButton';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-
-import { ReactComponent as ShoppingIcon } from '../../assets/shopping-bag.svg';
+import { Badge } from "@mui/material";
+import { TbPaperBag } from "react-icons/tb";
 
 import { CartContext } from '../../contexts/cart.context';
-
-import { CartIconContainer, ItemCount } from './cart-icon.styles';
 
 const CartIcon = () => {
   const { isCartOpen, setIsCartOpen, cartCount } = useContext(CartContext);
 
   const toggleIsCartOpen = () => setIsCartOpen(!isCartOpen);
 
-    /* <CartIconContainer onClick={toggleIsCartOpen}> 
-      <ShoppingIcon className='shopping-icon' /> 
-      <ItemCount>{cartCount}</ItemCount> 
-    </CartIconContainer> */
   return (
     <IconButton
-    size="large"
-    aria-label="account of current user"
-    aria-controls="menu-appbar"
-    aria-haspopup="true"
-    onClick={toggleIsCartOpen}
-    color="inherit"
-  >
-    <ShoppingCartIcon />
-    {cartCount}
-  </IconButton>
+      aria-label="Voir votre panier"
+      aria-controls="cart-drawer"
+      onClick={toggleIsCartOpen}
+      color="inherit"
+      sx={{ p: 1 }}
+    >
+      <Badge
+        badgeContent={cartCount}
+        sx={{
+          '& .MuiBadge-badge': {
+            backgroundColor: '#ff6b35',
+            color: 'white',
+            fontWeight: 600,
+            fontSize: '0.75rem',
+            minWidth: '20px',
+            height: '20px',
+            borderRadius: '10px',
+          },
+        }}
+      >
+        <TbPaperBag size={28} />
+      </Badge>
+    </IconButton>
   );
 };
 

@@ -26,12 +26,13 @@ import PasswordFields from './password-fields.component';
  * - stepper: utilisé dans le checkout stepper
  * - edit: utilisé dans PersonalInfo pour modifier les infos user (sans password)
  */
-const Register = ({ mode = 'register', onSuccess, initialData = null }) => {
+const Register = ({ mode = 'register', onSuccess, initialData = null, hideTitle = false, onSwitchToSignIn }) => {
   const navigate = useNavigate();
   const { register, login, updateUser } = useContext(UserContext);
 
   const isEditMode = mode === 'edit';
   const isStepperMode = mode === 'stepper';
+  const isAuthMode = mode === 'auth';
 
   const { id:customerId, ...initialFormData } = initialData || {};;
   const [formData, setFormData] = useState(initialFormData || {
@@ -142,7 +143,17 @@ const Register = ({ mode = 'register', onSuccess, initialData = null }) => {
 
   // Champs de formulaire (déclarés une seule fois)
   const formFields = (
-    <Grid container spacing={2}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        width: '100%',
+        m: 0,
+        '& .MuiGrid-container': {
+          width: '100%',
+        }
+      }}
+    >
       <Grid item xs={12} sm={6}>
         <TextField
           required
@@ -239,12 +250,12 @@ const Register = ({ mode = 'register', onSuccess, initialData = null }) => {
 
   const submitButton = (
     <Button
-      type={isStepperMode || isEditMode ? 'button' : 'submit'}
+      type={isStepperMode || isEditMode || isAuthMode ? 'button' : 'submit'}
       fullWidth
       variant="contained"
       sx={{ mt: 3, mb: 2 }}
       disabled={isLoading}
-      onClick={isStepperMode || isEditMode ? handleSubmit : undefined}
+      onClick={isStepperMode || isEditMode || isAuthMode ? handleSubmit : undefined}
     >
       {isLoading ? (
         <CircularProgress size={24} color="inherit" />
@@ -278,6 +289,65 @@ const Register = ({ mode = 'register', onSuccess, initialData = null }) => {
 
         {formFields}
         {submitButton}
+      </Box>
+    );
+  }
+
+  // Rendu pour la page d'authentification (mode auth) - sans Paper ni Container
+  if (isAuthMode) {
+    return (
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          p: 2,
+          flex: 1, // Prend toute la hauteur disponible
+          minHeight: 0, // Important pour le flex
+        }}
+      >
+        {!hideTitle && (
+          <Typography component="h1" variant="h5" align="center" gutterBottom>
+            Créer un compte
+          </Typography>
+        )}
+
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+
+        {errors.global && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {errors.global}
+          </Alert>
+        )}
+
+        {formFields}
+        {submitButton}
+
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            Vous avez déjà un compte ?{' '}
+            {onSwitchToSignIn ? (
+              <Link
+                component="button"
+                type="button"
+                variant="body2"
+                onClick={onSwitchToSignIn}
+                sx={{ cursor: 'pointer' }}
+              >
+                Se connecter
+              </Link>
+            ) : (
+              <Link component={RouterLink} to="/login" variant="body2">
+                Se connecter
+              </Link>
+            )}
+          </Typography>
+        </Box>
       </Box>
     );
   }

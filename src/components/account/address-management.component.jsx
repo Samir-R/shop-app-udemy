@@ -26,11 +26,12 @@ import {
   Home as HomeIcon,
 } from '@mui/icons-material';
 import { AddressContext } from '../../contexts/address.context';
+import { UserContext } from '../../contexts/user.context';
 import { addressSchema } from './address-validation';
 
 // Valeurs par défaut du formulaire d'adresse
-const getDefaultAddressForm = (mode = 'list') => ({
-  name: '',
+const getDefaultAddressForm = (mode = 'list', isGuest = false) => ({
+  name: isGuest ? 'Votre adresse' : '',
   street1: '',
   street2: '',
   city: '',
@@ -48,18 +49,25 @@ const getDefaultAddressForm = (mode = 'list') => ({
  */
 const AddressManagement = ({ mode = 'list', onAddAddress, onUpdateAddress, onDeleteAddress }) => {
   const { addresses, currentAddress, isLoading, totalItems, currentPage, itemsPerPage, getAddresses, createAddress, updateAddress, deleteAddress, setCurrentAddress } = useContext(AddressContext);
+  const { currentUserGuest } = useContext(UserContext);
   const [addressDialog, setAddressDialog] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
-  const [addressForm, setAddressForm] = useState(getDefaultAddressForm(mode));
   const [showAddressList, setShowAddressList] = useState(false);
 
-  // Charger les adresses au montage du composant
+  // Déterminer si l'utilisateur est un invité
+  const isGuest = !!currentUserGuest;
+
+  const [addressForm, setAddressForm] = useState(getDefaultAddressForm(mode, isGuest));
+
+  // Charger les adresses au montage du composant (seulement si ce n'est pas un invité)
   useEffect(() => {
-    getAddresses();
-  }, [getAddresses]);
+    if (!isGuest) {
+      getAddresses();
+    }
+  }, [getAddresses, isGuest]);
 
   const handleAddressSubmit = async () => {
     setError('');
@@ -82,6 +90,29 @@ const AddressManagement = ({ mode = 'list', onAddAddress, onUpdateAddress, onDel
 
     setIsSubmitting(true);
 
+    // COMPORTEMENT SPÉCIFIQUE POUR LES INVITÉS
+    if (isGuest) {
+      // Pour les invités, on sauvegarde juste dans currentAddress (pas de backend, pas de localStorage)
+      setCurrentAddress({
+        ...addressForm,
+        id: editingAddress?.id || 'guest-address', // ID temporaire pour les invités
+      });
+
+      setIsSubmitting(false);
+      setAddressDialog(false);
+      resetAddressForm();
+
+      // Appeler les callbacks optionnels
+      if (editingAddress && onUpdateAddress) {
+        onUpdateAddress('guest-address', addressForm);
+      } else if (onAddAddress) {
+        onAddAddress(addressForm);
+      }
+
+      return;
+    }
+
+    // COMPORTEMENT NORMAL POUR LES UTILISATEURS AUTHENTIFIÉS
     let result;
     if (editingAddress) {
       // Modifier une adresse existante
@@ -125,7 +156,7 @@ const AddressManagement = ({ mode = 'list', onAddAddress, onUpdateAddress, onDel
   };
 
   const resetAddressForm = () => {
-    setAddressForm(getDefaultAddressForm(mode));
+    setAddressForm(getDefaultAddressForm(mode, isGuest));
     setEditingAddress(null);
     setError('');
     setErrors({});
@@ -173,8 +204,193 @@ const AddressManagement = ({ mode = 'list', onAddAddress, onUpdateAddress, onDel
     }
   }, [mode]);
 
+  // Fonction pour rendre le Dialog (commun aux invités et utilisateurs authentifiés)
+  const renderDialog = () => (
+    <Dialog open={addressDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        {editingAddress ? 'Modifier l\'adresse' : (isGuest ? 'Créer une adresse' : 'Ajouter une adresse')}
+      </DialogTitle>
+      <DialogContent>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          {!isGuest && (
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                name="name"
+                label="Libellé"
+                value={addressForm.name}
+                onChange={handleChange}
+                placeholder="Ex: Domicile, Travail..."
+                disabled={isSubmitting}
+                error={!!errors.name}
+                helperText={errors.name}
+              />
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              name="street1"
+              label="Adresse ligne 1"
+              value={addressForm.street1}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              error={!!errors.street1}
+              helperText={errors.street1}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              name="street2"
+              label="Adresse ligne 2 (optionnel)"
+              value={addressForm.street2}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              error={!!errors.street2}
+              helperText={errors.street2}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              name="zipcode"
+              label="Code postal"
+              value={addressForm.zipcode}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              error={!!errors.zipcode}
+              helperText={errors.zipcode}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              name="city"
+              label="Ville"
+              value={addressForm.city}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              error={!!errors.city}
+              helperText={errors.city}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              name="country"
+              label="Pays"
+              value={addressForm.country}
+              onChange={handleChange}
+              disabled={isSubmitting}
+              error={!!errors.country}
+              helperText={errors.country}
+            />
+          </Grid>
+          {!isGuest && (
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="isFavorite"
+                    checked={addressForm.isFavorite}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                  />
+                }
+                label="Définir comme adresse par défaut"
+              />
+            </Grid>
+          )}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleCloseDialog} disabled={isSubmitting}>Annuler</Button>
+        <Button onClick={handleAddressSubmit} variant="contained" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            editingAddress ? 'Modifier' : (isGuest ? 'Créer' : 'Ajouter')
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
   // Mode SELECT : Affichage sous forme de sélection pour le checkout
   if (mode === 'select') {
+    // COMPORTEMENT SPÉCIFIQUE POUR LES INVITÉS
+    if (isGuest) {
+      return (
+        <>
+          <Box>
+            {/* Afficher l'adresse de l'invité s'il en a créé une */}
+            {currentAddress ? (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Adresse de livraison
+                </Typography>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <HomeIcon sx={{ mr: 1, color: '#666' }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {currentAddress.name}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {currentAddress.street1}
+                  </Typography>
+                  {currentAddress.street2 && (
+                    <Typography variant="body2" color="text.secondary">
+                      {currentAddress.street2}
+                    </Typography>
+                  )}
+                  <Typography variant="body2" color="text.secondary">
+                    {currentAddress.zipcode} {currentAddress.city}, {currentAddress.country}
+                  </Typography>
+                </Box>
+
+                {/* Bouton Modifier l'adresse */}
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  onClick={() => handleEditAddress(currentAddress)}
+                  fullWidth
+                  sx={{ mt: 2 }}
+                >
+                  Modifier l'adresse
+                </Button>
+              </Box>
+            ) : (
+              <Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Veuillez créer une adresse de livraison pour continuer
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setAddressDialog(true)}
+                  fullWidth
+                >
+                  Créer une adresse
+                </Button>
+              </Box>
+            )}
+          </Box>
+
+          {/* Dialog pour créer/modifier l'adresse */}
+          {renderDialog()}
+        </>
+      );
+    }
+
+    // COMPORTEMENT NORMAL POUR LES UTILISATEURS AUTHENTIFIÉS
     return (
       <>
         <Box>
@@ -337,117 +553,7 @@ const AddressManagement = ({ mode = 'list', onAddAddress, onUpdateAddress, onDel
         </Box>
 
         {/* Dialog pour ajouter/modifier une adresse */}
-        <Dialog open={addressDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-          <DialogTitle>
-            {editingAddress ? 'Modifier l\'adresse' : 'Ajouter une adresse'}
-          </DialogTitle>
-          <DialogContent>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
-
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  name="name"
-                  label="Libellé"
-                  value={addressForm.name}
-                  onChange={handleChange}
-                  placeholder="Ex: Domicile, Travail..."
-                  disabled={isSubmitting}
-                  error={!!errors.name}
-                  helperText={errors.name}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  name="street1"
-                  label="Adresse ligne 1"
-                  value={addressForm.street1}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  error={!!errors.street1}
-                  helperText={errors.street1}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  name="street2"
-                  label="Adresse ligne 2 (optionnel)"
-                  value={addressForm.street2}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  error={!!errors.street2}
-                  helperText={errors.street2}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  name="zipcode"
-                  label="Code postal"
-                  value={addressForm.zipcode}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  error={!!errors.zipcode}
-                  helperText={errors.zipcode}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  name="city"
-                  label="Ville"
-                  value={addressForm.city}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  error={!!errors.city}
-                  helperText={errors.city}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  name="country"
-                  label="Pays"
-                  value={addressForm.country}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                  error={!!errors.country}
-                  helperText={errors.country}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      name="isFavorite"
-                      checked={addressForm.isFavorite}
-                      onChange={handleChange}
-                      disabled={isSubmitting}
-                    />
-                  }
-                  label="Définir comme adresse par défaut"
-                />
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} disabled={isSubmitting}>Annuler</Button>
-            <Button onClick={handleAddressSubmit} variant="contained" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                editingAddress ? 'Modifier' : 'Ajouter'
-              )}
-            </Button>
-          </DialogActions>
-        </Dialog>
+        {renderDialog()}
       </>
     );
   }

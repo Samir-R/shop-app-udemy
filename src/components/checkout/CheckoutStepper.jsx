@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +23,7 @@ import Cart from "../cart/cart.component";
 import CartFooterInfos from "../cart/cart-footer-infos.component";
 import {UserContext} from "../../contexts/user.context";
 import {AddressContext} from "../../contexts/address.context";
+import {useCheckout} from "../../contexts/checkout.context";
 
 const steps = ['Authentification', 'Restaurant & Livraison', 'Résumé & Paiement'];
 
@@ -29,11 +31,11 @@ const steps = ['Authentification', 'Restaurant & Livraison', 'Résumé & Paiemen
 const checkoutSchema = z.object({
   // Step 1: Auth
   authMode: z.enum(['login', 'register', 'guest']),
-  email: z.email('Email invalide'),
-  password: z.string().min(1, 'Mot de passe requis').optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  guestName: z.string().optional(),
+  // email: z.email('Email invalide'),
+  // password: z.string().min(1, 'Mot de passe requis').optional(),
+  // firstName: z.string().optional(),
+  // lastName: z.string().optional(),
+  // guestName: z.string().optional(),
 
   // Step 2: Restaurant
   restaurant: z.string().min(1, 'Veuillez sélectionner un restaurant'),
@@ -64,7 +66,7 @@ const checkoutSchema = z.object({
 }, {
   message: "Tous les champs de la carte sont requis pour le paiement par carte",
   path: ["cardNumber"],
-}).refine((data) => {
+})/*.refine((data) => {
   // Validation conditionnelle selon le mode d'authentification
   if (data.authMode === 'register') {
     console.log("data.authMode === 'register'");
@@ -86,14 +88,16 @@ const checkoutSchema = z.object({
 }, {
   message: "Veuillez remplir tous les champs requis",
   path: ["email"],
-});
+})*/;
 
 const CheckoutStepper = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [orderCompleted, setOrderCompleted] = useState(false);
+  const [errorInStep, setErrorInStep] = useState('')
   const gridStepperRef = useRef(null);
   const { currentUser, currentUserGuest } = useContext(UserContext);
   const { currentAddress } = useContext(AddressContext);
+  const { updateFormData, clearFormData, formData } = useCheckout();
 
   const [gridTopPosition, setGridTopPosition] = useState(0);
 
@@ -103,14 +107,6 @@ const CheckoutStepper = () => {
     }
   }, []);
 
-  // Rediriger vers l'étape 0 si l'utilisateur se déconnecte pendant le checkout
-  useEffect(() => {
-    // Si on n'est pas à l'étape 0 et qu'il n'y a ni currentUser ni currentUserGuest
-    if (activeStep > 0 && !currentUser && !currentUserGuest) {
-      setActiveStep(0);
-    }
-  }, [currentUser, currentUserGuest, activeStep]);
-  
   const methods = useForm({
     resolver: zodResolver(checkoutSchema),
     mode: 'onChange',
@@ -121,13 +117,32 @@ const CheckoutStepper = () => {
     },
   });
 
-  const { handleSubmit, trigger, watch, formState: { errors } } = methods;
+  const { handleSubmit, trigger, watch, reset, formState: { errors } } = methods;
 
   const watchedValues = watch();
+
+  // Charger les données sauvegardées depuis CheckoutContext au montage
+  useEffect(() => {
+    if (formData && Object.keys(formData).length > 0) {
+      reset({
+        authMode: 'login',
+        deliveryMode: 'delivery',
+        paymentMode: 'card',
+        ...formData,
+      });
+    }
+    // Ne se déclencher qu'au montage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sauvegarder les données du formulaire dans CheckoutContext
+  // Note: On ne sauvegarde pas automatiquement pour éviter les boucles infinies
+  // Les données seront sauvegardées à chaque changement d'étape via handleNext
 
   const validateStep = async (step) => {
     let fieldsToValidate = [];
 
+    console.log('on validateStep step = '+step)
     switch (step) {
       case 0:
         // Pour l'étape d'authentification, on vérifie juste si un utilisateur est connecté
@@ -154,18 +169,73 @@ const CheckoutStepper = () => {
   const handleNext = async () => {
     const isValid = await validateStep(activeStep);
     if (isValid) {
+      // Sauvegarder les données du formulaire
+      updateFormData(watchedValues);
+
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    } else {
+      handleSetErrorInStep();
     }
+  };
+
+  const handleSetErrorInStep = () => {
+      let errorInStepMessage = 'Veuillez corriger les erreurs avant de continuer.';
+      switch (activeStep) {
+        case 0:
+          errorInStepMessage = 'Veuillez vous identifier';
+          break;
+        case 1:
+          errorInStepMessage = 'Veuillez tout saisir avant de continuer.';
+          break;
+        case 2:
+          errorInStepMessage = 'Veuillez tout saisir un moyen de paiement pour confirmer.';
+          break;
+      }
+      setErrorInStep(errorInStepMessage);
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  const handleResetErrorInStep = () => {
+    setErrorInStep('');
+  };
+
   const onSubmit = async (data) => {
-    console.log('Order submitted:', data);
-    // Ici, vous feriez l'appel API pour soumettre la commande
-    setOrderCompleted(true);
+    console.log('onSubmit')
+    // Valider la dernière étape avant soumission
+    const isValid = await validateStep(activeStep);
+
+    if (!isValid) {
+      handleSetErrorInStep();
+      return;
+    }
+
+    // Réinitialiser les erreurs
+    handleResetErrorInStep();
+
+    // Sauvegarder les données finales
+    updateFormData(watchedValues);
+
+    console.log('Order submitted:', watchedValues);
+
+    // Simuler un appel API vers le backend
+    try {
+      // TODO: Remplacer par le vrai appel API
+      console.log('Envoi de la commande au backend...');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      console.log('Commande envoyée avec succès!');
+
+      // Supprimer les données du checkout après confirmation
+      clearFormData();
+
+      setOrderCompleted(true);
+    } catch (error) {
+      console.error('Erreur lors de la soumission de la commande:', error);
+      setErrorInStep('Une erreur est survenue lors de la soumission de la commande. Veuillez réessayer.');
+    }
   };
 
   const handleAuthComplete = () => {
@@ -224,7 +294,8 @@ const CheckoutStepper = () => {
             </Stepper>
 
             <FormProvider {...methods}>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              {/*<form onSubmit={handleSubmit(onSubmit)}>*/}
+              <form>
                 {renderStepContent(activeStep)}
 
                 {Object.keys(errors).length > 0 && (
@@ -232,6 +303,30 @@ const CheckoutStepper = () => {
                     Veuillez corriger les erreurs avant de continuer.
                   </Alert>
                 )}
+                {/*{errorInStep.length > 0 && (*/}
+                {/*  <Alert severity="error" sx={{ mt: 2 }}>*/}
+                {/*    {errorInStep}*/}
+                {/*  </Alert>*/}
+                {/*)}*/}
+                {/*<Snackbar*/}
+                {/*    open={errorInStep.length > 0}*/}
+                {/*    onClose={handleResetErrorInStep}*/}
+                {/*    message={errorInStep}*/}
+                {/*    autoHideDuration={1500}*/}
+                {/*/>*/}
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center'}}
+                    open={errorInStep.length > 0}
+                    autoHideDuration={2000}
+                    onClose={handleResetErrorInStep}>
+                  <Alert
+                      onClose={handleResetErrorInStep}
+                      severity="error"
+                      sx={{ width: '100%' }}
+                  >
+                    {errorInStep}
+                  </Alert>
+                </Snackbar>
 
                 {/*<Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>*/}
                 <Box
@@ -260,7 +355,7 @@ const CheckoutStepper = () => {
 
                   {activeStep === steps.length - 1 ? (
                     <Button
-                      type="submit"
+                      onClick={() => handleSubmit(onSubmit)()}
                       variant="contained"
                       size="large"
                     >
