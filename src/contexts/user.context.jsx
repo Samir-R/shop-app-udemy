@@ -275,10 +275,9 @@ export const UserProvider = ({ children, onUnauthenticated }) => {
   const updateUser = useCallback(async (customerId, userData) => {
     try {
       const result = await services.userService.updateUser(customerId, userData);
-
       // Mettre à jour currentUser dans le contexte
-      if (result.user) {
-        setCurrentUser(result.user);
+      if (result) {
+        setCurrentUser(result);
       }
 
       return {

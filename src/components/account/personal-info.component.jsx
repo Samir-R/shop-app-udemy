@@ -37,13 +37,13 @@ export default function PersonalInfo() {
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate('/my-account')}
-        sx={{ mb: 3, color: '#1976d2' }}
+        sx={{ mb: 3 }}
       >
         Retour au tableau de bord
       </Button>
 
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-        Mes informations personnelles { currentUser?.id }
+        Mes informations personnelles
       </Typography>
 
       {/* Message de succès global */}

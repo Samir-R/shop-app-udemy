@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -9,37 +9,58 @@ import {
   Grid,
   Divider,
   Avatar,
-  Chip
+  Chip,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon,
-  Schedule as ScheduleIcon,
-  Cancel as CancelIcon,
   LocationOn as LocationOnIcon,
   CalendarToday as CalendarTodayIcon,
-  ArrowBack as ArrowBackIcon
+  ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
-import { orders } from '../account/fakeData';
-// import { useUser } from '../../contexts/user.context';
+import { getStatusIcon, getStatusLabel, getStatusColor, getOrderTypeLabel, getOrderTypeIcon, ORDER_STATUS } from '../../utils/order-status.utils';
+import { UserContext } from '../../contexts/user.context';
+import services from '../../services';
 
 export default function OrderDetail() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  // const { orders } = useUser();
+  const { handleUnauthenticated } = useContext(UserContext);
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Find the order by ID
-  const order = orders.find(o => o.id === orderId);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    services.orderService.getOrder(orderId)
+      .then(data => {
+        if (!cancelled) setOrder(data);
+      })
+      .catch(err => {
+        if (cancelled) return;
+        if (err.status === 401) { handleUnauthenticated(); return; }
+        setError(err.message || 'Commande introuvable');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [orderId]);
 
-  // If order not found, show error message
-  if (!order) {
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, mt: 10, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !order) {
     return (
       <Box sx={{ p: 3, mt: 10, textAlign: 'center' }}>
-        <Typography variant="h5" color="error" gutterBottom>
-          Commande introuvable
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          La commande #{orderId} n'existe pas ou a été supprimée.
-        </Typography>
+        <Alert severity="error" sx={{ mb: 3 }}>{error || 'Commande introuvable'}</Alert>
         <Button
           startIcon={<ArrowBackIcon />}
           variant="contained"
@@ -50,57 +71,21 @@ export default function OrderDetail() {
       </Box>
     );
   }
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircleIcon sx={{ color: '#4caf50' }} />;
-      case 'in-progress':
-        return <ScheduleIcon sx={{ color: '#ff9800' }} />;
-      case 'cancelled':
-        return <CancelIcon sx={{ color: '#f44336' }} />;
-      default:
-        return <ScheduleIcon sx={{ color: '#666' }} />;
-    }
-  };
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'Terminée';
-      case 'in-progress':
-        return 'En cours';
-      case 'cancelled':
-        return 'Annulée';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return '#4caf50';
-      case 'in-progress':
-        return '#ff9800';
-      case 'cancelled':
-        return '#f44336';
-      default:
-        return '#666';
-    }
-  };
+  const deliveryAddr = order.deliveryAddress;
 
   return (
     <Box sx={{ p: 3, mt: 10 }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate('/my-account/orders')}
-        sx={{ mb: 3, color: '#1976d2' }}
+        sx={{ mb: 3 }}
       >
         Retour aux commandes
       </Button>
 
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
-        Commande #{order.id}
+        Commande #{order.orderNumber}
       </Typography>
 
       {/* En-tête de la commande */}
@@ -111,22 +96,46 @@ export default function OrderDetail() {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CalendarTodayIcon sx={{ mr: 1, color: '#666' }} />
                 <Typography variant="body1">
-                  <strong>Date de commande:</strong> {new Date(order.date).toLocaleDateString('fr-FR', {
+                  <strong>Date de commande :</strong>{' '}
+                  {new Date(order.createdAt).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
                   })}
                 </Typography>
               </Box>
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <LocationOnIcon sx={{ mr: 1, color: '#666' }} />
+                <Box sx={{ mr: 1, color: '#666', display: 'flex', alignItems: 'center' }}>
+                  {getOrderTypeIcon(order.orderType)}
+                </Box>
                 <Typography variant="body1">
-                  <strong>Adresse de livraison:</strong> {order.deliveryAddress}
+                  <strong>Type :</strong> {getOrderTypeLabel(order.orderType)}
+                  {order.pointOfSale?.name && ` — ${order.pointOfSale.name}`}
                 </Typography>
               </Box>
+
+              {deliveryAddr && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+                  <LocationOnIcon sx={{ mr: 1, color: '#666', mt: 0.3 }} />
+                  <Typography variant="body1">
+                    <strong>Adresse de livraison :</strong>{' '}
+                    {deliveryAddr.street1}
+                    {deliveryAddr.street2 ? `, ${deliveryAddr.street2}` : ''}
+                    {`, ${deliveryAddr.zipcode} ${deliveryAddr.city}`}
+                  </Typography>
+                </Box>
+              )}
+
+              {order.customerNote && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  <strong>Note :</strong> {order.customerNote}
+                </Typography>
+              )}
             </Grid>
+
             <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
               <Box sx={{ mb: 2 }}>
                 <Chip
@@ -137,7 +146,7 @@ export default function OrderDetail() {
                     color: getStatusColor(order.status),
                     fontWeight: 600,
                     fontSize: '0.9rem',
-                    height: 36
+                    height: 36,
                   }}
                 />
               </Box>
@@ -153,36 +162,49 @@ export default function OrderDetail() {
       </Card>
 
       {/* Articles commandés */}
-      <Card>
+      <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
             Articles commandés
           </Typography>
 
-          {order.items.map((item, index) => (
+          {order.items?.map((item, index) => (
             <Box key={item.id}>
               {index > 0 && <Divider sx={{ my: 2 }} />}
-              <Box sx={{ display: 'flex', alignItems: 'center', py: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', py: 1 }}>
                 <Avatar
-                  src={item.image}
-                  alt={item.name}
+                  src={item.productImageUrl}
+                  alt={item.productName}
                   sx={{ width: 64, height: 64, mr: 2 }}
                   variant="rounded"
                 />
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {item.name}
+                    {item.productName}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Quantité: {item.quantity}
+                    Quantité : {item.quantity}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Prix unitaire: {item.price.toFixed(2)} €
+                    Prix unitaire : {item.unitPrice.toFixed(2)} €
                   </Typography>
+                  {item.selectedOptions?.map((option, i) => (
+                    <Typography key={i} variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                      {option.featureName ?? option.menuName} :{' '}
+                      {option.selectedValues
+                        ? option.selectedValues.map(v => v.valueName).join(', ')
+                        : option.selectedItems?.map(v => `${v.quantity}x ${v.productName}`).join(', ')}
+                    </Typography>
+                  ))}
+                  {item.note && (
+                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mt: 0.5 }}>
+                      Note : {item.note}
+                    </Typography>
+                  )}
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {(item.price * item.quantity).toFixed(2)} €
+                    {item.subtotal.toFixed(2)} €
                   </Typography>
                 </Box>
               </Box>
@@ -191,7 +213,29 @@ export default function OrderDetail() {
 
           <Divider sx={{ my: 2 }} />
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Récapitulatif des montants */}
+          {order.subtotal != null && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body1">Sous-total</Typography>
+              <Typography variant="body1">{order.subtotal.toFixed(2)} €</Typography>
+            </Box>
+          )}
+          {order.deliveryFee != null && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body1">Frais de livraison</Typography>
+              <Typography variant="body1">
+                {order.deliveryFee === 0 ? 'Offerts' : `${order.deliveryFee.toFixed(2)} €`}
+              </Typography>
+            </Box>
+          )}
+          {order.discountAmount != null && order.discountAmount > 0 && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body1" color="success.main">Réduction</Typography>
+              <Typography variant="body1" color="success.main">-{order.discountAmount.toFixed(2)} €</Typography>
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Total de la commande
             </Typography>
@@ -204,12 +248,12 @@ export default function OrderDetail() {
 
       {/* Actions */}
       <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
-        {order.status === 'completed' && (
-          <Button variant="outlined" sx={{ color: '#1976d2', borderColor: '#1976d2' }}>
+        {order.status === ORDER_STATUS.DELIVERED && (
+          <Button >
             Recommander
           </Button>
         )}
-        <Button variant="outlined">
+        <Button>
           Contacter le support
         </Button>
       </Box>

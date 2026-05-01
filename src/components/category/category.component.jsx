@@ -49,7 +49,8 @@ const Category = ({ category, handleSetCategoryMenuTop, categoriesCount }) => {
   const ref = useRef(null);
 
   const productsCurrentCategory = category
-  ? products.filter(product => product.categories === category.id)
+  // ? products.filter(product => product.categories === category.id)
+  ? products.filter(product => product.categoriesId.includes(category.id))
   : [];
 
   const [categoryHeight, setCategoryHeight] = useState(null)

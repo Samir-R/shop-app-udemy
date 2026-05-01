@@ -5,7 +5,7 @@ export const ModalContainer = styled(Dialog)(({ theme }) => ({
     '& .MuiDialog-paper': {
         width: '100%',
         maxWidth: 600,
-        maxHeight: '90vh',
+        maxHeight: '95vh',
         borderRadius: 12,
         overflow: 'hidden',
         margin: theme.spacing(2),

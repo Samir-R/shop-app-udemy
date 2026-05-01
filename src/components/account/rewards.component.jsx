@@ -37,7 +37,7 @@ export default function Rewards() {
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate('/my-account')}
-        sx={{ mb: 3, color: '#1976d2' }}
+        sx={{ mb: 3 }}
       >
         Retour au tableau de bord
       </Button>

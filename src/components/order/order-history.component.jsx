@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -8,67 +8,53 @@ import {
   CardContent,
   Chip,
   Grid,
-  Avatar
+  Pagination,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
-import {
-  CheckCircle as CheckCircleIcon,
-  Schedule as ScheduleIcon,
-  Cancel as CancelIcon,
-  Visibility as VisibilityIcon,
-  ArrowBack as ArrowBackIcon
-} from '@mui/icons-material';
-import {orders} from "../account/fakeData";
-// import { useUser } from '../context/UserContext';
+import { ArrowBack as ArrowBackIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { getStatusIcon, getStatusLabel, getStatusColor, getOrderTypeLabel, getOrderTypeIcon } from '../../utils/order-status.utils';
+import { UserContext } from '../../contexts/user.context';
+import services from '../../services';
+
+const LIMIT = 10;
 
 export default function OrderHistory() {
   const navigate = useNavigate();
-  // const { orders } = useUser();
+  const { handleUnauthenticated } = useContext(UserContext);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircleIcon sx={{ color: '#4caf50' }} />;
-      case 'in-progress':
-        return <ScheduleIcon sx={{ color: '#ff9800' }} />;
-      case 'cancelled':
-        return <CancelIcon sx={{ color: '#f44336' }} />;
-      default:
-        return <ScheduleIcon sx={{ color: '#666' }} />;
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'Terminée';
-      case 'in-progress':
-        return 'En cours';
-      case 'cancelled':
-        return 'Annulée';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return '#4caf50';
-      case 'in-progress':
-        return '#ff9800';
-      case 'cancelled':
-        return '#f44336';
-      default:
-        return '#666';
-    }
-  };
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    services.orderService.getOrders(page, LIMIT)
+      .then(({ items, pagination }) => {
+        if (cancelled) return;
+        setOrders(items);
+        setTotalPages(pagination.pages || 1);
+      })
+      .catch(err => {
+        if (cancelled) return;
+        if (err.status === 401) { handleUnauthenticated(); return; }
+        setError(err.message || 'Erreur lors du chargement des commandes');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [page]);
 
   return (
     <Box sx={{ p: 3, mt: 10 }}>
       <Button
         startIcon={<ArrowBackIcon />}
         onClick={() => navigate('/my-account')}
-        sx={{ mb: 3, color: '#1976d2' }}
+        sx={{ mb: 3 }}
       >
         Retour au tableau de bord
       </Button>
@@ -81,16 +67,27 @@ export default function OrderHistory() {
         Retrouvez l'historique de toutes vos commandes
       </Typography>
 
-      <Grid container spacing={3}>
-        {orders.map((order) => (
-          <Grid item xs={12} key={order.id}>
-            <Card sx={{ '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }, transition: 'box-shadow 0.3s' }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mr: 2 }}>
-                        Commande #{order.id}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>
+      )}
+
+      {!loading && !error && (
+        <>
+          <Grid container spacing={3}>
+            {orders.map((order) => (
+              <Grid item xs={12} key={order.id}>
+                <Card sx={{ '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }, transition: 'box-shadow 0.3s', borderRadius: 4 }}>
+                  <CardContent>
+                    {/* Ligne 1 : numéro + chips */}
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mr: 0.5 }}>
+                        Commande #{order.orderNumber}
                       </Typography>
                       <Chip
                         icon={getStatusIcon(order.status)}
@@ -98,77 +95,74 @@ export default function OrderHistory() {
                         sx={{
                           backgroundColor: `${getStatusColor(order.status)}20`,
                           color: getStatusColor(order.status),
-                          fontWeight: 600
+                          fontWeight: 600,
                         }}
                       />
+                      <Chip
+                        icon={getOrderTypeIcon(order.orderType, 16)}
+                        label={getOrderTypeLabel(order.orderType)}
+                        size="small"
+                        variant="outlined"
+                      />
                     </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Commandée le {new Date(order.date).toLocaleDateString('fr-FR', {
+
+                    {/* Ligne 2 : date */}
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      Commandée le {new Date(order.createdAt).toLocaleDateString('fr-FR', {
                         year: 'numeric',
                         month: 'long',
-                        day: 'numeric'
+                        day: 'numeric',
+                      })} à {new Date(order.createdAt).toLocaleTimeString('fr-FR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                      📍 {order.deliveryAddress}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
-                      {order.total.toFixed(2)} €
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {order.items.length} article{order.items.length > 1 ? 's' : ''}
-                    </Typography>
-                  </Box>
-                </Box>
 
-                {/* Aperçu des articles */}
-                <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                  {order.items.slice(0, 4).map((item) => (
-                    <Box key={item.id} sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Avatar
-                        src={item.image}
-                        alt={item.name}
-                        sx={{ width: 32, height: 32, mr: 1 }}
-                      />
-                      <Typography variant="body2" color="text.secondary">
-                        {item.quantity}x {item.name}
-                      </Typography>
+                    {/* Ligne 3 : total + bouton */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1976d2' }}>
+                          {order.total.toFixed(2)} €
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {order.itemsCount} article{order.itemsCount > 1 ? 's' : ''}
+                        </Typography>
+                      </Box>
+                      <Button
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => navigate(`/my-account/orders/${order.id}`)}
+                      >
+                        Voir le détail
+                      </Button>
                     </Box>
-                  ))}
-                  {order.items.length > 4 && (
-                    <Typography variant="body2" color="text.secondary">
-                      +{order.items.length - 4} autre{order.items.length - 4 > 1 ? 's' : ''}
-                    </Typography>
-                  )}
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    startIcon={<VisibilityIcon />}
-                    variant="outlined"
-                    onClick={() => navigate(`/my-account/orders/${order.id}`)}
-                    sx={{ color: '#1976d2', borderColor: '#1976d2' }}
-                  >
-                    Voir le détail
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
 
-      {orders.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 6 }}>
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-            Aucune commande pour le moment
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Vos prochaines commandes apparaîtront ici
-          </Typography>
-        </Box>
+          {orders.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                Aucune commande pour le moment
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Vos prochaines commandes apparaîtront ici
+              </Typography>
+            </Box>
+          )}
+
+          {totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                color="primary"
+              />
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );

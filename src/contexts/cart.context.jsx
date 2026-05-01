@@ -1,5 +1,5 @@
 import {createContext, useState, useReducer, useEffect} from 'react';
-
+import services from '../services';
 import { createAction } from '../utils/reducer/reducer.utils';
 
 const addCartItem = (cartItems, productToAdd) => {
@@ -32,7 +32,7 @@ const removeCartItem = (cartItems, cartItemToRemove) => {
 
   // check if quantity is equal to 1, if it is remove that item from the cart
   if (existingCartItem.quantity === 1) {
-    return cartItems.filter((cartItem) => cartItem.id !== cartItemToRemove.id);
+    return cartItems.filter((cartItem) => cartItem.reference !== cartItemToRemove.reference);
   }
 
   // return back cartitems with matching cart item with reduced quantity
@@ -73,7 +73,7 @@ const cartReducer = (state, action) => {
 };
 
 const clearCartItem = (cartItems, cartItemToClear) =>
-  cartItems.filter((cartItem) => cartItem.id !== cartItemToClear.id);
+  cartItems.filter((cartItem) => cartItem.reference !== cartItemToClear.reference);
 
 export const CartContext = createContext({
   isCartOpen: false,
@@ -86,12 +86,14 @@ export const CartContext = createContext({
   cartTotal: 0,
   productToCompose: null,
   setProductToCompose: () => {},
+  promotions: [],
 });
 
 export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   // contains current product to compose in modal with all attributes selected
   const [productToCompose, setProductToCompose] = useState(null);
+  const [promotions, setPromotions] = useState([]);
 
   const [{ cartCount, cartTotal, cartItems }, dispatch] = useReducer(
     cartReducer,
@@ -106,6 +108,14 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const getAllPromotions = async () => {
+      const promotions = await services.promotionService.getAllPromotions();
+      setPromotions(promotions);
+    };
+    getAllPromotions();
+  }, []);
+
   const updateCartItemsReducer = (cartItems) => {
     const newCartCount = cartItems.reduce(
       (total, cartItem) => total + cartItem.quantity,
@@ -113,7 +123,7 @@ export const CartProvider = ({ children }) => {
     );
 
     const newCartTotal = cartItems.reduce(
-      (total, cartItem) => total + cartItem.quantity * cartItem.price,
+      (total, cartItem) => total + cartItem.quantity * (cartItem.centPrice / 100),
       0
     );
 
@@ -172,6 +182,7 @@ export const CartProvider = ({ children }) => {
     cartTotal,
     productToCompose,
     setProductToCompose,
+    promotions,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

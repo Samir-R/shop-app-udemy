@@ -135,7 +135,9 @@ const Register = ({ mode = 'register', onSuccess, initialData = null, hideTitle 
       }
     } else {
       console.log('❌ Erreur détectée - Setting errors:', { global: result.message, ...result.errors });
-      setErrors(result.errors && Object.keys(result.errors).length > 0 ? result.errors : { global: result.message });
+      console.log(result);
+      console.log(result.errors && Object.keys(result.errors).length > 0 ? result.errors : { global: result.message });
+      setErrors(result.errors && Object.keys(result.errors).length > 0 ? { ...result.errors, global: result.message } : { global: result.message });
     }
 
     setIsLoading(false);

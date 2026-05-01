@@ -14,7 +14,7 @@ export default class AddressService extends CoreService {
   }
 
   get endpointUrl() {
-    return `${this.apiUrl}/addresses`;
+    return `${this.apiUrl}/v1/customer/addresses`;
   }
 
   /**
@@ -30,10 +30,10 @@ export default class AddressService extends CoreService {
       console.log('getAddresses');
       console.log(data);
       return {
-        items: data.member || [],
-        totalItems: data.totalItems || 0,
-        currentPage: page,
-        itemsPerPage: itemsPerPage,
+        items: data?.addresses || [],
+        totalItems: data?.pagination?.total || 0,
+        currentPage: data?.pagination?.page || 1,
+        itemsPerPage: data?.pagination?.itemsPerPage || itemsPerPage,
       };
     } catch (error) {
       console.error('Erreur récupération adresses:', error);

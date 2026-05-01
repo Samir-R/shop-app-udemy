@@ -15,8 +15,8 @@ export default class CategoryService extends CoreService {
     }
 
     async getAllCategories() {
-        const { data } = await this.httpGet(this.endpointUrl);
-        return data ? data.map(category => new Category(category)) : [];
+        const { data } = await this.httpGet(`${this.apiUrl}/shops/019a8ed6-d371-78f7-8560-9c6508e30fa0/categories`, {}, false);
+        return data.member ? data.member.map(category => new Category(category)) : [];
     }
 };
 

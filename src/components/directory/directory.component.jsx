@@ -8,6 +8,7 @@ import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import { useTheme } from '@mui/material/styles';
 import { Button } from '@mui/material';
+import ProductList from "../../new-components/ProductList";
 
 // import { DirectoryLeftContainer, DirectoryRightContainer } from './directory.styles';
 
@@ -82,6 +83,7 @@ const theme = useTheme();
         <Toolbar />
           <Category category={currentCategory} categoriesCount={categories.length}
               handleSetCategoryMenuTop={setCategoryMenuTop} />
+          {/*<ProductList />*/}
       </Box>
     </Fragment>
   );

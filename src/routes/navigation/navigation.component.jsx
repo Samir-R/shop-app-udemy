@@ -24,6 +24,8 @@ import ShopModal from "../../components/shop-modal/shop-modal.component";
 import { LuMapPin } from "react-icons/lu";
 import useAuth from "../../hooks/use-auth.hook";
 import { useCheckout } from '../../contexts/checkout.context';
+import { ShopShippingContext } from '../../contexts/shop-shipping.context';
+import {IoStorefrontOutline} from "react-icons/io5";
 
 
 const Navigation = () => {
@@ -35,17 +37,13 @@ const Navigation = () => {
   const { logout } = useAuth();
   const { currentUser } = useContext(UserContext);
   const { setHeaderHeight } = useContext(ThemeCustomContext);
-  const { shopsList, shop, setShop } = useCheckout();
+  const { shopsList } = useCheckout();
+  const { shop } = useContext(ShopShippingContext);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [restaurantModalOpen, setRestaurantModalOpen] = useState(false);
 
   const ref = useRef(null);
-
-  const handleSelectRestaurant = (restaurant) => {
-    setShop(restaurant);
-    console.log('Restaurant sélectionné:', restaurant);
-  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -78,8 +76,8 @@ const Navigation = () => {
     }
   };
 
-  // Afficher le bouton restaurant seulement s'il y a plus d'un shop
-  const showRestaurantButton = shopsList && shopsList.length > 1;
+  const isCheckoutPage = location.pathname.startsWith('/checkout');
+  const showRestaurantButton = shopsList && shopsList.length > 0 && !isCheckoutPage;
 
   return (
     <Fragment>
@@ -151,24 +149,24 @@ const Navigation = () => {
                 aria-label="Choisir un restaurant"
                 sx={{ p: 1 }}
               >
-                <LuMapPin size={24} />
+                <IoStorefrontOutline size={24} />
               </IconButton>
             ) : (
               // Version desktop : bouton avec texte
               <Button
-                variant="outlined"
-                color="inherit"
-                startIcon={<LuMapPin size={20} />}
+                // variant="outlined"
+                // color="inherit"
+                startIcon={<IoStorefrontOutline size={20} />}
                 onClick={() => setRestaurantModalOpen(true)}
                 sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                  // borderColor: 'rgba(255, 255, 255, 0.5)',
                   textTransform: 'none',
-                  whiteSpace: 'nowrap',
+                  // whiteSpace: 'nowrap',
                   px: 2,
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  },
+                  // '&:hover': {
+                  //   borderColor: 'white',
+                  //   backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  // },
                 }}
               >
                 {shop ? shop.name : 'Choisir un restaurant'}
@@ -242,7 +240,7 @@ const Navigation = () => {
       <ShopModal
         open={restaurantModalOpen}
         onClose={() => setRestaurantModalOpen(false)}
-        onSelectRestaurant={handleSelectRestaurant}
+        onSelectRestaurant={() => {}}
       />
     </Fragment>
   );

@@ -43,6 +43,58 @@ let theme = createTheme({
       // '"Segoe UI Symbol"',
     ].join(','),
   },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: '16px',
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focused, &.MuiFormLabel-filled': {
+            fontWeight: 500,
+          },
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: '11px',
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          '&.Mui-error': {
+            fontWeight: 500,
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#555',
+          color: '#fff',
+          borderRadius: '9px',
+          '&:hover': {
+            backgroundColor: '#666',
+          },
+          '&.Mui-disabled': {
+            opacity: 0.4,
+            backgroundColor: 'inherit',
+            color: 'inherit',
+            cursor: 'not-allowed'
+          },
+        },
+      },
+    },
+  },
   palette: {
     // primary -> Header, Footer
     primary: {

@@ -8,14 +8,19 @@ import Typography from '@mui/material/Typography';
 import QuantityInput from '../../number-input/number-input';
 import Grid from "@mui/material/Unstable_Grid2";
 import ProductModalStepperContentItem from './item/product-modal-stepper-content-item.component';
-import { Avatar, Chip, List, ListItem, ListItemAvatar, ListItemText, ListSubheader } from '@mui/material';
+import { Alert, Avatar, Chip, List, ListItem, ListItemAvatar, ListItemText, ListSubheader } from '@mui/material';
 import { ProductModalStepButtonCustom } from '../styles/product-modal-stepper-style.component';
 import { IoChevronUpOutline } from 'react-icons/io5';
 
 const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
 
+  const hasNoSelection = !productReadyToAdd?.attributesSelected?.length ||
+    productReadyToAdd.attributesSelected.every(attr => !attr.listSelected?.length);
 
-  
+  const attributeTitles = (productReadyToAdd?.attributes || [])
+    .map(attr => attr.title)
+    .filter(Boolean);
+
   return (
       productReadyToAdd === null ? <span>Chargement du resultat !!! ....</span> : (<>
       <Typography variant='subtitle2'
@@ -38,17 +43,21 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
         float: 'right',
       }}
     >
-      Back
+        Précédent
     </ProductModalStepButtonCustom>
       </Typography>
-            <List
+            {hasNoSelection
+              ? <Alert severity="info" sx={{ mt: '25px', mb: 1 }}>
+                  Vous êtes sur le point d'ajouter <strong>{productReadyToAdd.name}</strong> sans personnalisation
+                  {attributeTitles.length > 0 && <> (aucune option sélectionnée parmi : <em>{attributeTitles.length > 1 ? attributeTitles.slice(0, -1).join(', ') + ' et ' + attributeTitles.at(-1) : attributeTitles[0]}</em>)</>}.
+                  {' '}Pour confirmer, cliquez sur <strong>Ajouter</strong> ci-dessous. Pour personnaliser votre {productReadyToAdd.name}, vous pouvez toujours cliquer sur <strong>Précédent</strong> et sélectionnez vos options.
+                </Alert>
+              : <List
               sx={{
                 width: '100%',
-                // maxWidth: 360,
                 bgcolor: 'background.paper',
                 position: 'relative',
                 overflow: 'auto',
-                // maxHeight: 300,
                 zIndex: 0,
                 paddingBottom: '50px',
                 '& ul': { padding: 0 },
@@ -84,15 +93,19 @@ const ProductModalFinalStepperContent = ({ productReadyToAdd, handleBack }) => {
                                   paddingRight: '4px',                             
                                 }
                               }}
-                              label={'+'+item.price+'€'} size="small" />}
+                              label={'+'+item.priceToDisplay+'€'} size="small" />}
                           </Typography>
                         </ListItemText>
                       </ListItem>
                     ))}
+                      {!attributeSelected.listSelected?.length && <Typography variant="caption"
+                      sx={{ display: 'block', color: '#bdc3c7', marginLeft: '25px' }}>
+                          Aucun choix
+                      </Typography>}
                   </ul>
                 </li>
               ))}
-            </List>
+            </List>}
             </>)
         );
 

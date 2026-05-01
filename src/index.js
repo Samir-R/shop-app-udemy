@@ -12,6 +12,7 @@ import { CartProvider } from './contexts/cart.context';
 import './index.scss';
 import { ThemeCustomProvider } from './contexts/theme-custom.context';
 import { CheckoutProvider } from "./contexts/checkout.context";
+import {ShopShippingProvider} from "./contexts/shop-shipping.context";
 
 const rootElement = document.getElementById('root');
 
@@ -28,17 +29,19 @@ const AppWithProviders = () => {
   return (
     <UserProvider onUnauthenticated={handleUnauthenticated}>
       <AddressProvider>
-        <CheckoutProvider>
-          <CategoriesProvider>
-            <ProductProvider>
-              <CartProvider>
-                <ThemeCustomProvider>
-                  <App />
-                </ThemeCustomProvider>
-              </CartProvider>
-            </ProductProvider>
-          </CategoriesProvider>
-        </CheckoutProvider>
+        <ShopShippingProvider>
+          <CheckoutProvider>
+            <CategoriesProvider>
+              <ProductProvider>
+                <CartProvider>
+                  <ThemeCustomProvider>
+                    <App />
+                  </ThemeCustomProvider>
+                </CartProvider>
+              </ProductProvider>
+            </CategoriesProvider>
+          </CheckoutProvider>
+        </ShopShippingProvider>
       </AddressProvider>
     </UserProvider>
   );

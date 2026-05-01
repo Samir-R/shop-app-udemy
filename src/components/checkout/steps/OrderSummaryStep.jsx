@@ -1,52 +1,74 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   Box,
   Typography,
   Card,
   CardContent,
   Grid,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
   TextField,
   FormControl,
-  FormLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
   Chip,
 } from '@mui/material';
-import { CreditCard, Store, ShoppingCart, Restaurant, Schedule, LocationOn } from '@mui/icons-material';
+import { CreditCard, Store, LocationOn } from '@mui/icons-material';
 import { useFormContext, Controller } from 'react-hook-form';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { useTheme } from '@mui/material/styles';
+import { FaUserLock, FaUserTie } from 'react-icons/fa';
+import { IoStorefrontOutline } from 'react-icons/io5';
+import { MdOutlineDeliveryDining } from 'react-icons/md';
+import { LuHandPlatter } from 'react-icons/lu';
+import { IoRestaurantOutline } from 'react-icons/io5';
+import { UserContext } from '../../../contexts/user.context';
+import { ShopShippingContext } from '../../../contexts/shop-shipping.context';
+import { AddressContext } from '../../../contexts/address.context';
 
-// Mock order data
-const orderItems = [
-  { name: 'Pizza Margherita', quantity: 2, price: 12.50 },
-  { name: 'Salade César', quantity: 1, price: 8.90 },
-  { name: 'Tiramisu', quantity: 1, price: 5.50 },
-];
+const DELIVERY_METHOD_CONFIG = {
+  delivery: { label: 'Livraison',       Icon: MdOutlineDeliveryDining },
+  pickup:   { label: 'Click & Collect', Icon: LuHandPlatter },
+  onsite:   { label: 'Sur place',       Icon: IoRestaurantOutline },
+};
 
-const restaurants = [
-  { id: 'resto1', name: 'Chez Luigi', address: '12 rue de la Paix, Paris' },
-  { id: 'resto2', name: 'Le Bistrot', address: '45 avenue des Champs, Lyon' },
-  { id: 'resto3', name: 'Pizza Corner', address: '23 boulevard Saint-Germain, Marseille' },
-];
+const formatDeliveryDate = (date) => {
+  if (!date) return '';
+  try {
+    const d = date instanceof Date ? date : new Date(date);
+    return format(d, 'EEEE d MMMM yyyy', { locale: fr });
+  } catch {
+    return '';
+  }
+};
 
 const OrderSummaryStep = () => {
   const { control, watch, formState: { errors } } = useFormContext();
   const paymentMode = watch('paymentMode');
-  const deliveryMode = watch('deliveryMode');
-  const restaurant = watch('restaurant');
-  const deliveryDate = watch('deliveryDate');
-  const deliveryTime = watch('deliveryTime');
-  const address = watch('address');
 
-  const subtotal = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const deliveryFee = deliveryMode === 'delivery' ? 3.90 : 0;
-  const total = subtotal + deliveryFee;
+  const theme = useTheme();
+  const { currentUser, currentUserGuest, refreshUser } = useContext(UserContext);
+  const { shop, deliveryMethod, deliveryDate, deliveryHour, asap } = useContext(ShopShippingContext);
+  const { currentAddress } = useContext(AddressContext);
 
-  const selectedRestaurant = restaurants.find(r => r.id === restaurant);
+  const deliveryConfig = DELIVERY_METHOD_CONFIG[deliveryMethod] ?? DELIVERY_METHOD_CONFIG.delivery;
+  const DeliveryIcon = deliveryConfig.Icon;
+
+  useEffect(() => {
+    if (currentUser) {
+      refreshUser();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const user = currentUser || currentUserGuest;
+  const isGuest = !!currentUserGuest;
+
+  const firstName = user?.firstName || '';
+  const lastName = user?.lastName || '';
+  const userName = firstName && lastName
+    ? `${firstName} ${lastName}`
+    : user?.name || user?.email?.split('@')[0] || '';
 
   return (
     <Box>
@@ -54,228 +76,206 @@ const OrderSummaryStep = () => {
         Résumé de votre commande
       </Typography>
 
-      <Grid container spacing={3}>
-        {/* Order Items */}
-        <Grid item xs={12} md={6}>
-          <Card>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        {/* Card 1 : Utilisateur */}
+        <Grid item xs={12} sm={4}>
+          <Card variant="outlined" sx={{ borderRadius: 2, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                <ShoppingCart sx={{ mr: 1, verticalAlign: 'middle' }} />
-                Votre commande
-              </Typography>
-              
-              <List dense>
-                {orderItems.map((item, index) => (
-                  <ListItem key={index} sx={{ px: 0 }}>
-                    <ListItemText
-                      primary={`${item.quantity}x ${item.name}`}
-                      secondary={`${item.price.toFixed(2)} € / unité`}
-                    />
-                    <Typography variant="body1" fontWeight="medium">
-                      {(item.price * item.quantity).toFixed(2)} €
-                    </Typography>
-                  </ListItem>
-                ))}
-                
-                <Divider sx={{ my: 1 }} />
-                
-                <ListItem sx={{ px: 0 }}>
-                  <ListItemText primary="Sous-total" />
-                  <Typography variant="body1">
-                    {subtotal.toFixed(2)} €
-                  </Typography>
-                </ListItem>
-                
-                {deliveryMode === 'delivery' && (
-                  <ListItem sx={{ px: 0 }}>
-                    <ListItemText primary="Frais de livraison" />
-                    <Typography variant="body1">
-                      {deliveryFee.toFixed(2)} €
-                    </Typography>
-                  </ListItem>
-                )}
-                
-                <Divider sx={{ my: 1 }} />
-                
-                <ListItem sx={{ px: 0 }}>
-                  <ListItemText 
-                    primary={<Typography variant="h6">Total</Typography>}
-                  />
-                  <Typography variant="h6" color="primary">
-                    {total.toFixed(2)} €
-                  </Typography>
-                </ListItem>
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Order Details */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Détails de la commande
-              </Typography>
-              
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  <Restaurant sx={{ mr: 1, fontSize: 18, verticalAlign: 'middle' }} />
-                  Restaurant
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                {isGuest
+                  ? <FaUserTie size={20} color={theme.palette.primary.main} style={{ marginRight: 8 }} />
+                  : <FaUserLock size={20} color={theme.palette.primary.main} style={{ marginRight: 8 }} />
+                }
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {isGuest ? 'Invité' : 'Compte'}
                 </Typography>
-                {selectedRestaurant && (
-                  <Box>
-                    <Typography variant="body1">{selectedRestaurant.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {selectedRestaurant.address}
-                    </Typography>
-                  </Box>
-                )}
               </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  <Schedule sx={{ mr: 1, fontSize: 18, verticalAlign: 'middle' }} />
-                  {deliveryMode === 'delivery' ? 'Livraison' : 'Retrait'}
-                </Typography>
-                <Typography variant="body1">
-                  {deliveryDate} à {deliveryTime}
-                </Typography>
-                {deliveryMode === 'delivery' ? (
-                  <Chip label="Livraison à domicile" color="primary" size="small" sx={{ mt: 0.5 }} />
-                ) : (
-                  <Chip label="Click & Collect" color="secondary" size="small" sx={{ mt: 0.5 }} />
-                )}
-              </Box>
-
-              {deliveryMode === 'delivery' && address && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    <LocationOn sx={{ mr: 1, fontSize: 18, verticalAlign: 'middle' }} />
-                    Adresse de livraison
-                  </Typography>
-                  <Typography variant="body1">
-                    {address.street}<br />
-                    {address.zipCode} {address.city}
-                  </Typography>
-                </Box>
+              {user ? (
+                <>
+                  {userName && <Typography variant="body2">{userName}</Typography>}
+                  {user.email && (
+                    <Typography variant="body2" color="text.secondary">{user.email}</Typography>
+                  )}
+                  {user.phone && (
+                    <Typography variant="body2" color="text.secondary">{user.phone}</Typography>
+                  )}
+                  {isGuest && (
+                    <Chip label="Invité" size="small" color="secondary" sx={{ mt: 1 }} />
+                  )}
+                </>
+              ) : (
+                <Typography variant="body2" color="text.secondary">Non renseigné</Typography>
               )}
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Payment */}
-        <Grid item xs={12}>
-          <Card>
+        {/* Card 2 : Restaurant */}
+        <Grid item xs={12} sm={4}>
+          <Card variant="outlined" sx={{ borderRadius: 2, height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Mode de paiement
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                <IoStorefrontOutline size={22} color={theme.palette.primary.main} style={{ marginRight: 8 }} />
+                <Typography variant="subtitle1" fontWeight="bold">Restaurant</Typography>
+              </Box>
+              {shop ? (
+                <>
+                  <Typography variant="body2" fontWeight="medium">{shop.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">{shop.address}</Typography>
+                </>
+              ) : (
+                <Typography variant="body2" color="text.secondary">Non sélectionné</Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
 
-              <Controller
-                name="paymentMode"
-                control={control}
-                render={({ field }) => (
-                  <FormControl component="fieldset">
-                    <RadioGroup {...field}>
-                      <FormControlLabel
-                        value="card"
-                        control={<Radio />}
-                        label={
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <CreditCard sx={{ mr: 1 }} />
-                            Paiement par carte bancaire
-                          </Box>
-                        }
-                      />
-                      <FormControlLabel
-                        value="store"
-                        control={<Radio />}
-                        label={
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Store sx={{ mr: 1 }} />
-                            Paiement en magasin
-                          </Box>
-                        }
-                      />
-                    </RadioGroup>
-                  </FormControl>
-                )}
-              />
-
-              {paymentMode === 'card' && (
-                <Box sx={{ mt: 3 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <Controller
-                        name="cardNumber"
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            fullWidth
-                            label="Numéro de carte"
-                            placeholder="1234 5678 9012 3456"
-                            error={!!errors.cardNumber}
-                            helperText={errors.cardNumber?.message}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Controller
-                        name="cardExpiry"
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            fullWidth
-                            label="Date d'expiration"
-                            placeholder="MM/AA"
-                            error={!!errors.cardExpiry}
-                            helperText={errors.cardExpiry?.message}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Controller
-                        name="cardCvv"
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            fullWidth
-                            label="CVV"
-                            placeholder="123"
-                            error={!!errors.cardCvv}
-                            helperText={errors.cardCvv?.message}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Controller
-                        name="cardName"
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            fullWidth
-                            label="Nom sur la carte"
-                            error={!!errors.cardName}
-                            helperText={errors.cardName?.message}
-                          />
-                        )}
-                      />
-                    </Grid>
-                  </Grid>
+        {/* Card 3 : Livraison */}
+        <Grid item xs={12} sm={4}>
+          <Card variant="outlined" sx={{ borderRadius: 2, height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                <DeliveryIcon size={22} color={theme.palette.primary.main} style={{ marginRight: 8 }} />
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {deliveryConfig.label}
+                </Typography>
+              </Box>
+              {asap ? (
+                <Chip label="Dès que possible" size="small" color="primary" />
+              ) : deliveryDate && deliveryHour ? (
+                <>
+                  <Typography variant="body2">{formatDeliveryDate(deliveryDate)} à {deliveryHour}</Typography>
+                  {/*<Typography variant="body2" color="text.secondary">à {deliveryHour}</Typography>*/}
+                </>
+              ) : (
+                <Typography variant="body2" color="text.secondary">Non renseigné</Typography>
+              )}
+              {deliveryMethod === 'delivery' && currentAddress && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1.5 }}>
+                  <LocationOn sx={{ mr: 0.5, fontSize: 16, color: 'text.secondary', mt: 0.3 }} />
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">{currentAddress.street1}</Typography>
+                    {currentAddress.street2 && <Typography variant="body2" color="text.secondary">{currentAddress.street2}</Typography>}
+                    <Typography variant="body2" color="text.secondary">
+                      {currentAddress.zipcode} {currentAddress.city}
+                    </Typography>
+                  </Box>
                 </Box>
               )}
             </CardContent>
           </Card>
         </Grid>
       </Grid>
+
+      {/* Paiement */}
+      <Card variant="outlined" sx={{ borderRadius: 2 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Mode de paiement
+          </Typography>
+
+          <Controller
+            name="paymentMode"
+            control={control}
+            render={({ field }) => (
+              <FormControl component="fieldset">
+                <RadioGroup {...field}>
+                  <FormControlLabel
+                    value="card"
+                    control={<Radio />}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <CreditCard sx={{ mr: 1 }} />
+                        Paiement par carte bancaire
+                      </Box>
+                    }
+                  />
+                  <FormControlLabel
+                    value="store"
+                    control={<Radio />}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Store sx={{ mr: 1 }} />
+                        Paiement en magasin
+                      </Box>
+                    }
+                  />
+                </RadioGroup>
+              </FormControl>
+            )}
+          />
+
+          {paymentMode === 'card' && (
+            <Box sx={{ mt: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Controller
+                    name="cardNumber"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Numéro de carte"
+                        placeholder="1234 5678 9012 3456"
+                        error={!!errors.cardNumber}
+                        helperText={errors.cardNumber?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="cardExpiry"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Date d'expiration"
+                        placeholder="MM/AA"
+                        error={!!errors.cardExpiry}
+                        helperText={errors.cardExpiry?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="cardCvv"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="CVV"
+                        placeholder="123"
+                        error={!!errors.cardCvv}
+                        helperText={errors.cardCvv?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Controller
+                    name="cardName"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Nom sur la carte"
+                        error={!!errors.cardName}
+                        helperText={errors.cardName?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
     </Box>
   );
 };

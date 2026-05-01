@@ -1,4 +1,5 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
+import ProductInformationsModal from './product-informations-modal.component';
 import CardMedia from '@mui/material/CardMedia';
 
 import { CartContext } from '../../contexts/cart.context';
@@ -11,7 +12,8 @@ import {
   Name,
   Price,
 } from './product-card.styles';
-import { Button, Card, CardActions, CardContent, Typography, useMediaQuery } from '@mui/material';
+import { Button, Card, CardActions, CardContent, IconButton, Typography, useMediaQuery } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { styled, useTheme } from '@mui/material/styles';
 import ShoppingCart from '@mui/icons-material/ShoppingCart';
 import PreviousPrice from '../previous-price/previous-price.component';
@@ -34,9 +36,10 @@ export const CustomOrderButton = styled(Button)(({ theme }) => ({
 
 const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallToMid }) => {
 
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
   const { name, price, discountPrice, imageUrl } = product;
-  let variantName = 'h5';
-  let variantPrice = 'h6';
+  let variantName = 'h6';
+  let variantPrice = 'body1';//'h6';
   let sizeButton = 'large';
   if (isLessThanSmall) {
     variantName = 'body2';
@@ -64,29 +67,41 @@ const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallTo
         <Typography gutterBottom variant={variantName} component="div" align='center' sx={{ fontWeight: 'bold'}}> 
           {name}
         </Typography>
-        <Typography variant={variantPrice} align='right' sx={{ fontWeight: "bold" }}>
-        {/* color="text.secondary" */}
-        {
-            discountPrice ?
-            (<>
-              <PreviousPrice price={`${price} €`} />
-              {discountPrice} €
-            </>
-            )
-            :
-            <>
-              {price} €
-            </>
-        }
-        </Typography>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          {product.productInformations?.length > 0 && (
+            <IconButton size="small" sx={{ p: '2px' }} onClick={() => setInfoModalOpen(true)}>
+              <InfoOutlinedIcon fontSize="small" />
+            </IconButton>
+          )}
+          <Typography variant={variantPrice} align='right' sx={{ fontWeight: "bold", flex: 1 }}>
+          {/* color="text.secondary" */}
+          {
+              discountPrice ?
+              (<>
+                <PreviousPrice price={`${price} €`} />
+                {discountPrice} €
+              </>
+              )
+              :
+              <>
+                {price} €
+              </>
+          }
+          </Typography>
+        </div>
       </CardContent>
       {/* <Footer>
         <Name>{name} ({categories})</Name>
         <Price>{price}</Price>
       </Footer> */}
-      <CardActions sx={{ p: 0 }}>
+      <ProductInformationsModal
+        open={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        productInformations={product.productInformations}
+      />
+      <CardActions sx={{ p: '0px 6px 6px 6px' }}>
         {/*<CustomOrderButton variant="contained" endIcon={<ShoppingCart />}*/}
-        <CustomOrderButton variant="contained" endIcon={<TbPaperBag size="28px"/>}
+        <CustomOrderButton variant="contained" endIcon={<TbPaperBag size="27px" style={{ strokeWidth: '1.5px'}}/>}
           size={sizeButton}
           sx={{ width: buttonWidth, padding: "10px 0px"}}
           onClick={() => addProductToCart(false)}
@@ -94,11 +109,11 @@ const ProductCardColumn = ({ product, addProductToCart, isLessThanSmall, smallTo
           {/*Ajouter au panier*/}
           Ajouter
         </CustomOrderButton>
-          {product.productMenu && (<CustomOrderButton variant="contained"
+          {!product.productMenu && (<CustomOrderButton variant="contained"
                                                       // endIcon={<IoFastFoodOutline size="28px"/>}
                                                       endIcon={<MenuIconComponent />}
                               size={sizeButton}
-                              sx={{width: buttonWidth, padding: "10px 0px", marginLeft: '3px !important', backgroundColor: '#555'}}
+                              sx={{width: buttonWidth, padding: "10px 0px", marginLeft: '5px !important', backgroundColor: '#555'}}
                               onClick={() => addProductToCart(true)}
           >
               {/*Ajouter au panier*/}

@@ -24,6 +24,7 @@ import CartFooterInfos from "../cart/cart-footer-infos.component";
 import {UserContext} from "../../contexts/user.context";
 import {AddressContext} from "../../contexts/address.context";
 import {useCheckout} from "../../contexts/checkout.context";
+import {ShopShippingContext} from "../../contexts/shop-shipping.context";
 
 const steps = ['Authentification', 'Restaurant & Livraison', 'Résumé & Paiement'];
 
@@ -37,12 +38,7 @@ const checkoutSchema = z.object({
   // lastName: z.string().optional(),
   // guestName: z.string().optional(),
 
-  // Step 2: Restaurant
-  restaurant: z.string().min(1, 'Veuillez sélectionner un restaurant'),
-  deliveryMode: z.enum(['delivery', 'pickup']),
-  deliveryDate: z.string().min(1, 'Date requise'),
-  deliveryTime: z.string().min(1, 'Heure requise'),
-  // L'adresse est gérée par AddressContext, pas par react-hook-form
+  // Step 2: Restaurant — géré par ShopShippingContext, pas react-hook-form
 
   // Step 3: Payment
   paymentMode: z.enum(['card', 'store']),
@@ -95,9 +91,10 @@ const CheckoutStepper = () => {
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [errorInStep, setErrorInStep] = useState('')
   const gridStepperRef = useRef(null);
-  const { currentUser, currentUserGuest } = useContext(UserContext);
+  const { currentUser, currentUserGuest, refreshUser } = useContext(UserContext);
   const { currentAddress } = useContext(AddressContext);
   const { updateFormData, clearFormData, formData } = useCheckout();
+  const { isSelectionValid, deliveryMethod, validateAndResetIfNeeded } = useContext(ShopShippingContext);
 
   const [gridTopPosition, setGridTopPosition] = useState(0);
 
@@ -105,6 +102,8 @@ const CheckoutStepper = () => {
     if (gridStepperRef.current) {
       setGridTopPosition(gridStepperRef.current.offsetTop);
     }
+    validateAndResetIfNeeded();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const methods = useForm({
@@ -112,7 +111,6 @@ const CheckoutStepper = () => {
     mode: 'onChange',
     defaultValues: {
       authMode: 'login',
-      deliveryMode: 'delivery',
       paymentMode: 'card',
     },
   });
@@ -135,26 +133,23 @@ const CheckoutStepper = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sauvegarder les données du formulaire dans CheckoutContext
-  // Note: On ne sauvegarde pas automatiquement pour éviter les boucles infinies
-  // Les données seront sauvegardées à chaque changement d'étape via handleNext
-
   const validateStep = async (step) => {
     let fieldsToValidate = [];
 
     console.log('on validateStep step = '+step)
     switch (step) {
       case 0:
-        // Pour l'étape d'authentification, on vérifie juste si un utilisateur est connecté
-        // ou si un utilisateur invité est défini
-        return !!(currentUser || currentUserGuest);
-      case 1:
-        fieldsToValidate = ['restaurant', 'deliveryMode', 'deliveryDate', 'deliveryTime'];
-        // Vérifier qu'une adresse est sélectionnée si mode livraison
-        if (watchedValues.deliveryMode === 'delivery' && !currentAddress) {
-          return false;
+        if (currentUserGuest) return true;
+        if (currentUser) {
+          const result = await refreshUser();
+          return result.success;
         }
-        break;
+        return false;
+      case 1:
+        // Validation via ShopShippingContext (magasin + mode + date/heure ou asap)
+        if (!isSelectionValid) return false;
+        return !(deliveryMethod === 'delivery' && !currentAddress);
+
       case 2:
         fieldsToValidate = ['paymentMode'];
         if (watchedValues.paymentMode === 'card') {
@@ -169,9 +164,8 @@ const CheckoutStepper = () => {
   const handleNext = async () => {
     const isValid = await validateStep(activeStep);
     if (isValid) {
-      // Sauvegarder les données du formulaire
+      handleResetErrorInStep();
       updateFormData(watchedValues);
-
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     } else {
       handleSetErrorInStep();
@@ -188,13 +182,14 @@ const CheckoutStepper = () => {
           errorInStepMessage = 'Veuillez tout saisir avant de continuer.';
           break;
         case 2:
-          errorInStepMessage = 'Veuillez tout saisir un moyen de paiement pour confirmer.';
+          errorInStepMessage = 'Veuillez completer le moyen de paiement pour confirmer.';
           break;
       }
       setErrorInStep(errorInStepMessage);
   };
 
   const handleBack = () => {
+    handleResetErrorInStep();
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
@@ -206,6 +201,7 @@ const CheckoutStepper = () => {
     console.log('onSubmit')
     // Valider la dernière étape avant soumission
     const isValid = await validateStep(activeStep);
+    console.log(isValid)
 
     if (!isValid) {
       handleSetErrorInStep();
@@ -238,8 +234,11 @@ const CheckoutStepper = () => {
     }
   };
 
-  const handleAuthComplete = () => {
-    // L'authentification est complète, passer à l'étape suivante
+  const handleAuthComplete = async () => {
+    if (currentUser) {
+      const result = await refreshUser();
+      if (!result.success) return;
+    }
     setActiveStep(1);
   };
 
@@ -262,11 +261,11 @@ const CheckoutStepper = () => {
 
   return (
     <Card sx={{ width: '100%', pt: 8, boxShadow: 'none'}}>
-      <CardContent sx={{ p: 4 }}>
+      <CardContent sx={{ p: { xs: 1, sm: 4 } }}>
         <Typography variant="h4" align="center" gutterBottom>
           Finaliser votre commande
         </Typography>
-        { currentUser ? 'IS LOGGED' : 'NOT LOGGED'}
+        {/*{ currentUser ? 'IS LOGGED' : 'NOT LOGGED'}*/}
         <Grid container spacing={2}>
           {/*xs={12} sm={7} md={8}*/}
         {/*  sx={{*/}
@@ -283,15 +282,27 @@ const CheckoutStepper = () => {
           <Grid
               sm={12} md={8}
               ref={gridStepperRef}
-              sx={{ pb: '80px' }}
+              sx={{ pb: { xs: '151px', sm: '80px' } }}
           >
             <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
               {steps.map((label) => (
                 <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
+                  <StepLabel
+                    sx={{
+                      '& .MuiStepLabel-label': {
+                        display: { xs: 'none', sm: 'block' },
+                      },
+                    }}
+                  >{label}</StepLabel>
                 </Step>
               ))}
             </Stepper>
+            <Typography
+              variant="body2"
+              sx={{ display: { xs: 'block', sm: 'none' }, mb: 2, color: 'text.secondary', textAlign: 'center', fontWeight: '500' }}
+            >
+              Étape {activeStep + 1} / {steps.length} — {steps[activeStep]}
+            </Typography>
 
             <FormProvider {...methods}>
               {/*<form onSubmit={handleSubmit(onSubmit)}>*/}
@@ -300,7 +311,7 @@ const CheckoutStepper = () => {
 
                 {Object.keys(errors).length > 0 && (
                   <Alert severity="error" sx={{ mt: 2 }}>
-                    Veuillez corriger les erreurs avant de continuer.
+                    {errorInStep || 'Veuillez corriger les erreurs avant de continuer.'}
                   </Alert>
                 )}
                 {/*{errorInStep.length > 0 && (*/}
@@ -334,21 +345,21 @@ const CheckoutStepper = () => {
                       display: 'flex',
                       justifyContent: 'space-between',
                       position: 'fixed',
-                      bottom: 0,
+                      bottom: { xs: '76px', sm: 0 },
                       left: 0,
                       right: 0,
-                      width: '100%', // Ou width: '100vw'
+                      width: '100%',
                       height: '75px',
-                      padding: 2, // Ajoutez un padding si nécessaire
-                      backgroundColor: 'white', // Optionnel : fond pour masquer le contenu en dessous
-                      boxShadow: '0 -2px 10px rgba(0,0,0,0.1)', // Optionnel : ombre pour l'effet "flottant"
-                      zIndex: 1000 // Optionnel : s'assurer que la barre reste au-dessus
+                      padding: 2,
+                      backgroundColor: 'white',
+                      boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+                      zIndex: 1000
                     }}
                 >
                   <Button
                     disabled={activeStep === 0}
                     onClick={handleBack}
-                    variant="outlined"
+                    variant="contained"
                   >
                     Retour
                   </Button>
@@ -376,8 +387,9 @@ const CheckoutStepper = () => {
           </Grid>
           <Grid
               // size={{ xs: 12, sm: 5, lg: 4 }}
-              xs={0} sm={5} md={4}
+              xs={0} sm={0} md={4}
               sx={{
+                display: { xs: 'none', md: 'block' },
                 position: { xs: 'static', md: 'fixed' }, // Static sur mobile, fixed sur desktop
                 top: gridStepperRef.current?.offsetTop,
                 right: 0,

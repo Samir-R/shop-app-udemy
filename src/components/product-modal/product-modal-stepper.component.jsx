@@ -123,36 +123,29 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
   };
 
   const setProductToAdd = () => {
-    const { attributes, ...productToAdd } = product;
+    // const { attributes, ...productToAdd } = product;
+    const productToAdd = { ...product};
     productToAdd['attributesSelected'] = [...attributesSelected];
     setProductToCompose({...productToAdd});
   }
 
 
   const getFinalProductToCompose = () => {
-    if (productToCompose?.isMenu && productToCompose?.mainProduct) {
-      const { mainProduct, ...finalProductToCompose } = productToCompose;
-      finalProductToCompose.attributesSelected?.unshift({
-        // id: uuidv4(),
-        id: 'main-attribute-of-menu',
-        max: 1,
-        min: 1,
-        name: 'main-product',
-        isMainProduct: true,
-        listSelected: [
-          {
-            // id: uuidv4(),
-            id: 'main-product-of-menu',
-            ...mainProduct,
-            max: 1,
-            price: 0,
-            quantity: 1,
-          }
-        ]
-      });
-      return finalProductToCompose;
-    }
-    return productToCompose;
+    if (!productToCompose) return null;
+
+    const extraCentPrice = (productToCompose.attributesSelected || []).reduce((total, attribute) => {
+      return total + (attribute.listSelected || []).reduce((attrTotal, item) => {
+        return attrTotal + (item.price || 0) * (item.quantity || 1);
+      }, 0);
+    }, 0);
+
+    const newCentPrice = (productToCompose.centPrice || 0) + extraCentPrice;
+
+    return {
+      ...productToCompose,
+      centPrice: newCentPrice,
+      priceToDisplay: (newCentPrice / 100).toFixed(2) + '',
+    };
   };
 
   const addProductToCart = () => {
@@ -210,25 +203,27 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
                                                      onSelectAttributeItem={handleSelectAttributes} />)}
                   <Box sx={{ mb: 0 }} className={isLastStep() && 'Last-Step-Footer'}>
                     <div>{isLastStep()
-                        ? <>
-                          <QuantityInput
-                              handleChange={handleChangeQuantityToAdd}
-                              // initValue={currentQtyOfElement}
-                              initValue={quantityToAdd}
-                              min={1}
-                              max={99}/>
+                        ? <div style={{ display: 'flex', flexDirection: isMobileFormat ? 'column' : 'row', alignItems: 'center', gap: '12px' }}>
+                          <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                            <span style={{fontSize: '0.8rem', color: 'gray', whiteSpace: 'nowrap'}}>
+                              {finalProductToCompose?.priceToDisplay} € / unité
+                            </span>
+                            <QuantityInput
+                                handleChange={handleChangeQuantityToAdd}
+                                initValue={quantityToAdd}
+                                min={1}
+                                max={99}/>
+                            <strong style={{whiteSpace: 'nowrap'}}>
+                              {((finalProductToCompose?.centPrice / 100) * quantityToAdd).toFixed(2)} €
+                            </strong>
+                          </div>
                           <CustomOrderButton
                               variant="contained"
-                              // endIcon={<ShoppingCart />}
                               endIcon={<TbPaperBag size="26px"/>}
-                              sx={{
-                                marginLeft: '15px',
-                              }}
                               onClick={addProductToCart} disabled={productToCompose === null}>
-                            {/*Ajouter au panier*/}
                             Ajouter
                           </CustomOrderButton>
-                        </>
+                        </div>
                         : <ProductModalStepButtonCustom
                             color="inherit"
                             // variant="contained"
@@ -251,7 +246,7 @@ export default function ProductModalStepper({ product, refDialogTitle, handleClo
                           //   mr: 0
                           // }}
                       >
-                        Back
+                        Précédent
                       </ProductModalStepButtonCustom>}
                     </div>
                   </Box>

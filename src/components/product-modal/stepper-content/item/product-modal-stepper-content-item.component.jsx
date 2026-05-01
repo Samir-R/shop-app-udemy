@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import QuantityInput from '../../../number-input/number-input';
 import { CartContext } from '../../../../contexts/cart.context';
-import { Avatar, Checkbox, ListItem, ListItemAvatar, ListItemButton, ListItemText, Radio } from '@mui/material';
+import { Avatar, Checkbox, Chip, ListItem, ListItemAvatar, ListItemButton, ListItemText, Radio } from '@mui/material';
 import { ProductModalListItemCustom } from '../../styles/product-modal-stepper-style.component';
 
 const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity, attributeParent, elementActionType, classCustomName }) => {
@@ -167,7 +167,24 @@ const ProductModalStepperContentItem = ({ element, onChangeAttributeItemQuantity
                   src={element.imageUrl}
                 />
               </ListItemAvatar>
-              <ListItemText id={labelId} primary={element.name} />
+              <ListItemText id={labelId}>
+                <Typography sx={{ fontSize: '14px' }}>
+                  {element.name}
+                  {element.priceToDisplay && <Chip
+                    sx={{
+                      marginLeft: '4px',
+                      height: '16px',
+                      '& .MuiChip-label': {
+                        fontSize: '10px',
+                        paddingLeft: '4px',
+                        paddingRight: '4px',
+                      }
+                    }}
+                    label={`+${element.priceToDisplay} €`}
+                    size="small"
+                  />}
+                </Typography>
+              </ListItemText>
             {/* </ListItemButton> */}
           </ProductModalListItemCustom>
   )

@@ -2,7 +2,7 @@
 
 import CoreService from "../core/core.service";
 
-const RESELLER_ID = process.env.REACT_APP_RESELLER_ID || 10; // ID de la boutique
+const RESELLER_ID = process.env.REACT_APP_RESELLER_ID || '019a8ed6-d371-78f7-8560-9c6508e30fa0'; // ID de la boutique
 
 /**
  * Service pour gérer l'authentification des customers
@@ -17,7 +17,7 @@ export default class UserService extends CoreService {
   }
 
   get endpointUrl() {
-    return `${this.apiUrl}/api/customer`;
+    return `${this.apiUrl}/v1/customer`;
   }
 
   /**
@@ -28,7 +28,7 @@ export default class UserService extends CoreService {
       const { data } = await this.httpPost(
         `${this.endpointUrl}/register`,
         {
-          reseller_id: RESELLER_ID, // Important : ID de la boutique
+          shopId: RESELLER_ID, // Important : ID de la boutique
           email: userData.email,
           password: userData.password,
           passwordConfirm: userData.passwordConfirm,
@@ -69,7 +69,7 @@ export default class UserService extends CoreService {
       const { data } = await this.httpPost(
         `${this.endpointUrl}/login`,
         {
-          reseller_id: RESELLER_ID, // Important : ID de la boutique
+          shopId: RESELLER_ID, // Important : ID de la boutique
           email,
           password,
         },
@@ -105,10 +105,10 @@ export default class UserService extends CoreService {
       const { data } = await this.httpGet(`${this.endpointUrl}/me`);
 
       // Mettre à jour les infos user en cache
-      this.user = data;
-      localStorage.setItem('customer_user', JSON.stringify(data));
+      this.user = data.customer;
+      localStorage.setItem('customer_user', JSON.stringify(data.customer));
 
-      return data;
+      return data.customer;
     } catch (error) {
       console.error('Erreur récupération profil:', error);
 
@@ -154,7 +154,7 @@ export default class UserService extends CoreService {
     try {
       const { data } = await this.httpPost(
         `${this.endpointUrl}/resend-verification`,
-        { email },
+        { email, shopId: RESELLER_ID },
         {},
         false // Pas d'authentification
       );
@@ -244,7 +244,8 @@ export default class UserService extends CoreService {
   async updateUser(customerId, userData) {
     try {
       const { data } = await this.httpPatch(
-        `${this.apiUrl}/customers/${customerId}`,
+        // `${this.apiUrl}/customers/${customerId}`,
+        `${this.endpointUrl}/me`,
         {
           firstName: userData.firstName,
           lastName: userData.lastName,
@@ -255,12 +256,12 @@ export default class UserService extends CoreService {
       );
 
       // Mettre à jour les infos user en cache
-      if (data) {
-        this.user = data;
-        localStorage.setItem('customer_user', JSON.stringify(data));
+      if (data.customer) {
+        this.user = data.customer;
+        localStorage.setItem('customer_user', JSON.stringify(data.customer));
       }
 
-      return data;
+      return data.customer;
     } catch (error) {
       console.error('Erreur mise à jour utilisateur:', error);
       throw {

@@ -18,9 +18,23 @@
       "cuisine": "Burgers",
       "rating": 4.5,
       "deliveryTime": 25,
-      "isOpen": true
-  },
-  {
+      "optionsAvailable": ["delivery", "pickup", "onsite"],
+      "schedule": {
+        "deltaMin": 30,
+        "step": 15,
+        "asap": true,
+        "openingHours": {
+          "0": [],
+          "1": [{"start": "11:30", "end": "14:30"}, {"start": "18:30", "end": "22:00"}],
+          "2": [{"start": "11:30", "end": "14:30"}, {"start": "18:30", "end": "22:00"}],
+          "3": [{"start": "11:30", "end": "14:30"}, {"start": "18:30", "end": "22:00"}],
+          "4": [{"start": "11:30", "end": "14:30"}, {"start": "18:30", "end": "22:00"}],
+          "5": [{"start": "11:30", "end": "14:30"}, {"start": "18:30", "end": "23:00"}],
+          "6": [{"start": "12:00", "end": "15:00"}, {"start": "18:30", "end": "23:00"}]
+        }
+      }
+    },
+    {
       "id": "2",
       "name": "Pizza Express",
       "address": "45 Rue de Rivoli, Paris",
@@ -28,9 +42,23 @@
       "cuisine": "Italienne",
       "rating": 4.2,
       "deliveryTime": 35,
-      "isOpen": true
-  },
-  {
+      "optionsAvailable": ["delivery", "pickup"],
+      "schedule": {
+        "deltaMin": 45,
+        "step": 30,
+        "asap": false,
+        "openingHours": {
+          "0": [{"start": "18:00", "end": "23:00"}],
+          "1": [{"start": "18:00", "end": "23:00"}],
+          "2": [{"start": "18:00", "end": "23:00"}],
+          "3": [{"start": "18:00", "end": "23:00"}],
+          "4": [{"start": "18:00", "end": "23:00"}],
+          "5": [{"start": "18:00", "end": "23:30"}],
+          "6": [{"start": "18:00", "end": "23:30"}]
+        }
+      }
+    },
+    {
       "id": "3",
       "name": "Sushi Master",
       "address": "78 Boulevard Saint-Germain, Paris",
@@ -38,9 +66,23 @@
       "cuisine": "Japonaise",
       "rating": 4.7,
       "deliveryTime": 40,
-      "isOpen": true
-  },
-  {
+      "optionsAvailable": ["delivery", "pickup", "onsite"],
+      "schedule": {
+        "deltaMin": 60,
+        "step": 15,
+        "asap": true,
+        "openingHours": {
+          "0": [{"start": "12:00", "end": "14:30"}, {"start": "19:00", "end": "22:30"}],
+          "1": [],
+          "2": [{"start": "12:00", "end": "14:30"}, {"start": "19:00", "end": "22:30"}],
+          "3": [{"start": "12:00", "end": "14:30"}, {"start": "19:00", "end": "22:30"}],
+          "4": [{"start": "12:00", "end": "14:30"}, {"start": "19:00", "end": "22:30"}],
+          "5": [{"start": "12:00", "end": "14:30"}, {"start": "19:00", "end": "23:00"}],
+          "6": [{"start": "12:00", "end": "15:00"}, {"start": "19:00", "end": "23:00"}]
+        }
+      }
+    },
+    {
       "id": "4",
       "name": "Le Bistrot Français",
       "address": "22 Rue du Faubourg Saint-Honoré, Paris",
@@ -48,9 +90,23 @@
       "cuisine": "Française",
       "rating": 4.8,
       "deliveryTime": 45,
-      "isOpen": false
-  },
-  {
+      "optionsAvailable": ["onsite"],
+      "schedule": {
+        "deltaMin": 30,
+        "step": 15,
+        "asap": false,
+        "openingHours": {
+          "0": [],
+          "1": [{"start": "12:00", "end": "14:30"}],
+          "2": [{"start": "12:00", "end": "14:30"}],
+          "3": [{"start": "12:00", "end": "14:30"}],
+          "4": [{"start": "12:00", "end": "14:30"}],
+          "5": [{"start": "12:00", "end": "14:30"}],
+          "6": []
+        }
+      }
+    },
+    {
       "id": "5",
       "name": "Taco Fiesta",
       "address": "156 Rue de Vaugirard, Paris",
@@ -58,9 +114,23 @@
       "cuisine": "Mexicaine",
       "rating": 4.0,
       "deliveryTime": 30,
-      "isOpen": true
-  },
-  {
+      "optionsAvailable": ["delivery", "pickup", "onsite"],
+      "schedule": {
+        "deltaMin": 20,
+        "step": 15,
+        "asap": true,
+        "openingHours": {
+          "0": [{"start": "11:00", "end": "23:00"}],
+          "1": [{"start": "11:00", "end": "23:00"}],
+          "2": [{"start": "11:00", "end": "23:00"}],
+          "3": [{"start": "11:00", "end": "23:00"}],
+          "4": [{"start": "11:00", "end": "23:00"}],
+          "5": [{"start": "11:00", "end": "23:30"}],
+          "6": [{"start": "11:00", "end": "23:30"}]
+        }
+      }
+    },
+    {
       "id": "6",
       "name": "Noodle House",
       "address": "89 Avenue Parmentier, Paris",
@@ -68,8 +138,22 @@
       "cuisine": "Asiatique",
       "rating": 4.3,
       "deliveryTime": 25,
-      "isOpen": true
-  }
+      "optionsAvailable": ["delivery", "pickup"],
+      "schedule": {
+        "deltaMin": 45,
+        "step": 15,
+        "asap": false,
+        "openingHours": {
+          "0": [{"start": "11:30", "end": "21:30"}],
+          "1": [],
+          "2": [{"start": "11:30", "end": "21:30"}],
+          "3": [{"start": "11:30", "end": "21:30"}],
+          "4": [{"start": "11:30", "end": "21:30"}],
+          "5": [{"start": "11:30", "end": "22:30"}],
+          "6": [{"start": "11:30", "end": "22:30"}]
+        }
+      }
+    }
   ],
     "categories": [
         {
@@ -690,10 +774,10 @@
           "main": "#E9530D",
           "light": "#FFD600"
         },
-        "secondary": {
+        "totosecondary": {
           "main": "#802529"
         },
-        "primaryButton": {
+        "totoprimaryButton": {
           "main": "#dbece2",
           "contrastText": "#616161"
         }

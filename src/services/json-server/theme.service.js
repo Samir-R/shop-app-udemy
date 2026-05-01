@@ -7,6 +7,8 @@ export default class ThemeService extends CoreService {
       }
       super(apiUrl);
       this.fontFamily = process.env.REACT_APP_DEFAULT_FONT_FAMILY;// 'Manrope';
+      this.fontFamily = `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif`;
     }
 
     get endpointUrl() {

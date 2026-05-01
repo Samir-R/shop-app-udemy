@@ -143,7 +143,7 @@ const RestaurantModal = ({ open, onClose, onSelectRestaurant }) => {
             fullWidth
             maxWidth="md"
         >
-            <ShopAndShipping />
+            <ShopAndShipping mode="modal" onClose={onClose} />
             {/*<ModalHeader>*/}
             {/*    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>*/}
             {/*        <Typography variant="h6" sx={{ fontWeight: 600 }}>*/}

@@ -14,8 +14,11 @@ export default class ShopService extends CoreService {
       return `${this.apiUrl}/shops`;
     }
 
-    async getShopsList() {
-        const { data } = await this.httpGet(this.endpointUrl);
-        return data ? data.map(shop => new Shop(shop)) : [];
+    async getShopsList(city) {
+        const base = `${this.apiUrl}/shops/019a8ed6-d371-78f7-8560-9c6508e30fa0/point-of-sales`;
+        const url = city ? `${base}?city=${encodeURIComponent(city)}` : base;
+        const { data } = await this.httpGet(url, {}, false);
+        const members = data?.member ?? data ?? [];
+        return members.map(shop => new Shop(shop));
     }
 };

@@ -67,11 +67,11 @@ const Cart = () => {
                           {item.name}
                         </Typography>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {(item.price * item.quantity).toFixed(2)} €
+                          {(item.centPrice / 100 * item.quantity).toFixed(2)} €
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="textSecondary">
-                        {item.price.toFixed(2)} € / unité
+                        {item.priceToDisplay}€ / unité
                       </Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                         <QuantityControl>

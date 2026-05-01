@@ -15,10 +15,14 @@ import Login from '../../sign-in-form/sign-in-form.component';
 import Register from '../../sign-up-form/sign-up-form.component';
 import GuestCheckout from '../../guest-checkout/guest-checkout.component';
 import { UserContext } from '../../../contexts/user.context';
+import {FaUserLock, FaUserPlus, FaUserTie} from "react-icons/fa";
+import {useTheme} from "@mui/material/styles";
 
 const AuthStep = ({ onAuthComplete }) => {
   const [authMode, setAuthMode] = useState(null);
   const { currentUser, currentUserGuest, logout, resetGuestUser } = useContext(UserContext);
+
+  const theme = useTheme();
 
   const handleAuthSuccess = () => {
     if (onAuthComplete) {
@@ -103,7 +107,7 @@ const AuthStep = ({ onAuthComplete }) => {
           <Divider sx={{ my: 2 }} />
 
           <Button
-            variant="outlined"
+            variant="contained"
             color="error"
             startIcon={<LogoutOutlined />}
             onClick={isGuest ? handleGuestLogout : handleLogout}
@@ -125,7 +129,8 @@ const AuthStep = ({ onAuthComplete }) => {
             size="large"
             onClick={handleAuthSuccess}
           >
-            Continuer vers la livraison
+            {/*Continuer vers la livraison*/}
+            Continuer vers la l'étape suivante
           </Button>
         </Box>
       </Box>
@@ -144,14 +149,16 @@ const AuthStep = ({ onAuthComplete }) => {
           <Card
             sx={{
               cursor: 'pointer',
-              border: authMode === 'login' ? '2px solid' : '1px solid',
+              borderRadius: 3,
+              border: authMode === 'login' ? '2px solid' : '2px solid',
               borderColor: authMode === 'login' ? 'primary.main' : 'grey.300',
-              '&:hover': { borderColor: 'primary.light' }
+              '&:hover': { borderColor: 'grey.300', boxShadow: 3 }
             }}
             onClick={() => setAuthMode('login')}
           >
             <CardContent sx={{ textAlign: 'center', py: 3 }}>
-              <LoginOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+              {/*<LoginOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />*/}
+              <FaUserLock size={35} style={{ marginBottom: '12px' }} color={theme.palette.primary.main} />
               <Typography variant="h6">Se connecter</Typography>
               <Typography variant="body2" color="text.secondary">
                 J'ai déjà un compte
@@ -164,14 +171,16 @@ const AuthStep = ({ onAuthComplete }) => {
           <Card
             sx={{
               cursor: 'pointer',
-              border: authMode === 'register' ? '2px solid' : '1px solid',
+              borderRadius: 3,
+              border: authMode === 'register' ? '2px solid' : '2px solid',
               borderColor: authMode === 'register' ? 'primary.main' : 'grey.300',
-              '&:hover': { borderColor: 'primary.light' }
+              '&:hover': { borderColor: 'grey.300', boxShadow: 3 }
             }}
             onClick={() => setAuthMode('register')}
           >
             <CardContent sx={{ textAlign: 'center', py: 3 }}>
-              <PersonAddOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+              {/*<PersonAddOutlined sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />*/}
+              <FaUserPlus size={35} style={{ marginBottom: '12px' }} color={theme.palette.primary.main} />
               <Typography variant="h6">Créer un compte</Typography>
               <Typography variant="body2" color="text.secondary">
                 Nouveau client
@@ -184,14 +193,16 @@ const AuthStep = ({ onAuthComplete }) => {
           <Card
             sx={{
               cursor: 'pointer',
-              border: authMode === 'guest' ? '2px solid' : '1px solid',
+              borderRadius: 3,
+              border: authMode === 'guest' ? '2px solid' : '2px solid',
               borderColor: authMode === 'guest' ? 'primary.main' : 'grey.300',
-              '&:hover': { borderColor: 'primary.light' }
+              '&:hover': { borderColor: 'grey.300', boxShadow: 3 }
             }}
             onClick={() => setAuthMode('guest')}
           >
             <CardContent sx={{ textAlign: 'center', py: 3 }}>
-              <PersonOutline sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+              {/*<PersonOutline sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />*/}
+              <FaUserTie size={35} style={{ marginBottom: '12px' }} color={theme.palette.primary.main} />
               <Typography variant="h6">Commande invité</Typography>
               <Typography variant="body2" color="text.secondary">
                 Sans créer de compte

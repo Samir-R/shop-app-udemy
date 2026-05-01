@@ -13,6 +13,7 @@ import { styled } from '@mui/material/styles';
 
 
 const CustomListItemCategory = styled(ListItem)(({ theme }) => ({
+  padding: '2px 5px 3px 5px',
   "& .MuiListItemButton-root": {
     backgroundColor: theme.palette.CategoryButton.main,
     fontWeight: 'bold',
@@ -62,12 +63,12 @@ const DirectoryItem = ({ category, isCurrentCategory, handleSelectCurrentCategor
   const onClickHandler = () => (handleSelectCurrentCategory(category));
 
   return (
-    <CustomListItemCategory key={category.id} disablePadding>
+    <CustomListItemCategory key={category.id} disablePadding={false}>
       {/* <ListItemButton selected={category.id === currentCategory?.id} onClick={onClickHandler}> */}
-      <ListItemButton selected={isCurrentCategory} onClick={onClickHandler}>
+      <ListItemButton selected={isCurrentCategory} onClick={onClickHandler} sx={{ borderRadius: '24px'}}>
         {/* <ListItemText sx={{ textAlign: 'center', p: 2, fontWeight: 'bold' }} */}
         <ListItemText disableTypography
-        primary={<Typography sx={{ textAlign: 'center', p: 2, fontWeight: 'bold', color: '#FFFFFF' }}>{category.name}</Typography>} />
+        primary={<Typography sx={{ textAlign: 'center', p: '9px', fontWeight: '500', color: '#FFFFFF' }}>{category.name}</Typography>} />
       </ListItemButton>
     </CustomListItemCategory>
   );
