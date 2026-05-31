@@ -24,6 +24,7 @@ import ResetPassword from "./components/sign-up-form/reset-password.component";
 import VerifyEmail from "./components/sign-up-form/verify-email.component";
 import VerifyEmailSent from "./components/sign-up-form/verify-email-sent.component";
 import ProtectedRoute from "./components/protected-route/protected-route.component";
+import OrderConfirmationPage from "./routes/order-confirmation/OrderConfirmationPage";
 
 let theme = createTheme({
   typography: {
@@ -190,7 +191,7 @@ console.log('on relaod App.js ' + theme.typography.fontFamily);
     {themeObj !== null ? (<><Routes>
       <Route path='/' element={<Navigation />}>
         <Route index element={<Home />} />
-        <Route path='shop/*' element={<Shop />} />
+        {/*<Route path='shop/*' element={<Shop />} />*/}
         <Route path='auth' element={<Authentication />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -198,6 +199,7 @@ console.log('on relaod App.js ' + theme.typography.fontFamily);
         <Route path="/verify-email-sent" element={<VerifyEmailSent />} />
         {/*<Route path='checkout' element={<Checkout />} />*/}
         <Route path='checkout' element={<CheckoutStepper />} />
+        <Route path='order-confirmation' element={<OrderConfirmationPage />} />
         <Route path='my-account' element={
           <ProtectedRoute>
             <MyAccount />

@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
   Snackbar,
+  CircularProgress,
 } from '@mui/material';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,76 +26,48 @@ import {UserContext} from "../../contexts/user.context";
 import {AddressContext} from "../../contexts/address.context";
 import {useCheckout} from "../../contexts/checkout.context";
 import {ShopShippingContext} from "../../contexts/shop-shipping.context";
+import {CartContext} from "../../contexts/cart.context";
+import {ProductContext} from "../../contexts/product.context";
+import services from "../../services";
+import {buildOrderBody} from "../../utils/order/buildOrderBody";
+import Order from "../../entities/order.entity";
+import CartErrorsModal from "./CartErrorsModal";
+import StripePaymentStep from "./steps/StripePaymentStep";
 
-const steps = ['Authentification', 'Restaurant & Livraison', 'Résumé & Paiement'];
+const steps = ['Authentification', 'Restaurant & Livraison', 'Résumé & Paiement', 'Paiement sécurisé'];
 
-// Schema de validation global
 const checkoutSchema = z.object({
-  // Step 1: Auth
   authMode: z.enum(['login', 'register', 'guest']),
-  // email: z.email('Email invalide'),
-  // password: z.string().min(1, 'Mot de passe requis').optional(),
-  // firstName: z.string().optional(),
-  // lastName: z.string().optional(),
-  // guestName: z.string().optional(),
-
-  // Step 2: Restaurant — géré par ShopShippingContext, pas react-hook-form
-
-  // Step 3: Payment
   paymentMode: z.enum(['card', 'store']),
-  cardNumber: z.string().optional(),
-  cardExpiry: z.string().optional(),
-  cardCvv: z.string().optional(),
-  cardName: z.string().optional(),
-}).refine((data) => {
-  // Validation conditionnelle pour les champs de carte
-  if (data.paymentMode === 'card') {
-    return data.cardNumber &&
-           data.cardNumber.length > 0 &&
-           data.cardExpiry &&
-           data.cardExpiry.length > 0 &&
-           data.cardCvv &&
-           data.cardCvv.length > 0 &&
-           data.cardName &&
-           data.cardName.length > 0;
-  }
-  return true;
-}, {
-  message: "Tous les champs de la carte sont requis pour le paiement par carte",
-  path: ["cardNumber"],
-})/*.refine((data) => {
-  // Validation conditionnelle selon le mode d'authentification
-  if (data.authMode === 'register') {
-    console.log("data.authMode === 'register'");
-    console.log(data.lastName);
-    return data.firstName &&
-           data.firstName.length > 0 &&
-           data.lastName &&
-           data.lastName.length > 0 &&
-           data.password &&
-           data.password.length > 0;
-  }
-  if (data.authMode === 'login') {
-    return data.password && data.password.length > 0;
-  }
-  if (data.authMode === 'guest') {
-    return data.guestName && data.guestName.length > 0;
-  }
-  return true;
-}, {
-  message: "Veuillez remplir tous les champs requis",
-  path: ["email"],
-})*/;
+});
 
 const CheckoutStepper = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [orderCompleted, setOrderCompleted] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState(null);
   const [errorInStep, setErrorInStep] = useState('')
   const gridStepperRef = useRef(null);
   const { currentUser, currentUserGuest, refreshUser } = useContext(UserContext);
   const { currentAddress } = useContext(AddressContext);
   const { updateFormData, clearFormData, formData } = useCheckout();
-  const { isSelectionValid, deliveryMethod, validateAndResetIfNeeded } = useContext(ShopShippingContext);
+  const { isSelectionValid, deliveryMethod, shop, deliveryDate, deliveryHour, nextDay, asap, validateAndResetIfNeeded } = useContext(ShopShippingContext);
+  const {
+    cartItems,
+    cartTotalWithoutPromotions,
+    shippingFees,
+    promotionsApplied,
+    removePromotion,
+    removeCartItemsByProductId,
+    setCartItemQuantity,
+    clearCart,
+  } = useContext(CartContext);
+  const { refreshProducts } = useContext(ProductContext);
+
+  const [cartErrorModalOpen, setCartErrorModalOpen] = useState(false);
+  const [cartErrors, setCartErrors] = useState([]);
+  const [stripeData, setStripeData] = useState(null);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  // stripeData = { clientSecret, stripeAccountId, orderId }
 
   const [gridTopPosition, setGridTopPosition] = useState(0);
 
@@ -152,9 +125,6 @@ const CheckoutStepper = () => {
 
       case 2:
         fieldsToValidate = ['paymentMode'];
-        if (watchedValues.paymentMode === 'card') {
-          fieldsToValidate.push('cardNumber', 'cardExpiry', 'cardCvv', 'cardName');
-        }
         break;
     }
 
@@ -197,40 +167,149 @@ const CheckoutStepper = () => {
     setErrorInStep('');
   };
 
-  const onSubmit = async (data) => {
-    console.log('onSubmit')
-    // Valider la dernière étape avant soumission
-    const isValid = await validateStep(activeStep);
-    console.log(isValid)
+  const handleCartErrors = (errors) => {
+    // 1. Enrichir avec les noms AVANT de modifier le panier
+    const enriched = errors
+      .filter((e) => e.code !== 'TOTAL_MISMATCH')
+      .map((error) => {
+        if (error.code === 'INVALID_PROMO') {
+          const promo = promotionsApplied.find((p) => p.id === error.id);
+          return { ...error, promoTitle: promo?.title ?? null };
+        }
+        const cartItem = cartItems.find((item) => item.id === error.id);
+        return { ...error, productName: cartItem?.name ?? null };
+      });
 
+    // 2. Appliquer les corrections au panier
+    const removedProductIds = new Set();
+    const stockAdjustments = [];
+    const invalidPromoIds = [];
+
+    for (const error of errors) {
+      switch (error.code) {
+        case 'PRODUCT_NOT_FOUND':
+        case 'PRODUCT_UNAVAILABLE':
+        case 'PRICE_MISMATCH':
+        case 'INVALID_OPTION':
+          removedProductIds.add(error.id);
+          break;
+        case 'OUT_OF_STOCK':
+          if (error.available === 0) {
+            removedProductIds.add(error.id);
+          } else {
+            stockAdjustments.push({ productId: error.id, newQty: error.available });
+          }
+          break;
+        case 'INVALID_PROMO':
+          invalidPromoIds.push(error.id);
+          break;
+        default:
+          break;
+      }
+    }
+
+    for (const productId of removedProductIds) {
+      removeCartItemsByProductId(productId);
+    }
+    for (const { productId, newQty } of stockAdjustments) {
+      setCartItemQuantity(productId, newQty);
+    }
+    for (const promoId of invalidPromoIds) {
+      removePromotion(promoId);
+    }
+
+    // 3. Rafraîchir le catalogue produits
+    refreshProducts();
+
+    // 4. Ouvrir la modale récapitulative
+    setCartErrors(enriched);
+    setCartErrorModalOpen(true);
+  };
+
+  const handlePaymentSuccess = async (orderId) => {
+    try {
+      const email = currentUserGuest?.email ?? null;
+      const fetchedOrder = await services.orderService.getOrder(orderId, email);
+      setCompletedOrder(fetchedOrder);
+    } catch {
+      setCompletedOrder(null);
+    }
+    setOrderCompleted(true);
+  };
+
+  const onSubmit = async (data) => {
+    const isValid = await validateStep(activeStep);
     if (!isValid) {
       handleSetErrorInStep();
       return;
     }
 
-    // Réinitialiser les erreurs
     handleResetErrorInStep();
-
-    // Sauvegarder les données finales
     updateFormData(watchedValues);
 
-    console.log('Order submitted:', watchedValues);
+    const paymentMethod = data.paymentMode === 'card' ? 'ONLINE' : 'CASH';
 
-    // Simuler un appel API vers le backend
     try {
-      // TODO: Remplacer par le vrai appel API
-      console.log('Envoi de la commande au backend...');
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const body = buildOrderBody({
+        cartItems,
+        cartTotalWithoutPromotions,
+        shippingFees,
+        promotionsApplied,
+        deliveryMethod,
+        shop,
+        deliveryDate,
+        deliveryHour,
+        nextDay,
+        asap,
+        currentAddress,
+        currentUser,
+        currentUserGuest,
+        paymentMethod,
+      });
 
-      console.log('Commande envoyée avec succès!');
+      const result = await services.orderService.createOrder(body);
+      const order = result.order;
 
-      // Supprimer les données du checkout après confirmation
+      clearCart();
       clearFormData();
 
-      setOrderCompleted(true);
+      if (paymentMethod !== 'ONLINE') {
+        setCompletedOrder(new Order(order));
+        setOrderCompleted(true);
+        return;
+      }
+
+      setIsProcessingOrder(true);
+
+      if (currentUserGuest?.email) {
+        sessionStorage.setItem('guestEmail', currentUserGuest.email);
+      }
+
+      // Paiement en ligne → créer le PaymentIntent Stripe
+      const piResult = await services.orderService.createPaymentIntent(
+        order.id,
+          currentUser?.email ?? currentUserGuest?.email ?? null
+      );
+
+      setStripeData({
+        clientSecret: piResult.clientSecret,
+        stripeAccountId: piResult.stripeAccountId,
+        orderId: order.id,
+        orderTotal: order.total,
+      });
+      setActiveStep(3);
+      setIsProcessingOrder(false);
+
     } catch (error) {
-      console.error('Erreur lors de la soumission de la commande:', error);
-      setErrorInStep('Une erreur est survenue lors de la soumission de la commande. Veuillez réessayer.');
+      setIsProcessingOrder(false);
+      if (Array.isArray(error.errors)) {
+        handleCartErrors(error.errors);
+      } else if (error.errors && typeof error.errors === 'object') {
+        const messages = Object.values(error.errors).join(' ');
+        setErrorInStep(messages || 'Erreur de validation. Veuillez vérifier votre commande.');
+      } else {
+        setErrorInStep('Une erreur est survenue lors de la soumission de la commande. Veuillez réessayer.');
+      }
     }
   };
 
@@ -250,17 +329,58 @@ const CheckoutStepper = () => {
         return <RestaurantStep />;
       case 2:
         return <OrderSummaryStep />;
+      case 3:
+        return (
+          <StripePaymentStep
+            clientSecret={stripeData.clientSecret}
+            stripeAccountId={stripeData.stripeAccountId}
+            orderId={stripeData.orderId}
+            orderTotal={stripeData.orderTotal}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
+        );
       default:
-        return <div>Unknown step</div>;
+        return null;
     }
   };
 
   if (orderCompleted) {
-    return <OrderConfirmation orderData={watchedValues} />;
+    return <OrderConfirmation orderData={completedOrder} />;
   }
 
   return (
-    <Card sx={{ width: '100%', pt: 8, boxShadow: 'none'}}>
+    <>
+    <CartErrorsModal
+      open={cartErrorModalOpen}
+      onClose={() => setCartErrorModalOpen(false)}
+      errors={cartErrors}
+    />
+    <Card sx={{ width: '100%', pt: 8, boxShadow: 'none', position: 'relative' }}>
+      {isProcessingOrder && (
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 1200,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            backdropFilter: 'blur(4px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.82)',
+            borderRadius: 'inherit',
+          }}
+        >
+          <CircularProgress size={52} thickness={4} />
+          <Typography variant="body1" fontWeight={600} color="text.primary">
+            Préparation du paiement…
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Merci de patienter, nous sécurisons votre commande.
+          </Typography>
+        </Box>
+      )}
       <CardContent sx={{ p: { xs: 1, sm: 4 } }}>
         <Typography variant="h4" align="center" gutterBottom>
           Finaliser votre commande
@@ -280,12 +400,12 @@ const CheckoutStepper = () => {
         {/*  gap: { xs: 4, md: 8 },*/}
         {/*}}*/}
           <Grid
-              sm={12} md={8}
+              sm={12} md={activeStep === 3 ? 12 : 8}
               ref={gridStepperRef}
-              sx={{ pb: { xs: '151px', sm: '80px' } }}
+              sx={{ pb: activeStep === 3 ? 0 : { xs: '151px', sm: '80px' } }}
           >
-            <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-              {steps.map((label) => (
+            <Stepper activeStep={Math.min(activeStep, 2)} sx={{ mb: 4 }}>
+              {steps.slice(0, 3).map((label) => (
                 <Step key={label}>
                   <StepLabel
                     sx={{
@@ -297,12 +417,14 @@ const CheckoutStepper = () => {
                 </Step>
               ))}
             </Stepper>
-            <Typography
-              variant="body2"
-              sx={{ display: { xs: 'block', sm: 'none' }, mb: 2, color: 'text.secondary', textAlign: 'center', fontWeight: '500' }}
-            >
-              Étape {activeStep + 1} / {steps.length} — {steps[activeStep]}
-            </Typography>
+            {activeStep < 3 && (
+              <Typography
+                variant="body2"
+                sx={{ display: { xs: 'block', sm: 'none' }, mb: 2, color: 'text.secondary', textAlign: 'center', fontWeight: '500' }}
+              >
+                Étape {activeStep + 1} / 3 — {steps[activeStep]}
+              </Typography>
+            )}
 
             <FormProvider {...methods}>
               {/*<form onSubmit={handleSubmit(onSubmit)}>*/}
@@ -340,7 +462,8 @@ const CheckoutStepper = () => {
                 </Snackbar>
 
                 {/*<Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>*/}
-                <Box
+                {activeStep < 3 && (
+                  <Box
                     sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -355,41 +478,41 @@ const CheckoutStepper = () => {
                       boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
                       zIndex: 1000
                     }}
-                >
-                  <Button
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    variant="contained"
                   >
-                    Retour
-                  </Button>
+                    <Button
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      variant="contained"
+                    >
+                      Retour
+                    </Button>
 
-                  {activeStep === steps.length - 1 ? (
-                    <Button
-                      onClick={() => handleSubmit(onSubmit)()}
-                      variant="contained"
-                      size="large"
-                    >
-                      Confirmer la commande
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleNext}
-                      variant="contained"
-                      size="large"
-                    >
-                      Suivant
-                    </Button>
-                  )}
-                </Box>
+                    {activeStep === 2 ? (
+                      <Button
+                        onClick={() => handleSubmit(onSubmit)()}
+                        variant="contained"
+                        size="large"
+                      >
+                        Confirmer la commande
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleNext}
+                        variant="contained"
+                        size="large"
+                      >
+                        Suivant
+                      </Button>
+                    )}
+                  </Box>
+                )}
               </form>
             </FormProvider>
           </Grid>
           <Grid
-              // size={{ xs: 12, sm: 5, lg: 4 }}
               xs={0} sm={0} md={4}
               sx={{
-                display: { xs: 'none', md: 'block' },
+                display: activeStep === 3 ? 'none' : { xs: 'none', md: 'block' },
                 position: { xs: 'static', md: 'fixed' }, // Static sur mobile, fixed sur desktop
                 top: gridStepperRef.current?.offsetTop,
                 right: 0,
@@ -424,6 +547,7 @@ const CheckoutStepper = () => {
         </Grid>
       </CardContent>
     </Card>
+    </>
   );
 };
 

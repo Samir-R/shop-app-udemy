@@ -60,6 +60,8 @@ const ShopAndShipping = ({ mode = 'modal', onClose }) => {
     setDeliveryDate,
     deliveryHour,
     setDeliveryHour,
+    nextDay,
+    setNextDay,
     asap,
     setAsap,
     timeSlots,
@@ -340,13 +342,22 @@ const ShopAndShipping = ({ mode = 'modal', onClose }) => {
                       </InputLabel>
                       <Select
                         labelId="time-select-label"
-                        value={deliveryHour || ''}
+                        value={deliveryHour ? (nextDay ? `${deliveryHour}_1` : deliveryHour) : ''}
                         label={deliveryMethod === 'delivery' ? 'Heure de livraison souhaitée' : deliveryMethod === 'onsite' ? 'Heure de venue souhaitée' : 'Heure de retrait souhaitée'}
-                        onChange={(e) => setDeliveryHour(e.target.value)}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw.includes('_1')) {
+                            setNextDay(true);
+                            setDeliveryHour(raw.replace('_1', ''));
+                          } else {
+                            setNextDay(false);
+                            setDeliveryHour(raw);
+                          }
+                        }}
                       >
                         {timeSlots.map((time) => (
                           <MenuItem key={time} value={time}>
-                            {time}
+                            {time.includes('_1') ? `${time.replace('_1', '')} (J+1)` : time}
                           </MenuItem>
                         ))}
                       </Select>

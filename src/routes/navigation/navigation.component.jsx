@@ -17,6 +17,7 @@ import CartFooter from '../../components/cart-footer/cart-footer.component';
 
 import { UserContext } from '../../contexts/user.context';
 import { ThemeCustomContext } from '../../contexts/theme-custom.context';
+import { ShopSettingsContext } from '../../contexts/shop-settings.context';
 
 import { NavLink } from './navigation.styles';
 import CartDrawer from '../../components/cart-drawer/cart-drawer.component';
@@ -39,6 +40,7 @@ const Navigation = () => {
   const { setHeaderHeight } = useContext(ThemeCustomContext);
   const { shopsList } = useCheckout();
   const { shop } = useContext(ShopShippingContext);
+  const { name: shopName, logo: shopLogo } = useContext(ShopSettingsContext);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [restaurantModalOpen, setRestaurantModalOpen] = useState(false);
@@ -109,7 +111,7 @@ const Navigation = () => {
             }}
           >
             <img
-              src="https://gladalle-bonneuil.com/wp-content/uploads/2021/09/Logo-Gladalle.png"
+              src={shopLogo}
               alt="logo"
               style={{ height: '50px', width: 'auto' }}
             />
@@ -133,7 +135,7 @@ const Navigation = () => {
               transition: 'opacity 0.2s',
             }}
           >
-            {process.env.REACT_APP_COMPANY_NAME}
+            {shopName}
           </Typography>
 
           {/* Spacer pour pousser les icônes à droite sur mobile */}

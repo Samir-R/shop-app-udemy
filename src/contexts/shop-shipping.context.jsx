@@ -1,5 +1,5 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { format, getDay, isBefore, isSameDay, parseISO } from 'date-fns';
+import { addDays, format, getDay, isBefore, isSameDay, parseISO } from 'date-fns';
 import services from '../services';
 
 const STORAGE_KEY = 'shop_shipping_prefs';
@@ -152,7 +152,8 @@ const MOCK_SHOPS = [
   },
 ];
 
-// Génère les créneaux horaires pour un jour et un magasin donnés
+// Génère les créneaux horaires pour un jour et un magasin donnés.
+// Les créneaux overnight (end < start, dernier range uniquement) sont suffixés "_1" pour indiquer J+1.
 export const generateTimeSlots = (date, shop) => {
   if (!date || !shop?.schedule?.openingHours) return [];
   const { deltaMin, step, openingHours } = shop.schedule;
@@ -173,6 +174,7 @@ export const generateTimeSlots = (date, shop) => {
     const [endH, endM] = range.end.split(':').map(Number);
     const startTotal = startH * 60 + startM;
     const endTotal = endH * 60 + endM;
+    const isOvernight = endTotal < startTotal;
 
     let current = startTotal;
     if (isToday && minTotalMin > startTotal) {
@@ -180,23 +182,43 @@ export const generateTimeSlots = (date, shop) => {
       current = startTotal + Math.ceil(diff / step) * step;
     }
 
-    while (current < endTotal) {
-      const h = Math.floor(current / 60);
-      const m = current % 60;
-      if (h < 24) {
+    if (isOvernight) {
+      // Partie même jour : startTotal → minuit
+      while (current < 24 * 60) {
+        const h = Math.floor(current / 60);
+        const m = current % 60;
         slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+        current += step;
       }
-      current += step;
+      // Partie J+1 : minuit → endTotal (pas de filtre isToday, ces créneaux sont toujours dans le futur)
+      current = current % (24 * 60);
+      while (current < endTotal) {
+        const h = Math.floor(current / 60);
+        const m = current % 60;
+        slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}_1`);
+        current += step;
+      }
+    } else {
+      while (current < endTotal) {
+        const h = Math.floor(current / 60);
+        const m = current % 60;
+        if (h < 24) {
+          slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+        }
+        current += step;
+      }
     }
   }
   return slots;
 };
 
-// Vérifie que le créneau date+heure choisi n'est pas dans le passé
-const isDeliveryTimeValid = (deliveryDate, deliveryHour) => {
+// Vérifie que le créneau date+heure choisi n'est pas dans le passé.
+// nextDay=true décale la date d'un jour (créneau overnight J+1).
+const isDeliveryTimeValid = (deliveryDate, deliveryHour, nextDay = false) => {
   if (!deliveryDate || !deliveryHour) return false;
   try {
-    const date = deliveryDate instanceof Date ? new Date(deliveryDate) : parseISO(deliveryDate);
+    let date = deliveryDate instanceof Date ? new Date(deliveryDate) : parseISO(deliveryDate);
+    if (nextDay) date = addDays(date, 1);
     const [h, m] = deliveryHour.split(':').map(Number);
     date.setHours(h, m, 0, 0);
     return !isBefore(date, new Date());
@@ -233,6 +255,8 @@ export const ShopShippingContext = createContext({
   setDeliveryDate: () => {},
   deliveryHour: null,
   setDeliveryHour: () => {},
+  nextDay: false,
+  setNextDay: () => {},
   asap: false,
   setAsap: () => {},
   timeSlots: [],
@@ -250,6 +274,7 @@ export const ShopShippingProvider = ({ children }) => {
   const [deliveryMethod, setDeliveryMethodState] = useState('delivery');
   const [deliveryDate, setDeliveryDateState] = useState(null);
   const [deliveryHour, setDeliveryHourState] = useState(null);
+  const [nextDay, setNextDayState] = useState(false);
   const [asap, setAsapState] = useState(false);
 
   const timeSlots = useMemo(
@@ -268,14 +293,15 @@ export const ShopShippingProvider = ({ children }) => {
 
   const validateAndResetIfNeeded = useCallback(() => {
     if (asap) return;
-    if (deliveryDate && deliveryHour && !isDeliveryTimeValid(deliveryDate, deliveryHour)) {
+    if (deliveryDate && deliveryHour && !isDeliveryTimeValid(deliveryDate, deliveryHour, nextDay)) {
       setDeliveryDateState(null);
       setDeliveryHourState(null);
+      setNextDayState(false);
       setAsapState(false);
       const stored = loadStorage();
-      saveStorage({ ...stored, deliveryDate: null, deliveryHour: null, asap: false });
+      saveStorage({ ...stored, deliveryDate: null, deliveryHour: null, nextDay: false, asap: false });
     }
-  }, [deliveryDate, deliveryHour, asap]);
+  }, [deliveryDate, deliveryHour, nextDay, asap]);
 
   useEffect(() => {
     const loadShops = async () => {
@@ -309,11 +335,12 @@ export const ShopShippingProvider = ({ children }) => {
 
         // Restaurer la date/heure uniquement si elle est encore valide
         if (stored.deliveryDate && stored.deliveryHour) {
-          if (isDeliveryTimeValid(stored.deliveryDate, stored.deliveryHour)) {
+          if (isDeliveryTimeValid(stored.deliveryDate, stored.deliveryHour, stored.nextDay ?? false)) {
             setDeliveryDateState(parseISO(stored.deliveryDate));
             setDeliveryHourState(stored.deliveryHour);
+            if (stored.nextDay) setNextDayState(true);
           } else {
-            saveStorage({ ...stored, deliveryDate: null, deliveryHour: null, asap: false });
+            saveStorage({ ...stored, deliveryDate: null, deliveryHour: null, nextDay: false, asap: false });
           }
         }
 
@@ -332,24 +359,27 @@ export const ShopShippingProvider = ({ children }) => {
     setDeliveryMethodState(firstMethod);
     setDeliveryDateState(null);
     setDeliveryHourState(null);
+    setNextDayState(false);
     setAsapState(false);
-    saveStorage({ ...loadStorage(), shopId: newShop?.id, deliveryMethod: firstMethod, deliveryDate: null, deliveryHour: null, asap: false });
+    saveStorage({ ...loadStorage(), shopId: newShop?.id, deliveryMethod: firstMethod, deliveryDate: null, deliveryHour: null, nextDay: false, asap: false });
   }, []);
 
   const setDeliveryMethod = useCallback((method) => {
     setDeliveryMethodState(method);
     setDeliveryDateState(null);
     setDeliveryHourState(null);
+    setNextDayState(false);
     setAsapState(false);
-    saveStorage({ ...loadStorage(), deliveryMethod: method, deliveryDate: null, deliveryHour: null, asap: false });
+    saveStorage({ ...loadStorage(), deliveryMethod: method, deliveryDate: null, deliveryHour: null, nextDay: false, asap: false });
   }, []);
 
   const setDeliveryDate = useCallback((date) => {
     setDeliveryDateState(date);
     setDeliveryHourState(null);
+    setNextDayState(false);
     setAsapState(false);
     const dateStr = date ? format(date, 'yyyy-MM-dd') : null;
-    saveStorage({ ...loadStorage(), deliveryDate: dateStr, deliveryHour: null, asap: false });
+    saveStorage({ ...loadStorage(), deliveryDate: dateStr, deliveryHour: null, nextDay: false, asap: false });
   }, []);
 
   const setDeliveryHour = useCallback((hour) => {
@@ -357,16 +387,22 @@ export const ShopShippingProvider = ({ children }) => {
     saveStorage({ ...loadStorage(), deliveryHour: hour });
   }, []);
 
+  const setNextDay = useCallback((value) => {
+    setNextDayState(value);
+    saveStorage({ ...loadStorage(), nextDay: value });
+  }, []);
+
   const setAsap = useCallback((value) => {
     setAsapState(value);
     if (value) {
       setDeliveryDateState(null);
       setDeliveryHourState(null);
+      setNextDayState(false);
     }
     saveStorage({
       ...loadStorage(),
       asap: value,
-      ...(value ? { deliveryDate: null, deliveryHour: null } : {}),
+      ...(value ? { deliveryDate: null, deliveryHour: null, nextDay: false } : {}),
     });
   }, []);
 
@@ -395,6 +431,8 @@ export const ShopShippingProvider = ({ children }) => {
     setDeliveryDate,
     deliveryHour,
     setDeliveryHour,
+    nextDay,
+    setNextDay,
     asap,
     setAsap,
     timeSlots,

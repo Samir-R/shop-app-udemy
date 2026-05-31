@@ -8,7 +8,7 @@ export const ProductContext = createContext({
   products: [],
   productWithAttributesToDisplay: null,
   setProductWithAttributesToDisplay: () => {},
-  // productsCurrentCategory: [],
+  refreshProducts: () => {},
 });
 
 export const ProductProvider = ({ children }) => {
@@ -20,13 +20,14 @@ export const ProductProvider = ({ children }) => {
 
   // setProductsCurrentCategory(products.filter(product => product.categories === currentCategory.id))
 
-  useEffect(() => {
-    const getAllProducts = async () => {
-      const productsList = await services.productService.getAllProducts();
-      setProducts(productsList);
-    };
+  const refreshProducts = async () => {
+    const productsList = await services.productService.getAllProducts();
+    setProducts(productsList);
+  };
 
-    getAllProducts();
+  useEffect(() => {
+    refreshProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCloseErrorNoProductMenu = (event, reason) => {
@@ -36,12 +37,12 @@ export const ProductProvider = ({ children }) => {
     setDisplayErrorNoProductMenu(false);
   };
 
-  const value = { 
+  const value = {
     products,
     productWithAttributesToDisplay,
     setProductWithAttributesToDisplay,
-    setDisplayErrorNoProductMenu
-    // productsCurrentCategory,
+    setDisplayErrorNoProductMenu,
+    refreshProducts,
   };
   return (
     <ProductContext.Provider value={value}>

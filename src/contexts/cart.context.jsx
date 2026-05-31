@@ -113,6 +113,9 @@ export const CartContext = createContext({
   addItemToCart: () => {},
   removeItemFromCart: () => {},
   clearItemFromCart: () => {},
+  removeCartItemsByProductId: () => {},
+  setCartItemQuantity: () => {},
+  clearCart: () => {},
   cartCount: 0,
   cartTotalWithoutPromotions: 0,
   cartTotal: 0,
@@ -234,6 +237,24 @@ export const CartProvider = ({ children }) => {
     updateCartItemsReducer(newCartItems);
   };
 
+  const removeCartItemsByProductId = (productId) => {
+    const newCartItems = cartItems.filter((item) => item.id !== productId);
+    updateCartItemsReducer(newCartItems);
+  };
+
+  const setCartItemQuantity = (productId, newQty) => {
+    const newCartItems = cartItems
+      .map((item) => (item.id === productId ? { ...item, quantity: newQty } : item))
+      .filter((item) => item.quantity > 0);
+    updateCartItemsReducer(newCartItems);
+  };
+
+  const clearCart = () => {
+    updateCartItemsReducer([]);
+    setPromotionsApplied([]);
+    localStorage.removeItem('promotionsAppliedIds');
+  };
+
   const applyPromoCode = async (code) => {
     const trimmedCode = code.trim();
     let list = promotions;
@@ -295,6 +316,9 @@ export const CartProvider = ({ children }) => {
     addItemToCart,
     removeItemToCart,
     clearItemFromCart,
+    removeCartItemsByProductId,
+    setCartItemQuantity,
+    clearCart,
     cartItems,
     cartCount,
     cartTotalWithoutPromotions,

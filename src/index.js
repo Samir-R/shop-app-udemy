@@ -13,6 +13,7 @@ import './index.scss';
 import { ThemeCustomProvider } from './contexts/theme-custom.context';
 import { CheckoutProvider } from "./contexts/checkout.context";
 import {ShopShippingProvider} from "./contexts/shop-shipping.context";
+import { ShopSettingsProvider } from './contexts/shop-settings.context';
 
 const rootElement = document.getElementById('root');
 
@@ -49,9 +50,11 @@ const AppWithProviders = () => {
 
 render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AppWithProviders />
-    </BrowserRouter>
+    <ShopSettingsProvider>
+      <BrowserRouter>
+        <AppWithProviders />
+      </BrowserRouter>
+    </ShopSettingsProvider>
   </React.StrictMode>,
   rootElement
 );

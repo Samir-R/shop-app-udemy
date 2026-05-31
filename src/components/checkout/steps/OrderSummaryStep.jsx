@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Grid,
-  TextField,
   FormControl,
   RadioGroup,
   FormControlLabel,
@@ -14,7 +13,7 @@ import {
 } from '@mui/material';
 import { CreditCard, Store, LocationOn } from '@mui/icons-material';
 import { useFormContext, Controller } from 'react-hook-form';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useTheme } from '@mui/material/styles';
 import { FaUserLock, FaUserTie } from 'react-icons/fa';
@@ -43,12 +42,11 @@ const formatDeliveryDate = (date) => {
 };
 
 const OrderSummaryStep = () => {
-  const { control, watch, formState: { errors } } = useFormContext();
-  const paymentMode = watch('paymentMode');
+  const { control } = useFormContext();
 
   const theme = useTheme();
   const { currentUser, currentUserGuest, refreshUser } = useContext(UserContext);
-  const { shop, deliveryMethod, deliveryDate, deliveryHour, asap } = useContext(ShopShippingContext);
+  const { shop, deliveryMethod, deliveryDate, deliveryHour, nextDay, asap } = useContext(ShopShippingContext);
   const { currentAddress } = useContext(AddressContext);
 
   const deliveryConfig = DELIVERY_METHOD_CONFIG[deliveryMethod] ?? DELIVERY_METHOD_CONFIG.delivery;
@@ -144,7 +142,7 @@ const OrderSummaryStep = () => {
                 <Chip label="Dès que possible" size="small" color="primary" />
               ) : deliveryDate && deliveryHour ? (
                 <>
-                  <Typography variant="body2">{formatDeliveryDate(deliveryDate)} à {deliveryHour}</Typography>
+                  <Typography variant="body2">{formatDeliveryDate(nextDay ? addDays(deliveryDate, 1) : deliveryDate)} à {deliveryHour}</Typography>
                   {/*<Typography variant="body2" color="text.secondary">à {deliveryHour}</Typography>*/}
                 </>
               ) : (
@@ -187,6 +185,7 @@ const OrderSummaryStep = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CreditCard sx={{ mr: 1 }} />
                         Paiement par carte bancaire
+                        <Chip label="Sécurisé par Stripe" size="small" sx={{ ml: 1 }} />
                       </Box>
                     }
                   />
@@ -205,75 +204,6 @@ const OrderSummaryStep = () => {
             )}
           />
 
-          {paymentMode === 'card' && (
-            <Box sx={{ mt: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Controller
-                    name="cardNumber"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Numéro de carte"
-                        placeholder="1234 5678 9012 3456"
-                        error={!!errors.cardNumber}
-                        helperText={errors.cardNumber?.message}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Controller
-                    name="cardExpiry"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Date d'expiration"
-                        placeholder="MM/AA"
-                        error={!!errors.cardExpiry}
-                        helperText={errors.cardExpiry?.message}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Controller
-                    name="cardCvv"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="CVV"
-                        placeholder="123"
-                        error={!!errors.cardCvv}
-                        helperText={errors.cardCvv?.message}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Controller
-                    name="cardName"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Nom sur la carte"
-                        error={!!errors.cardName}
-                        helperText={errors.cardName?.message}
-                      />
-                    )}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
-          )}
         </CardContent>
       </Card>
     </Box>
